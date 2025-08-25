@@ -5,7 +5,7 @@ import { jsonEq, buildOrderBy, projectProps } from "../../lib/jsonb"
 import { runSerialize } from "../../lib/processors"
 import { zodFromFields } from "../../lib/zod-from-fields"
 import { and, eq, sql } from "drizzle-orm"
-import { dirUsers, dirJobs } from "../../db/schema"
+import { dirUsers } from "../../db/schema"
 import { mockRequireAuthMiddleware } from "../../middleware/auth"
 
 const app = new Hono()
@@ -13,7 +13,6 @@ const app = new Hono()
 // 目录到表的映射
 const tableOf: Record<string, any> = {
   users: dirUsers,
-  jobs: dirJobs,
 }
 
 function tableFor(dir: string) {

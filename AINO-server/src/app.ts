@@ -8,9 +8,6 @@ import directoriesRoute from "./modules/directories/routes"
 
 import fieldCategoriesRoute from "./modules/field-categories/routes"
 import recordsRoute from "./modules/records/routes"
-import testRoute from "./modules/records/test-routes"
-import simpleTestRoute from "./modules/records/simple-test"
-import testMetaRoute from "./modules/records/test-meta"
 import { docsRoute } from "./docs/routes"
 
 const app = new Hono()
@@ -49,15 +46,6 @@ app.route("/api/field-categories", fieldCategoriesRoute)
 
 // 动态记录管理路由
 app.route("/api/records", recordsRoute)
-
-// 测试路由
-app.route("/api/test", testRoute)
-
-// 简单测试路由
-app.route("/api/simple", simpleTestRoute)
-
-// Meta测试路由
-app.route("/api/test-meta", testMetaRoute)
 
 // API 文档路由
 app.route("/docs", docsRoute)

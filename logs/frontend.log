@@ -11,3 +11,6 @@
  ○ Compiling / ...
  ✓ Compiled / in 1084ms (1081 modules)
  GET / 200 in 1291ms
+ ○ Compiling /app/[appId] ...
+ ✓ Compiled /app/[appId] in 1277ms (2260 modules)
+ GET /app/eb7afc73-4727-45e8-a1b2-83bd56cb2cf9 200 in 1952ms

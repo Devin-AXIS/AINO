@@ -161,25 +161,6 @@ export const dirUsers = pgTable("dir_users", {
 })
 
 // 动态字段系统 - 示例动态表：工作数据
-export const dirJobs = pgTable("dir_jobs", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  tenantId: uuid("tenant_id").notNull(), // 对应 applicationId
-  version: integer("version").notNull().default(1),
-  props: jsonb("props").notNull().$type<Record<string, any>>().default({}),
-  createdBy: uuid("created_by"),
-  updatedBy: uuid("updated_by"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  deletedAt: timestamp("deleted_at", { withTimezone: true }),
-})
 
-// 动态字段系统 - 字段索引表（可选）
-export const fieldIndexes = pgTable("field_indexes", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  dirSlug: text("dir_slug").notNull(),
-  recordId: uuid("record_id").notNull(),
-  fieldKey: text("field_key").notNull(),
-  searchValue: text("search_value"),
-  numericValue: integer("numeric_value"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-})
+
+
