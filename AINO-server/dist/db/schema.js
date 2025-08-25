@@ -26,16 +26,6 @@ export const users = pgTable("users", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
-export const applicationMembers = pgTable("application_members", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    applicationId: uuid("application_id").notNull().references(() => applications.id, { onDelete: "cascade" }),
-    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-    role: text("role").default("member").notNull(),
-    permissions: jsonb("permissions").default({}),
-    joinedAt: timestamp("joined_at").defaultNow().notNull(),
-    invitedBy: uuid("invited_by").references(() => users.id),
-    status: text("status").default("active").notNull(),
-});
 export const modules = pgTable("modules", {
     id: uuid("id").primaryKey().defaultRandom(),
     applicationId: uuid("application_id").notNull().references(() => applications.id, { onDelete: "cascade" }),
@@ -61,21 +51,16 @@ export const directories = pgTable("directories", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
-export const fields = pgTable("fields", {
+export const fieldCategories = pgTable("field_categories", {
     id: uuid("id").primaryKey().defaultRandom(),
     applicationId: uuid("application_id").notNull().references(() => applications.id, { onDelete: "cascade" }),
     directoryId: uuid("directory_id").notNull().references(() => directories.id, { onDelete: "cascade" }),
-    key: text("key").notNull(),
-    label: text("label").notNull(),
-    type: text("type").notNull(),
-    required: boolean("required").default(false),
-    locked: boolean("locked").default(false),
-    enabled: boolean("enabled").default(true),
-    showInList: boolean("show_in_list").default(true),
-    showInForm: boolean("show_in_form").default(true),
-    showInDetail: boolean("show_in_detail").default(true),
-    config: jsonb("config").default({}),
+    name: text("name").notNull(),
+    description: text("description"),
     order: integer("order").default(0),
+    enabled: boolean("enabled").default(true),
+    system: boolean("system").default(false),
+    predefinedFields: jsonb("predefined_fields").default([]),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

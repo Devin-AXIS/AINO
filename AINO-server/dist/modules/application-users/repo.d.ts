@@ -9,8 +9,8 @@ export declare function createApplicationUser(applicationId: string, data: TCrea
     avatar: string | null;
     lastLoginAt: Date | null;
     applicationId: string;
-    role: string;
     phone: string | null;
+    role: string;
     department: string | null;
     position: string | null;
     tags: string[] | null;
@@ -85,8 +85,8 @@ export declare function deleteApplicationUser(applicationId: string, userId: str
     avatar: string | null;
     lastLoginAt: Date | null;
     applicationId: string;
-    role: string;
     phone: string | null;
+    role: string;
     department: string | null;
     position: string | null;
     tags: string[] | null;

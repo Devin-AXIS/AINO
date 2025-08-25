@@ -19,3 +19,27 @@
  GET /app/d5686733-5b05-4b71-a375-f87dac4fbfca 200 in 152ms
  GET / 200 in 8ms
  GET /app/eb7afc73-4727-45e8-a1b2-83bd56cb2cf9 200 in 7ms
+ ✓ Compiled in 650ms (2274 modules)
+ GET /app/eb7afc73-4727-45e8-a1b2-83bd56cb2cf9 200 in 75ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⨯ ReferenceError: fieldsApi is not defined
+    at eval (lib/api.ts:401:10)
+    at (ssr)/./lib/api.ts (.next/server/app/app/[appId]/page.js:1410:1)
+    at __webpack_require__ (.next/server/webpack-runtime.js:33:42)
+    at eval (webpack-internal:///(ssr)/./hooks/use-auth.tsx:10:66)
+    at (ssr)/./hooks/use-auth.tsx (.next/server/app/app/[appId]/page.js:1355:1)
+    at Object.__webpack_require__ [as require] (.next/server/webpack-runtime.js:33:42)
+  399 |   directories: directoriesApi,
+  400 |   fieldCategories: fieldCategoriesApi,
+> 401 |   fields: fieldsApi,
+      |          ^
+  402 | }
+  403 | {
+  digest: '3135842279'
+}
+ GET /app/eb7afc73-4727-45e8-a1b2-83bd56cb2cf9 500 in 221ms
+ ✓ Compiled in 262ms (2274 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /app/eb7afc73-4727-45e8-a1b2-83bd56cb2cf9 200 in 233ms
+ GET /app/eb7afc73-4727-45e8-a1b2-83bd56cb2cf9 200 in 153ms
+ GET /app/eb7afc73-4727-45e8-a1b2-83bd56cb2cf9 200 in 125ms

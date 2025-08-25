@@ -16,6 +16,7 @@ export declare class ApplicationService {
         updatedAt: Date;
     }>;
     private createSystemModules;
+    private createDefaultDirectories;
     getApplications(query: GetApplicationsQuery, userId: string): Promise<{
         applications: {
             id: string;

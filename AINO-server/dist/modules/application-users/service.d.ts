@@ -10,8 +10,8 @@ export declare class ApplicationUserService {
         avatar: string | null;
         lastLoginAt: Date | null;
         applicationId: string;
-        role: string;
         phone: string | null;
+        role: string;
         department: string | null;
         position: string | null;
         tags: string[] | null;
@@ -86,8 +86,8 @@ export declare class ApplicationUserService {
         avatar: string | null;
         lastLoginAt: Date | null;
         applicationId: string;
-        role: string;
         phone: string | null;
+        role: string;
         department: string | null;
         position: string | null;
         tags: string[] | null;
@@ -151,8 +151,8 @@ export declare class ApplicationUserService {
             avatar: string | null;
             lastLoginAt: Date | null;
             applicationId: string;
-            role: string;
             phone: string | null;
+            role: string;
             department: string | null;
             position: string | null;
             tags: string[] | null;

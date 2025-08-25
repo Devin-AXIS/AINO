@@ -260,6 +260,64 @@ export declare const DirectoriesListResponse: z.ZodObject<{
         totalPages: z.ZodNumber;
     }, z.core.$strip>;
 }, z.core.$strip>;
+export declare const CreateFieldCategoryRequest: z.ZodObject<{
+    name: z.ZodString;
+    description: z.ZodOptional<z.ZodString>;
+    order: z.ZodDefault<z.ZodNumber>;
+    enabled: z.ZodDefault<z.ZodBoolean>;
+    system: z.ZodDefault<z.ZodBoolean>;
+    predefinedFields: z.ZodDefault<z.ZodArray<z.ZodAny>>;
+}, z.core.$strip>;
+export declare const UpdateFieldCategoryRequest: z.ZodObject<{
+    name: z.ZodOptional<z.ZodString>;
+    description: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+    order: z.ZodOptional<z.ZodDefault<z.ZodNumber>>;
+    enabled: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
+    system: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
+    predefinedFields: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodAny>>>;
+}, z.core.$strip>;
+export declare const GetFieldCategoriesQuery: z.ZodObject<{
+    applicationId: z.ZodOptional<z.ZodString>;
+    directoryId: z.ZodOptional<z.ZodString>;
+    enabled: z.ZodOptional<z.ZodBoolean>;
+    system: z.ZodOptional<z.ZodBoolean>;
+    page: z.ZodDefault<z.ZodCoercedNumber<unknown>>;
+    limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>;
+}, z.core.$strip>;
+export declare const FieldCategoryResponse: z.ZodObject<{
+    id: z.ZodString;
+    applicationId: z.ZodString;
+    directoryId: z.ZodString;
+    name: z.ZodString;
+    description: z.ZodNullable<z.ZodString>;
+    order: z.ZodNumber;
+    enabled: z.ZodBoolean;
+    system: z.ZodBoolean;
+    predefinedFields: z.ZodArray<z.ZodAny>;
+    createdAt: z.ZodString;
+    updatedAt: z.ZodString;
+}, z.core.$strip>;
+export declare const FieldCategoriesListResponse: z.ZodObject<{
+    categories: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        applicationId: z.ZodString;
+        directoryId: z.ZodString;
+        name: z.ZodString;
+        description: z.ZodNullable<z.ZodString>;
+        order: z.ZodNumber;
+        enabled: z.ZodBoolean;
+        system: z.ZodBoolean;
+        predefinedFields: z.ZodArray<z.ZodAny>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodString;
+    }, z.core.$strip>>;
+    pagination: z.ZodObject<{
+        page: z.ZodNumber;
+        limit: z.ZodNumber;
+        total: z.ZodNumber;
+        totalPages: z.ZodNumber;
+    }, z.core.$strip>;
+}, z.core.$strip>;
 export declare const apiRoutes: {
     health: {
         method: "get";
@@ -271,8 +329,10 @@ export declare const apiRoutes: {
             200: {
                 description: string;
                 content: {
-                    'text/plain': {
-                        schema: z.ZodString;
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            status: z.ZodString;
+                        }, z.core.$strip>;
                     };
                 };
             };
@@ -1613,6 +1673,442 @@ export declare const apiRoutes: {
         };
     };
     deleteDirectory: {
+        method: "delete";
+        path: string;
+        tags: string[];
+        summary: string;
+        description: string;
+        request: {
+            params: z.ZodObject<{
+                id: z.ZodString;
+            }, z.core.$strip>;
+        };
+        responses: {
+            200: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            message: z.ZodString;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            400: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            401: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            403: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            404: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+        };
+    };
+    getFieldCategories: {
+        method: "get";
+        path: string;
+        tags: string[];
+        summary: string;
+        description: string;
+        request: {
+            query: z.ZodObject<{
+                applicationId: z.ZodOptional<z.ZodString>;
+                directoryId: z.ZodOptional<z.ZodString>;
+                enabled: z.ZodOptional<z.ZodBoolean>;
+                system: z.ZodOptional<z.ZodBoolean>;
+                page: z.ZodDefault<z.ZodCoercedNumber<unknown>>;
+                limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>;
+            }, z.core.$strip>;
+        };
+        responses: {
+            200: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            data: z.ZodObject<{
+                                categories: z.ZodArray<z.ZodObject<{
+                                    id: z.ZodString;
+                                    applicationId: z.ZodString;
+                                    directoryId: z.ZodString;
+                                    name: z.ZodString;
+                                    description: z.ZodNullable<z.ZodString>;
+                                    order: z.ZodNumber;
+                                    enabled: z.ZodBoolean;
+                                    system: z.ZodBoolean;
+                                    predefinedFields: z.ZodArray<z.ZodAny>;
+                                    createdAt: z.ZodString;
+                                    updatedAt: z.ZodString;
+                                }, z.core.$strip>>;
+                                pagination: z.ZodObject<{
+                                    page: z.ZodNumber;
+                                    limit: z.ZodNumber;
+                                    total: z.ZodNumber;
+                                    totalPages: z.ZodNumber;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            400: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            401: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            403: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+        };
+    };
+    createFieldCategory: {
+        method: "post";
+        path: string;
+        tags: string[];
+        summary: string;
+        description: string;
+        request: {
+            query: z.ZodObject<{
+                applicationId: z.ZodString;
+                directoryId: z.ZodString;
+            }, z.core.$strip>;
+            body: {
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            name: z.ZodString;
+                            description: z.ZodOptional<z.ZodString>;
+                            order: z.ZodDefault<z.ZodNumber>;
+                            enabled: z.ZodDefault<z.ZodBoolean>;
+                            system: z.ZodDefault<z.ZodBoolean>;
+                            predefinedFields: z.ZodDefault<z.ZodArray<z.ZodAny>>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+        };
+        responses: {
+            201: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            data: z.ZodObject<{
+                                id: z.ZodString;
+                                applicationId: z.ZodString;
+                                directoryId: z.ZodString;
+                                name: z.ZodString;
+                                description: z.ZodNullable<z.ZodString>;
+                                order: z.ZodNumber;
+                                enabled: z.ZodBoolean;
+                                system: z.ZodBoolean;
+                                predefinedFields: z.ZodArray<z.ZodAny>;
+                                createdAt: z.ZodString;
+                                updatedAt: z.ZodString;
+                            }, z.core.$strip>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            400: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            401: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            403: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+        };
+    };
+    getFieldCategory: {
+        method: "get";
+        path: string;
+        tags: string[];
+        summary: string;
+        description: string;
+        request: {
+            params: z.ZodObject<{
+                id: z.ZodString;
+            }, z.core.$strip>;
+        };
+        responses: {
+            200: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            data: z.ZodObject<{
+                                id: z.ZodString;
+                                applicationId: z.ZodString;
+                                directoryId: z.ZodString;
+                                name: z.ZodString;
+                                description: z.ZodNullable<z.ZodString>;
+                                order: z.ZodNumber;
+                                enabled: z.ZodBoolean;
+                                system: z.ZodBoolean;
+                                predefinedFields: z.ZodArray<z.ZodAny>;
+                                createdAt: z.ZodString;
+                                updatedAt: z.ZodString;
+                            }, z.core.$strip>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            400: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            401: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            404: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+        };
+    };
+    updateFieldCategory: {
+        method: "put";
+        path: string;
+        tags: string[];
+        summary: string;
+        description: string;
+        request: {
+            params: z.ZodObject<{
+                id: z.ZodString;
+            }, z.core.$strip>;
+            body: {
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            name: z.ZodOptional<z.ZodString>;
+                            description: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+                            order: z.ZodOptional<z.ZodDefault<z.ZodNumber>>;
+                            enabled: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
+                            system: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
+                            predefinedFields: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodAny>>>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+        };
+        responses: {
+            200: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            data: z.ZodObject<{
+                                id: z.ZodString;
+                                applicationId: z.ZodString;
+                                directoryId: z.ZodString;
+                                name: z.ZodString;
+                                description: z.ZodNullable<z.ZodString>;
+                                order: z.ZodNumber;
+                                enabled: z.ZodBoolean;
+                                system: z.ZodBoolean;
+                                predefinedFields: z.ZodArray<z.ZodAny>;
+                                createdAt: z.ZodString;
+                                updatedAt: z.ZodString;
+                            }, z.core.$strip>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            400: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            401: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            403: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+            404: {
+                description: string;
+                content: {
+                    'application/json': {
+                        schema: z.ZodObject<{
+                            success: z.ZodBoolean;
+                            code: z.ZodOptional<z.ZodString>;
+                            message: z.ZodString;
+                            detail: z.ZodOptional<z.ZodAny>;
+                        }, z.core.$strip>;
+                    };
+                };
+            };
+        };
+    };
+    deleteFieldCategory: {
         method: "delete";
         path: string;
         tags: string[];

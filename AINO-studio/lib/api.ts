@@ -390,91 +390,7 @@ export const fieldCategoriesApi = {
   }
 }
 
-// 字段相关 API
-export const fieldsApi = {
-  // 获取字段列表
-  async getFields(params: {
-    applicationId: string
-    directoryId?: string
-    categoryId?: string
-    enabled?: boolean
-    page?: number
-    limit?: number
-  }): Promise<ApiResponse<any>> {
-    const searchParams = new URLSearchParams()
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined) {
-        searchParams.append(key, value.toString())
-      }
-    })
-    
-    const queryString = searchParams.toString()
-    const endpoint = `/api/fields${queryString ? `?${queryString}` : ''}`
-    
-    return apiRequest<any>(endpoint)
-  },
 
-  // 创建字段
-  async createField(data: {
-    key: string
-    label: string
-    type: string
-    required?: boolean
-    unique?: boolean
-    locked?: boolean
-    enabled?: boolean
-    categoryId?: string
-    [key: string]: any
-  }, params: {
-    applicationId: string
-    directoryId: string
-  }): Promise<ApiResponse<any>> {
-    const searchParams = new URLSearchParams()
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined) {
-        searchParams.append(key, value.toString())
-      }
-    })
-    
-    const queryString = searchParams.toString()
-    const endpoint = `/api/fields${queryString ? `?${queryString}` : ''}`
-    
-    return apiRequest<any>(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  },
-
-  // 更新字段
-  async updateField(id: string, data: Partial<{
-    key: string
-    label: string
-    type: string
-    required: boolean
-    unique: boolean
-    locked: boolean
-    enabled: boolean
-    categoryId: string
-    [key: string]: any
-  }>): Promise<ApiResponse<any>> {
-    return apiRequest<any>(`/api/fields/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    })
-  },
-
-  // 删除字段
-  async deleteField(id: string): Promise<ApiResponse<{ success: boolean }>> {
-    return apiRequest<{ success: boolean }>(`/api/fields/${id}`, {
-      method: 'DELETE',
-    })
-  },
-
-  // 获取字段详情
-  async getField(id: string): Promise<ApiResponse<any>> {
-    return apiRequest<any>(`/api/fields/${id}`)
-  }
-}
 
 // 导出默认 API 对象
 export const api = {
@@ -482,5 +398,4 @@ export const api = {
   applications: applicationsApi,
   directories: directoriesApi,
   fieldCategories: fieldCategoriesApi,
-  fields: fieldsApi,
 }

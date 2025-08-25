@@ -5,6 +5,7 @@ import applicationsRoute from "./modules/applications/routes";
 import modulesRoute from "./modules/modules/routes";
 import applicationUsersRoute from "./modules/application-users/routes";
 import directoriesRoute from "./modules/directories/routes";
+import fieldCategoriesRoute from "./modules/field-categories/routes";
 import { docsRoute } from "./docs/routes";
 const app = new Hono();
 app.use("*", cors({
@@ -22,6 +23,7 @@ app.route("/applications", applicationsRoute);
 app.route("/api/modules", modulesRoute);
 app.route("/api/application-users", applicationUsersRoute);
 app.route("/api/directories", directoriesRoute);
+app.route("/api/field-categories", fieldCategoriesRoute);
 app.route("/docs", docsRoute);
 app.all("/api/*", (c) => c.json({ success: false, code: "NOT_FOUND", message: "Not Found" }, 404));
 export default app;

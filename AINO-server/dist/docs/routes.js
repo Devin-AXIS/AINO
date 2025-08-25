@@ -436,6 +436,114 @@ openApiApp.openapi(apiRoutes.deleteDirectory, (c) => {
         message: `目录 ${id} 删除成功`,
     });
 });
+openApiApp.openapi(apiRoutes.getFieldCategories, (c) => {
+    const query = c.req.valid('query');
+    return c.json({
+        success: true,
+        data: {
+            categories: [
+                {
+                    id: 'cat-1',
+                    applicationId: query.applicationId || 'app-1',
+                    directoryId: query.directoryId || 'dir-1',
+                    name: '基本信息',
+                    description: '用户基本信息字段',
+                    order: 0,
+                    enabled: true,
+                    system: false,
+                    predefinedFields: [],
+                    createdAt: '2024-01-01T00:00:00Z',
+                    updatedAt: '2024-01-01T00:00:00Z',
+                },
+                {
+                    id: 'cat-2',
+                    applicationId: query.applicationId || 'app-1',
+                    directoryId: query.directoryId || 'dir-1',
+                    name: '联系方式',
+                    description: '用户联系方式字段',
+                    order: 1,
+                    enabled: true,
+                    system: false,
+                    predefinedFields: [],
+                    createdAt: '2024-01-01T00:00:00Z',
+                    updatedAt: '2024-01-01T00:00:00Z',
+                },
+            ],
+            pagination: {
+                page: 1,
+                limit: 20,
+                total: 2,
+                totalPages: 1,
+            },
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.createFieldCategory, (c) => {
+    const data = c.req.valid('json');
+    const query = c.req.valid('query');
+    return c.json({
+        success: true,
+        data: {
+            id: 'cat-new',
+            applicationId: query.applicationId,
+            directoryId: query.directoryId,
+            name: data.name,
+            description: data.description,
+            order: data.order || 0,
+            enabled: data.enabled !== undefined ? data.enabled : true,
+            system: data.system || false,
+            predefinedFields: data.predefinedFields || [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        },
+    }, 201);
+});
+openApiApp.openapi(apiRoutes.getFieldCategory, (c) => {
+    const { id } = c.req.valid('param');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            applicationId: 'app-1',
+            directoryId: 'dir-1',
+            name: '基本信息',
+            description: '用户基本信息字段',
+            order: 0,
+            enabled: true,
+            system: false,
+            predefinedFields: [],
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.updateFieldCategory, (c) => {
+    const { id } = c.req.valid('param');
+    const data = c.req.valid('json');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            applicationId: 'app-1',
+            directoryId: 'dir-1',
+            name: data.name || '基本信息',
+            description: data.description || '用户基本信息字段',
+            order: data.order !== undefined ? data.order : 0,
+            enabled: data.enabled !== undefined ? data.enabled : true,
+            system: data.system || false,
+            predefinedFields: data.predefinedFields || [],
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: new Date().toISOString(),
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.deleteFieldCategory, (c) => {
+    const { id } = c.req.valid('param');
+    return c.json({
+        success: true,
+        message: `字段分类 ${id} 删除成功`,
+    });
+});
 const openApiDoc = openApiApp.getOpenAPIDocument(openApiConfig);
 export const docsRoute = new OpenAPIHono();
 docsRoute.get('/swagger', swaggerUI({ url: '/docs/openapi.json' }));

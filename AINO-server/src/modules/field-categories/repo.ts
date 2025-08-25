@@ -1,5 +1,5 @@
 import { db } from "../../db"
-import { fieldCategories, applications, fields } from "../../db/schema"
+import { fieldCategories, applications } from "../../db/schema"
 import { eq, and, desc, asc, count, sql } from "drizzle-orm"
 import type {
   CreateFieldCategoryRequest,
@@ -129,13 +129,9 @@ export class FieldCategoriesRepository {
     return !!result
   }
 
-  async getFieldsCountInCategory(categoryId: string): Promise<number> {
-    const [{ value: fieldsCount }] = await db
-      .select({ value: count() })
-      .from(fields)
-      .where(eq(fields.categoryId, categoryId))
-
-    return fieldsCount
+    async getFieldsCountInCategory(categoryId: string): Promise<number> {
+    // 字段表已删除，返回0
+    return 0
   }
 
   // 查找应用信息

@@ -18,6 +18,7 @@ export const openApiConfig = {
         { name: '应用用户', description: '应用内用户管理相关接口' },
         { name: '应用模块', description: '应用模块管理相关接口' },
         { name: '目录管理', description: '目录管理相关接口' },
+        { name: '字段分类', description: '字段分类管理相关接口' },
         { name: '健康检查', description: '系统健康检查' },
     ],
 };
@@ -201,19 +202,60 @@ export const DirectoriesListResponse = z.object({
         totalPages: z.number(),
     }),
 });
+export const CreateFieldCategoryRequest = z.object({
+    name: z.string().min(1, "分类名称不能为空").max(128, "分类名称不能超过128个字符"),
+    description: z.string().optional(),
+    order: z.number().int().min(0).default(0),
+    enabled: z.boolean().default(true),
+    system: z.boolean().default(false),
+    predefinedFields: z.array(z.any()).default([]),
+});
+export const UpdateFieldCategoryRequest = CreateFieldCategoryRequest.partial();
+export const GetFieldCategoriesQuery = z.object({
+    applicationId: z.string().optional(),
+    directoryId: z.string().optional(),
+    enabled: z.boolean().optional(),
+    system: z.boolean().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+export const FieldCategoryResponse = z.object({
+    id: z.string(),
+    applicationId: z.string(),
+    directoryId: z.string(),
+    name: z.string(),
+    description: z.string().nullable(),
+    order: z.number(),
+    enabled: z.boolean(),
+    system: z.boolean(),
+    predefinedFields: z.array(z.any()),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+});
+export const FieldCategoriesListResponse = z.object({
+    categories: z.array(FieldCategoryResponse),
+    pagination: z.object({
+        page: z.number(),
+        limit: z.number(),
+        total: z.number(),
+        totalPages: z.number(),
+    }),
+});
 export const apiRoutes = {
     health: {
         method: 'get',
         path: '/health',
         tags: ['健康检查'],
         summary: '健康检查',
-        description: '检查服务是否正常运行',
+        description: '检查系统健康状态',
         responses: {
             200: {
-                description: '服务正常',
+                description: '系统健康',
                 content: {
-                    'text/plain': {
-                        schema: z.string(),
+                    'application/json': {
+                        schema: z.object({
+                            status: z.string(),
+                        }),
                     },
                 },
             },
@@ -1165,6 +1207,317 @@ export const apiRoutes = {
             },
             404: {
                 description: '目录不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getFieldCategories: {
+        method: 'get',
+        path: '/field-categories',
+        tags: ['字段分类'],
+        summary: '获取字段分类列表',
+        description: '获取字段分类列表，支持分页、过滤等功能',
+        request: {
+            query: GetFieldCategoriesQuery.openapi({
+                param: {
+                    name: 'query',
+                    in: 'query',
+                },
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: FieldCategoriesListResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限访问该应用',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    createFieldCategory: {
+        method: 'post',
+        path: '/field-categories',
+        tags: ['字段分类'],
+        summary: '创建字段分类',
+        description: '创建新的字段分类',
+        request: {
+            query: z.object({
+                applicationId: z.string().openapi({
+                    param: {
+                        name: 'applicationId',
+                        in: 'query',
+                        description: '应用ID',
+                        required: true,
+                    },
+                }),
+                directoryId: z.string().openapi({
+                    param: {
+                        name: 'directoryId',
+                        in: 'query',
+                        description: '目录ID',
+                        required: true,
+                    },
+                }),
+            }),
+            body: {
+                content: {
+                    'application/json': {
+                        schema: CreateFieldCategoryRequest,
+                    },
+                },
+            },
+        },
+        responses: {
+            201: {
+                description: '创建成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: FieldCategoryResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限访问该应用',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getFieldCategory: {
+        method: 'get',
+        path: '/field-categories/{id}',
+        tags: ['字段分类'],
+        summary: '获取字段分类详情',
+        description: '根据ID获取字段分类详细信息',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '字段分类ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: FieldCategoryResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '字段分类不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    updateFieldCategory: {
+        method: 'put',
+        path: '/field-categories/{id}',
+        tags: ['字段分类'],
+        summary: '更新字段分类',
+        description: '更新字段分类信息',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '字段分类ID',
+                    },
+                }),
+            }),
+            body: {
+                content: {
+                    'application/json': {
+                        schema: UpdateFieldCategoryRequest,
+                    },
+                },
+            },
+        },
+        responses: {
+            200: {
+                description: '更新成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: FieldCategoryResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限修改该字段分类',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '字段分类不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    deleteFieldCategory: {
+        method: 'delete',
+        path: '/field-categories/{id}',
+        tags: ['字段分类'],
+        summary: '删除字段分类',
+        description: '删除字段分类并返回删除结果',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '字段分类ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '删除成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            message: z.string(),
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '删除失败',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限删除该字段分类',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '字段分类不存在',
                 content: {
                     'application/json': {
                         schema: ErrorResponse,

@@ -5,7 +5,7 @@ import applicationsRoute from "./modules/applications/routes"
 import modulesRoute from "./modules/modules/routes"
 import applicationUsersRoute from "./modules/application-users/routes"
 import directoriesRoute from "./modules/directories/routes"
-import { fields } from "./modules/fields/routes"
+
 import fieldCategoriesRoute from "./modules/field-categories/routes"
 import { docsRoute } from "./docs/routes"
 
@@ -38,8 +38,7 @@ app.route("/api/application-users", applicationUsersRoute)
 // 目录管理路由
 app.route("/api/directories", directoriesRoute)
 
-// 字段管理路由
-app.route("/api/fields", fields)
+
 
 // 字段分类管理路由
 app.route("/api/field-categories", fieldCategoriesRoute)

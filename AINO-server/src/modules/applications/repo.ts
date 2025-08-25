@@ -1,5 +1,5 @@
 import { db } from "@/db"
-import { applications, applicationMembers, modules, directories, fields, users } from "@/db/schema"
+import { applications, applicationMembers, modules, directories, users } from "@/db/schema"
 import { eq, and, like, desc, asc, count, sql } from "drizzle-orm"
 import type { CreateApplicationRequest, UpdateApplicationRequest, GetApplicationsQuery } from "./dto"
 
@@ -183,7 +183,7 @@ export class ApplicationRepository {
             createdAt: directories.createdAt,
             updatedAt: directories.updatedAt,
             _count: {
-              fields: sql<number>`(SELECT COUNT(*) FROM ${fields} WHERE ${fields.directoryId} = ${directories.id})`,
+              fields: sql<number>`0`, // 字段表已删除
             },
           })
           .from(directories)
