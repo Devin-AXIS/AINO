@@ -1,0 +1,80 @@
+// src/utils/jwt/types.ts
+var JwtAlgorithmNotImplemented = class extends Error {
+  constructor(alg) {
+    super(`${alg} is not an implemented algorithm`);
+    this.name = "JwtAlgorithmNotImplemented";
+  }
+};
+var JwtTokenInvalid = class extends Error {
+  constructor(token) {
+    super(`invalid JWT token: ${token}`);
+    this.name = "JwtTokenInvalid";
+  }
+};
+var JwtTokenNotBefore = class extends Error {
+  constructor(token) {
+    super(`token (${token}) is being used before it's valid`);
+    this.name = "JwtTokenNotBefore";
+  }
+};
+var JwtTokenExpired = class extends Error {
+  constructor(token) {
+    super(`token (${token}) expired`);
+    this.name = "JwtTokenExpired";
+  }
+};
+var JwtTokenIssuedAt = class extends Error {
+  constructor(currentTimestamp, iat) {
+    super(
+      `Invalid "iat" claim, must be a valid number lower than "${currentTimestamp}" (iat: "${iat}")`
+    );
+    this.name = "JwtTokenIssuedAt";
+  }
+};
+var JwtTokenIssuer = class extends Error {
+  constructor(expected, iss) {
+    super(`expected issuer "${expected}", got ${iss ? `"${iss}"` : "none"} `);
+    this.name = "JwtTokenIssuer";
+  }
+};
+var JwtHeaderInvalid = class extends Error {
+  constructor(header) {
+    super(`jwt header is invalid: ${JSON.stringify(header)}`);
+    this.name = "JwtHeaderInvalid";
+  }
+};
+var JwtHeaderRequiresKid = class extends Error {
+  constructor(header) {
+    super(`required "kid" in jwt header: ${JSON.stringify(header)}`);
+    this.name = "JwtHeaderRequiresKid";
+  }
+};
+var JwtTokenSignatureMismatched = class extends Error {
+  constructor(token) {
+    super(`token(${token}) signature mismatched`);
+    this.name = "JwtTokenSignatureMismatched";
+  }
+};
+var CryptoKeyUsage = /* @__PURE__ */ ((CryptoKeyUsage2) => {
+  CryptoKeyUsage2["Encrypt"] = "encrypt";
+  CryptoKeyUsage2["Decrypt"] = "decrypt";
+  CryptoKeyUsage2["Sign"] = "sign";
+  CryptoKeyUsage2["Verify"] = "verify";
+  CryptoKeyUsage2["DeriveKey"] = "deriveKey";
+  CryptoKeyUsage2["DeriveBits"] = "deriveBits";
+  CryptoKeyUsage2["WrapKey"] = "wrapKey";
+  CryptoKeyUsage2["UnwrapKey"] = "unwrapKey";
+  return CryptoKeyUsage2;
+})(CryptoKeyUsage || {});
+export {
+  CryptoKeyUsage,
+  JwtAlgorithmNotImplemented,
+  JwtHeaderInvalid,
+  JwtHeaderRequiresKid,
+  JwtTokenExpired,
+  JwtTokenInvalid,
+  JwtTokenIssuedAt,
+  JwtTokenIssuer,
+  JwtTokenNotBefore,
+  JwtTokenSignatureMismatched
+};
