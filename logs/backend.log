@@ -1,0 +1,12 @@
+
+> server@1.0.0 dev /Users/devin/Documents/AINO/AINO-server
+> tsx src/server.ts
+
+🚀 AINO Server running at http://localhost:3001
+📊 Health check: http://localhost:3001/health
+🌍 Environment: development
+查询目录列表成功，共 2 个目录
+创建目录成功: a31a69ec-fe71-47da-841a-7262a6b5b1d6
+查询目录列表成功，共 3 个目录
+删除目录成功: true
+查询目录列表成功，共 2 个目录
