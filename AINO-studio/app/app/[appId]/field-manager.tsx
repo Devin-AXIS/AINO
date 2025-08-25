@@ -10,6 +10,7 @@ import type { AppModel, DirectoryModel, FieldModel, FieldType } from "@/lib/stor
 import { useLocale } from "@/hooks/use-locale"
 import { FieldEditor } from "@/components/dialogs/field-editor"
 import { FieldCategoryManager } from "@/components/dialogs/field-category-manager"
+import { AddFieldDialog } from "@/components/dialogs/add-field-dialog"
 import { DEFAULT_FIELD_CATEGORIES, type FieldCategoryModel } from "@/lib/field-categories"
 import { usePagination } from "@/hooks/use-pagination"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
@@ -121,6 +122,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   const [editing, setEditing] = useState<FieldModel | null>(null)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [categoryManagerOpen, setCategoryManagerOpen] = useState(false)
+  const [addFieldOpen, setAddFieldOpen] = useState(false)
   const [fieldCategories, setFieldCategories] = useState<FieldCategoryModel[]>(dir.fieldCategories || DEFAULT_FIELD_CATEGORIES)
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
 
@@ -242,6 +244,57 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     })
   }
 
+  function addField(fieldData: any) {
+    const newField: FieldModel = {
+      id: uid(),
+      key: fieldData.key,
+      label: fieldData.label,
+      type: fieldData.type,
+      required: fieldData.required,
+      unique: fieldData.unique,
+      locked: false,
+      enabled: true,
+      categoryId: fieldData.categoryId,
+      desc: fieldData.desc,
+      placeholder: fieldData.placeholder,
+      min: fieldData.min,
+      max: fieldData.max,
+      step: fieldData.step,
+      unit: fieldData.unit,
+      options: fieldData.options,
+      default: fieldData.default,
+      showInList: fieldData.showInList,
+      showInForm: fieldData.showInForm,
+      showInDetail: fieldData.showInDetail,
+      trueLabel: fieldData.trueLabel,
+      falseLabel: fieldData.falseLabel,
+      accept: fieldData.accept,
+      maxSizeMB: fieldData.maxSizeMB,
+      relation: fieldData.relation,
+      cascaderOptions: fieldData.cascaderOptions,
+      dateMode: fieldData.dateMode,
+      preset: fieldData.preset,
+      skillsConfig: fieldData.skillsConfig,
+      progressConfig: fieldData.progressConfig,
+      customExperienceConfig: fieldData.customExperienceConfig,
+      identityVerificationConfig: fieldData.identityVerificationConfig,
+      certificateConfig: fieldData.certificateConfig,
+      otherVerificationConfig: fieldData.otherVerificationConfig,
+      imageConfig: fieldData.imageConfig,
+      videoConfig: fieldData.videoConfig,
+      booleanConfig: fieldData.booleanConfig,
+      multiselectConfig: fieldData.multiselectConfig,
+      config: fieldData.config || {},
+      order: dir.fields.length,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    commit((d) => {
+      d.fields.push(newField)
+    })
+  }
+
   const i18n = useMemo(
     () =>
       locale === "zh"
@@ -319,6 +372,10 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
       <div className="flex items-center justify-between">
         <div className="text-sm font-medium">{t("fieldManagement")}</div>
         <div className="flex items-center gap-2">
+          <Button size="sm" onClick={() => setAddFieldOpen(true)} className="rounded-xl">
+            <Plus className="mr-1 size-4" />
+            {locale === "zh" ? "添加字段" : "Add Field"}
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setCategoryManagerOpen(true)} className="rounded-xl">
             <Settings className="mr-1 size-4" />
             {t("categoryManagement")}
@@ -514,6 +571,18 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           }}
         />
       )}
+
+      <AddFieldDialog
+        open={addFieldOpen}
+        onOpenChange={setAddFieldOpen}
+        app={app}
+        currentDir={dir}
+        onSubmit={(fieldData) => {
+          addField(fieldData)
+          setAddFieldOpen(false)
+        }}
+        i18n={i18n}
+      />
 
       <FieldCategoryManager
         open={categoryManagerOpen}
