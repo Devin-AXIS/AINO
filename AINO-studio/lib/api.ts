@@ -79,6 +79,103 @@ export interface ApplicationWithModules {
   modules: ApplicationModule[]
 }
 
+// 字段相关类型
+export interface Field {
+  id: string
+  applicationId: string
+  directoryId: string
+  categoryId?: string
+  key: string
+  label: string
+  type: string
+  required: boolean
+  unique: boolean
+  locked: boolean
+  enabled: boolean
+  desc?: string
+  placeholder?: string
+  min?: number
+  max?: number
+  step?: number
+  unit?: string
+  options?: string[]
+  default?: any
+  showInList: boolean
+  showInForm: boolean
+  showInDetail: boolean
+  trueLabel?: string
+  falseLabel?: string
+  accept?: string
+  maxSizeMB?: number
+  relation?: any
+  cascaderOptions?: any
+  dateMode?: string
+  preset?: string
+  skillsConfig?: any
+  progressConfig?: any
+  customExperienceConfig?: any
+  identityVerificationConfig?: any
+  certificateConfig?: any
+  otherVerificationConfig?: any
+  imageConfig?: any
+  videoConfig?: any
+  booleanConfig?: any
+  multiselectConfig?: any
+  order: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateFieldRequest {
+  key: string
+  label: string
+  type: string
+  required?: boolean
+  unique?: boolean
+  locked?: boolean
+  enabled?: boolean
+  desc?: string
+  placeholder?: string
+  min?: number
+  max?: number
+  step?: number
+  unit?: string
+  options?: string[]
+  default?: any
+  showInList?: boolean
+  showInForm?: boolean
+  showInDetail?: boolean
+  trueLabel?: string
+  falseLabel?: string
+  accept?: string
+  maxSizeMB?: number
+  relation?: any
+  cascaderOptions?: any
+  dateMode?: string
+  preset?: string
+  skillsConfig?: any
+  progressConfig?: any
+  customExperienceConfig?: any
+  identityVerificationConfig?: any
+  certificateConfig?: any
+  otherVerificationConfig?: any
+  imageConfig?: any
+  videoConfig?: any
+  booleanConfig?: any
+  multiselectConfig?: any
+  categoryId?: string
+}
+
+export interface UpdateFieldRequest extends Partial<CreateFieldRequest> {}
+
+export interface FieldsListResponse {
+  fields: Field[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
 // 通用 API 请求函数
 async function apiRequest<T>(
   endpoint: string,
@@ -310,9 +407,138 @@ export const directoriesApi = {
   }
 }
 
+// 字段相关 API
+export const fieldsApi = {
+  // 获取字段列表
+  async getFields(params: {
+    applicationId: string
+    directoryId?: string
+    categoryId?: string
+    type?: string
+    enabled?: boolean
+    page?: number
+    limit?: number
+  }): Promise<ApiResponse<FieldsListResponse>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString())
+      }
+    })
+    
+    const queryString = searchParams.toString()
+    const endpoint = `/api/fields${queryString ? `?${queryString}` : ''}`
+    
+    return apiRequest<FieldsListResponse>(endpoint)
+  },
+
+  // 获取目录下的所有字段
+  async getFieldsByDirectory(directoryId: string): Promise<ApiResponse<Field[]>> {
+    return apiRequest<Field[]>(`/api/fields/directory/${directoryId}`)
+  },
+
+  // 获取字段详情
+  async getField(id: string): Promise<ApiResponse<Field>> {
+    return apiRequest<Field>(`/api/fields/${id}`)
+  },
+
+  // 创建字段
+  async createField(data: CreateFieldRequest, params: {
+    applicationId: string
+    directoryId: string
+  }): Promise<ApiResponse<Field>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString())
+      }
+    })
+    
+    const queryString = searchParams.toString()
+    const endpoint = `/api/fields${queryString ? `?${queryString}` : ''}`
+    
+    return apiRequest<Field>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 更新字段
+  async updateField(id: string, data: UpdateFieldRequest): Promise<ApiResponse<Field>> {
+    return apiRequest<Field>(`/api/fields/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 删除字段
+  async deleteField(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/fields/${id}`, {
+      method: 'DELETE',
+    })
+  },
+
+  // 获取字段分类列表
+  async getFieldCategories(params: {
+    applicationId: string
+    directoryId?: string
+    page?: number
+    limit?: number
+  }): Promise<ApiResponse<any>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString())
+      }
+    })
+    
+    const queryString = searchParams.toString()
+    const endpoint = `/api/fields/categories${queryString ? `?${queryString}` : ''}`
+    
+    return apiRequest<any>(endpoint)
+  },
+
+  // 创建字段分类
+  async createFieldCategory(data: any, params: {
+    applicationId: string
+    directoryId: string
+  }): Promise<ApiResponse<any>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString())
+      }
+    })
+    
+    const queryString = searchParams.toString()
+    const endpoint = `/api/fields/categories${queryString ? `?${queryString}` : ''}`
+    
+    return apiRequest<any>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 更新字段分类
+  async updateFieldCategory(id: string, data: any): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/fields/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 删除字段分类
+  async deleteFieldCategory(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/fields/categories/${id}`, {
+      method: 'DELETE',
+    })
+  }
+}
+
 // 导出默认 API 对象
 export const api = {
   auth: authApi,
   applications: applicationsApi,
   directories: directoriesApi,
+  fields: fieldsApi,
 }
