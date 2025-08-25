@@ -469,11 +469,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
                 return (
                   <React.Fragment key={`pagination-${page}`}>
                     {shouldShowEllipsisBefore && (
-                      <span className="px-3 py-2 text-sm text-muted-foreground">
+                      <span key={`ellipsis-before-${page}`} className="px-3 py-2 text-sm text-muted-foreground">
                         ...
                       </span>
                     )}
                     <Button
+                      key={`button-${page}`}
                       variant={page === paginationInfo.currentPage ? "default" : "outline"}
                       size="sm"
                       onClick={() => goToPage(page)}
