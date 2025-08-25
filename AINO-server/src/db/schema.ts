@@ -121,6 +121,9 @@ export const directoryDefs = pgTable("directory_defs", {
   title: text("title").notNull(),
   version: integer("version").notNull().default(1),
   status: text("status").notNull().default("active"),
+  // 与现有系统的关联
+  applicationId: uuid("application_id").references(() => applications.id, { onDelete: "cascade" }),
+  directoryId: uuid("directory_id").references(() => directories.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 })
@@ -140,6 +143,8 @@ export const fieldDefs = pgTable("field_defs", {
   readRoles: jsonb("read_roles").$type<string[]>().default(["admin", "member"]),
   writeRoles: jsonb("write_roles").$type<string[]>().default(["admin"]),
   required: boolean("required").default(false),
+  // 与现有系统的关联
+  categoryId: uuid("category_id").references(() => fieldCategories.id, { onDelete: "set null" }),
 })
 
 // 动态字段系统 - 示例动态表：用户数据
