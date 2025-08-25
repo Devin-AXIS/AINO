@@ -25,7 +25,7 @@ app.get("/:dir", mockRequireAuthMiddleware, async (c) => {
   try {
     const dir = c.req.param("dir")
     const t = tableFor(dir)
-    const tenantId = c.get("user")?.id || "test-tenant" // 简化：使用用户ID作为tenantId
+    const tenantId = "f09ebe12-f517-42a2-b41a-7092438b79c3" // 使用有效的UUID
     const page = Number(c.req.query("page") ?? "1")
     const pageSize = Math.min(Number(c.req.query("pageSize") ?? "20"), 50)
     const sort = c.req.query("sort") || undefined
@@ -61,7 +61,7 @@ app.get("/:dir", mockRequireAuthMiddleware, async (c) => {
     return c.json({ success: true, data })
   } catch (error) {
     console.error("Records list error:", error)
-    return c.json({ success: false, error: error.message }, 500)
+    return c.json({ success: false, error: (error as Error).message }, 500)
   }
 })
 
@@ -71,7 +71,7 @@ app.get("/:dir/:id", mockRequireAuthMiddleware, async (c) => {
     const dir = c.req.param("dir")
     const id = c.req.param("id")
     const t = tableFor(dir)
-    const tenantId = c.get("user")?.id || "test-tenant"
+    const tenantId = "f09ebe12-f517-42a2-b41a-7092438b79c3"
 
     const row = await db
       .select()
@@ -87,7 +87,7 @@ app.get("/:dir/:id", mockRequireAuthMiddleware, async (c) => {
     })
   } catch (error) {
     console.error("Records detail error:", error)
-    return c.json({ success: false, error: error.message }, 500)
+    return c.json({ success: false, error: (error as Error).message }, 500)
   }
 })
 
@@ -96,11 +96,12 @@ app.post("/:dir", mockRequireAuthMiddleware, async (c) => {
   try {
     const dir = c.req.param("dir")
     const t = tableFor(dir)
-    const tenantId = c.get("user")?.id || "test-tenant"
+    const tenantId = "f09ebe12-f517-42a2-b41a-7092438b79c3"
     const input = await c.req.json()
 
     // 简化：直接存储props，后续添加字段验证
-    const [row] = await db.insert(t).values({ tenantId, props: input }).returning()
+    const result = await db.insert(t).values({ tenantId, props: input }).returning()
+    const row = (result as any[])[0]
     
     return c.json({
       success: true,
@@ -108,7 +109,7 @@ app.post("/:dir", mockRequireAuthMiddleware, async (c) => {
     })
   } catch (error) {
     console.error("Records create error:", error)
-    return c.json({ success: false, error: error.message }, 500)
+    return c.json({ success: false, error: (error as Error).message }, 500)
   }
 })
 
@@ -119,7 +120,7 @@ app.patch("/:dir/:id", mockRequireAuthMiddleware, async (c) => {
     const id = c.req.param("id")
     const clientVersion = Number(c.req.query("version") ?? "0")
     const t = tableFor(dir)
-    const tenantId = c.get("user")?.id || "test-tenant"
+    const tenantId = "f09ebe12-f517-42a2-b41a-7092438b79c3"
     const input = await c.req.json()
 
     const rows = await db
@@ -141,7 +142,7 @@ app.patch("/:dir/:id", mockRequireAuthMiddleware, async (c) => {
     })
   } catch (error) {
     console.error("Records update error:", error)
-    return c.json({ success: false, error: error.message }, 500)
+    return c.json({ success: false, error: (error as Error).message }, 500)
   }
 })
 
@@ -151,7 +152,7 @@ app.delete("/:dir/:id", mockRequireAuthMiddleware, async (c) => {
     const dir = c.req.param("dir")
     const id = c.req.param("id")
     const t = tableFor(dir)
-    const tenantId = c.get("user")?.id || "test-tenant"
+    const tenantId = "f09ebe12-f517-42a2-b41a-7092438b79c3"
 
     await db
       .update(t)
@@ -161,7 +162,7 @@ app.delete("/:dir/:id", mockRequireAuthMiddleware, async (c) => {
     return c.json({ success: true })
   } catch (error) {
     console.error("Records delete error:", error)
-    return c.json({ success: false, error: error.message }, 500)
+    return c.json({ success: false, error: (error as Error).message }, 500)
   }
 })
 

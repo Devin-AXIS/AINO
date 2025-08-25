@@ -93,4 +93,59 @@ export const auditLogs = pgTable("audit_logs", {
     userAgent: text("user_agent"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+export const directoryDefs = pgTable("directory_defs", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull().unique(),
+    title: text("title").notNull(),
+    version: integer("version").notNull().default(1),
+    status: text("status").notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+export const fieldDefs = pgTable("field_defs", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    directoryId: uuid("directory_id").notNull().references(() => directoryDefs.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+    kind: text("kind").notNull(),
+    type: text("type").notNull(),
+    schema: jsonb("schema"),
+    relation: jsonb("relation"),
+    lookup: jsonb("lookup"),
+    computed: jsonb("computed"),
+    validators: jsonb("validators"),
+    readRoles: jsonb("read_roles").$type().default(["admin", "member"]),
+    writeRoles: jsonb("write_roles").$type().default(["admin"]),
+    required: boolean("required").default(false),
+});
+export const dirUsers = pgTable("dir_users", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id").notNull(),
+    version: integer("version").notNull().default(1),
+    props: jsonb("props").notNull().$type().default({}),
+    createdBy: uuid("created_by"),
+    updatedBy: uuid("updated_by"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+});
+export const dirJobs = pgTable("dir_jobs", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id").notNull(),
+    version: integer("version").notNull().default(1),
+    props: jsonb("props").notNull().$type().default({}),
+    createdBy: uuid("created_by"),
+    updatedBy: uuid("updated_by"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+});
+export const fieldIndexes = pgTable("field_indexes", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dirSlug: text("dir_slug").notNull(),
+    recordId: uuid("record_id").notNull(),
+    fieldKey: text("field_key").notNull(),
+    searchValue: text("search_value"),
+    numericValue: integer("numeric_value"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
 //# sourceMappingURL=schema.js.map
