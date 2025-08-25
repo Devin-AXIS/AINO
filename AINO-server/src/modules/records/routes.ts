@@ -2,6 +2,8 @@ import { Hono } from "hono"
 import { db } from "../../db"
 import { getDirectoryMeta } from "../../lib/meta"
 import { jsonEq, buildOrderBy, projectProps } from "../../lib/jsonb"
+import { runSerialize } from "../../lib/processors"
+import { zodFromFields } from "../../lib/zod-from-fields"
 import { and, eq, sql } from "drizzle-orm"
 import { dirUsers, dirJobs } from "../../db/schema"
 import { mockRequireAuthMiddleware } from "../../middleware/auth"
@@ -99,14 +101,44 @@ app.post("/:dir", mockRequireAuthMiddleware, async (c) => {
     const tenantId = "f09ebe12-f517-42a2-b41a-7092438b79c3"
     const input = await c.req.json()
 
-    // 简化：直接存储props，后续添加字段验证
-    const result = await db.insert(t).values({ tenantId, props: input }).returning()
-    const row = (result as any[])[0]
-    
-    return c.json({
-      success: true,
-      data: { id: row.id, version: row.version, ...row.props },
-    })
+    // 获取字段定义并验证
+    let fields: any[] = []
+    try {
+      const meta = await getDirectoryMeta(dir)
+      fields = meta.fields
+      
+      // 使用Zod验证输入
+      const zod = zodFromFields(fields)
+      const clean = zod.parse(input)
+      
+      // 使用字段处理器处理数据
+      const props: Record<string, any> = {}
+      console.log('Processing fields:', fields.length)
+      for (const f of fields) {
+        if (clean[f.key] === undefined) continue
+        console.log('Processing field:', f.key, 'kind:', f.kind, 'value:', clean[f.key])
+        props[f.key] = await runSerialize(f.kind as any, clean[f.key], f, { tenantId, now: new Date() })
+        console.log('Processed result:', props[f.key])
+      }
+      
+      const result = await db.insert(t).values({ tenantId, props }).returning()
+      const row = (result as any[])[0]
+      
+      return c.json({
+        success: true,
+        data: { id: row.id, version: row.version, ...row.props },
+      })
+    } catch (metaError) {
+      // 如果获取字段定义失败，使用简化模式
+      console.warn("Failed to get field definitions, using simple mode:", metaError)
+      const result = await db.insert(t).values({ tenantId, props: input }).returning()
+      const row = (result as any[])[0]
+      
+      return c.json({
+        success: true,
+        data: { id: row.id, version: row.version, ...row.props },
+      })
+    }
   } catch (error) {
     console.error("Records create error:", error)
     return c.json({ success: false, error: (error as Error).message }, 500)

@@ -1,116 +1,66 @@
 🚀 AINO Server running at http://localhost:3001
 📊 Health check: http://localhost:3001/health
 🌍 Environment: development
-Simple test error: error: relation "dir_users" does not exist
-    at /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/pg@8.16.3/node_modules/pg/lib/client.js:545:17
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/src/modules/records/simple-test.ts:19:22)
-    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
-    at async cors2 (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/middleware/cors/index.js:106:5)
-    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
-    at async /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/hono-base.js:223:25
-    at async responseViaResponseObject (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:439:13)
-    at async Server.<anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:578:14) {
-  length: 108,
-  severity: 'ERROR',
-  code: '42P01',
-  detail: undefined,
-  hint: undefined,
-  position: '31',
-  internalPosition: undefined,
-  internalQuery: undefined,
-  where: undefined,
-  schema: undefined,
-  table: undefined,
-  column: undefined,
-  dataType: undefined,
-  constraint: undefined,
-  file: 'parse_relation.c',
-  line: '1392',
-  routine: 'parserOpenTable'
+Current database: aino
+Table check result: [ { table_name: 'dir_users' } ]
+Simple test result: [ { count: '6' } ]
+Processing fields: 6
+Processing field: name kind: primitive value: 最终测试
+Processed result: 最终测试
+Processing field: email kind: primitive value: final@example.com
+Processed result: final@example.com
+Processing field: city kind: lookup value: 杭州
+Lookup processor - input: 杭州 field: city
+Lookup processor - output: { code: '杭州', name: '杭州', source: 'china_cities' }
+Processed result: { code: '杭州', name: '杭州', source: 'china_cities' }
+Processing fields: 6
+Processing field: name kind: primitive value: 复合测试
+Processed result: 复合测试
+Processing field: email kind: primitive value: composite@example.com
+Processed result: composite@example.com
+Processing field: experience kind: composite value: [
+  {
+    company: '阿里巴巴',
+    position: '高级工程师',
+    startDate: '2021-01',
+    endDate: '2023-12',
+    description: '负责电商平台开发'
+  }
+]
+Processed result: [
+  {
+    company: '阿里巴巴',
+    position: '高级工程师',
+    startDate: '2021-01',
+    endDate: '2023-12',
+    description: '负责电商平台开发'
+  }
+]
+Processing fields: 6
+Processing field: name kind: primitive value: 关联测试
+Processed result: 关联测试
+Processing field: email kind: primitive value: relation@example.com
+Processed result: relation@example.com
+Processing field: skills kind: relation value: [ 'JavaScript', 'React', 'Node.js' ]
+Processed result: [ 'JavaScript', 'React', 'Node.js' ]
+Processing fields: 5
+Processing field: title kind: primitive value: 前端工程师
+Processed result: 前端工程师
+Processing field: company kind: primitive value: 字节跳动
+Processed result: 字节跳动
+Processing field: location kind: lookup value: 北京
+Lookup processor - input: 北京 field: location
+Lookup processor - output: { code: '北京', name: '北京', source: 'china_cities' }
+Processed result: { code: '北京', name: '北京', source: 'china_cities' }
+Processing field: salary kind: primitive value: 25000
+Processed result: 25000
+Processing field: requirements kind: composite value: {
+  experience: '3-5年',
+  education: '本科',
+  skills: [ 'JavaScript', 'React', 'Vue' ]
 }
-Simple test error: error: relation "dir_users" does not exist
-    at /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/pg@8.16.3/node_modules/pg/lib/client.js:545:17
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/src/modules/records/simple-test.ts:19:22)
-    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
-    at async cors2 (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/middleware/cors/index.js:106:5)
-    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
-    at async /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/hono-base.js:223:25
-    at async responseViaResponseObject (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:439:13)
-    at async Server.<anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:578:14) {
-  length: 108,
-  severity: 'ERROR',
-  code: '42P01',
-  detail: undefined,
-  hint: undefined,
-  position: '31',
-  internalPosition: undefined,
-  internalQuery: undefined,
-  where: undefined,
-  schema: undefined,
-  table: undefined,
-  column: undefined,
-  dataType: undefined,
-  constraint: undefined,
-  file: 'parse_relation.c',
-  line: '1392',
-  routine: 'parserOpenTable'
+Processed result: {
+  experience: '3-5年',
+  education: '本科',
+  skills: [ 'JavaScript', 'React', 'Vue' ]
 }
-Simple test error: error: relation "dir_users" does not exist
-    at /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/pg@8.16.3/node_modules/pg/lib/client.js:545:17
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/src/modules/records/simple-test.ts:19:22)
-    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
-    at async cors2 (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/middleware/cors/index.js:106:5)
-    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
-    at async /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/hono-base.js:223:25
-    at async responseViaResponseObject (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:439:13)
-    at async Server.<anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:578:14) {
-  length: 108,
-  severity: 'ERROR',
-  code: '42P01',
-  detail: undefined,
-  hint: undefined,
-  position: '31',
-  internalPosition: undefined,
-  internalQuery: undefined,
-  where: undefined,
-  schema: undefined,
-  table: undefined,
-  column: undefined,
-  dataType: undefined,
-  constraint: undefined,
-  file: 'parse_relation.c',
-  line: '1392',
-  routine: 'parserOpenTable'
-}
-Simple test error: error: relation "dir_users" does not exist
-    at /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/pg@8.16.3/node_modules/pg/lib/client.js:545:17
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/src/modules/records/simple-test.ts:19:22)
-    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
-    at async cors2 (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/middleware/cors/index.js:106:5)
-    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
-    at async /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/hono-base.js:223:25
-    at async responseViaResponseObject (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:439:13)
-    at async Server.<anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:578:14) {
-  length: 108,
-  severity: 'ERROR',
-  code: '42P01',
-  detail: undefined,
-  hint: undefined,
-  position: '31',
-  internalPosition: undefined,
-  internalQuery: undefined,
-  where: undefined,
-  schema: undefined,
-  table: undefined,
-  column: undefined,
-  dataType: undefined,
-  constraint: undefined,
-  file: 'parse_relation.c',
-  line: '1392',
-  routine: 'parserOpenTable'
-}
-Simple test result: [ { count: '0' } ]

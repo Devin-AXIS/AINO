@@ -7,7 +7,7 @@
    - Network:      http://192.200.101.1:3000
 
  ✓ Starting...
- ✓ Ready in 2.3s
+ ✓ Ready in 2.4s
  ○ Compiling / ...
- ✓ Compiled / in 1038ms (1081 modules)
- GET / 200 in 1275ms
+ ✓ Compiled / in 1084ms (1081 modules)
+ GET / 200 in 1291ms
