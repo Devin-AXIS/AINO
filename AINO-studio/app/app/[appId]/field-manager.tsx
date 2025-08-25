@@ -520,6 +520,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
         onOpenChange={setCategoryManagerOpen}
         categories={fieldCategories}
         onCategoriesChange={updateFieldCategories}
+        applicationId={app.id}
+        directoryId={dir.id}
+        onFieldAdded={() => {
+          // 当字段被添加时，刷新字段列表
+          // 这里可以添加刷新逻辑
+        }}
       />
     </div>
   )

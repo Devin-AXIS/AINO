@@ -4,6 +4,7 @@ export interface FieldCategoryModel {
   description: string
   order: number
   enabled: boolean
+  system?: boolean // 是否为系统分类
   fields: PredefinedFieldModel[]
 }
 

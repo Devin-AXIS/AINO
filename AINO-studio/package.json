@@ -17,7 +17,7 @@
     "@libsql/client-wasm": "latest",
     "@neondatabase/serverless": "latest",
     "@op-engineering/op-sqlite": "latest",
-    "@opentelemetry/api": "latest",
+    "@opentelemetry/api": "^1.9.0",
     "@planetscale/database": "latest",
     "@prisma/client": "latest",
     "@radix-ui/react-accordion": "1.2.2",
