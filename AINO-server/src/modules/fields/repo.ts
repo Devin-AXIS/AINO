@@ -1,8 +1,7 @@
 import { eq, and, desc, asc, sql, count } from "drizzle-orm"
 import { db } from "@/db"
-import { fields, fieldCategories, directories, applications } from "@/db/schema"
+import { fields, directories, applications } from "@/db/schema"
 import type { CreateFieldRequest, UpdateFieldRequest, GetFieldsRequest } from "./dto"
-import type { CreateFieldCategoryRequest, UpdateFieldCategoryRequest } from "./dto"
 
 export class FieldsRepository {
   // 字段相关操作
@@ -207,91 +206,7 @@ export class FieldsRepository {
   }
 
   // 字段分类相关操作
-  async createFieldCategory(data: CreateFieldCategoryRequest & { applicationId: string; directoryId: string }) {
-    const [category] = await db
-      .insert(fieldCategories)
-      .values({
-        applicationId: data.applicationId,
-        directoryId: data.directoryId,
-        name: data.name,
-        description: data.description || null,
-        order: data.order,
-        enabled: data.enabled,
-        system: data.system,
-        predefinedFields: data.predefinedFields,
-      })
-      .returning()
 
-    return category
-  }
-
-  async updateFieldCategory(id: string, data: UpdateFieldCategoryRequest) {
-    const [category] = await db
-      .update(fieldCategories)
-      .set({
-        name: data.name,
-        description: data.description || null,
-        order: data.order,
-        enabled: data.enabled,
-        system: data.system,
-        predefinedFields: data.predefinedFields,
-        updatedAt: new Date(),
-      })
-      .where(eq(fieldCategories.id, id))
-      .returning()
-
-    return category
-  }
-
-  async deleteFieldCategory(id: string) {
-    const [category] = await db
-      .delete(fieldCategories)
-      .where(eq(fieldCategories.id, id))
-      .returning()
-
-    return category
-  }
-
-  async getFieldCategory(id: string) {
-    const [category] = await db
-      .select()
-      .from(fieldCategories)
-      .where(eq(fieldCategories.id, id))
-
-    return category
-  }
-
-  async getFieldCategories(applicationId: string, directoryId?: string) {
-    const conditions = [eq(fieldCategories.applicationId, applicationId)]
-    
-    if (directoryId) {
-      conditions.push(eq(fieldCategories.directoryId, directoryId))
-    }
-
-    return await db
-      .select()
-      .from(fieldCategories)
-      .where(and(...conditions))
-      .orderBy(asc(fieldCategories.order), asc(fieldCategories.createdAt))
-  }
-
-  async checkCategoryNameExists(name: string, directoryId: string, excludeId?: string) {
-    const conditions = [
-      eq(fieldCategories.name, name),
-      eq(fieldCategories.directoryId, directoryId)
-    ]
-    
-    if (excludeId) {
-      conditions.push(sql`${fieldCategories.id} != ${excludeId}`)
-    }
-
-    const [category] = await db
-      .select({ id: fieldCategories.id })
-      .from(fieldCategories)
-      .where(and(...conditions))
-
-    return !!category
-  }
 
   // 权限验证相关
   async checkApplicationAccess(applicationId: string, userId: string) {

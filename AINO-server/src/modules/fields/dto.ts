@@ -181,45 +181,10 @@ export const FieldsListResponse = z.object({
   totalPages: z.number(),
 })
 
-// 字段分类相关DTO
-export const CreateFieldCategoryRequest = z.object({
-  name: z.string().min(1).max(128),
-  description: z.string().optional(),
-  order: z.number().int().min(0).default(0),
-  enabled: z.boolean().default(true),
-  system: z.boolean().default(false),
-  predefinedFields: z.array(z.any()).default([]),
-})
-
-export const UpdateFieldCategoryRequest = CreateFieldCategoryRequest.partial()
-
-export const FieldCategoryResponse = z.object({
-  id: z.string().uuid(),
-  applicationId: z.string().uuid(),
-  directoryId: z.string().uuid(),
-  name: z.string(),
-  description: z.string().nullable(),
-  order: z.number(),
-  enabled: z.boolean(),
-  system: z.boolean(),
-  predefinedFields: z.array(z.any()),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-})
-
-export const FieldCategoriesListResponse = z.object({
-  categories: z.array(FieldCategoryResponse),
-  total: z.number(),
-})
-
 // 类型导出
 export type CreateFieldRequest = z.infer<typeof CreateFieldRequest>
 export type UpdateFieldRequest = z.infer<typeof UpdateFieldRequest>
 export type GetFieldsRequest = z.infer<typeof GetFieldsRequest>
 export type FieldResponse = z.infer<typeof FieldResponse>
 export type FieldsListResponse = z.infer<typeof FieldsListResponse>
-export type CreateFieldCategoryRequest = z.infer<typeof CreateFieldCategoryRequest>
-export type UpdateFieldCategoryRequest = z.infer<typeof UpdateFieldCategoryRequest>
-export type FieldCategoryResponse = z.infer<typeof FieldCategoryResponse>
-export type FieldCategoriesListResponse = z.infer<typeof FieldCategoriesListResponse>
 

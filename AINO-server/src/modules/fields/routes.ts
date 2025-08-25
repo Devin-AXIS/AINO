@@ -5,12 +5,8 @@ import {
   CreateFieldRequest, 
   UpdateFieldRequest, 
   GetFieldsRequest,
-  CreateFieldCategoryRequest,
-  UpdateFieldCategoryRequest,
   FieldResponse,
-  FieldsListResponse,
-  FieldCategoryResponse,
-  FieldCategoriesListResponse
+  FieldsListResponse
 } from "./dto"
 
 const fields = new Hono()
@@ -180,128 +176,7 @@ fields.patch("/:id/order", async (c) => {
   }
 })
 
-// 字段分类相关路由
-fields.get("/categories", async (c) => {
-  try {
-    const applicationId = c.req.query("applicationId")
-    const directoryId = c.req.query("directoryId")
-    const userId = getCurrentUserId(c)
-    
-    if (!applicationId) {
-      return c.json({
-        success: false,
-        error: "缺少必要参数：applicationId"
-      }, 400)
-    }
-    
-    const categories = await service.getFieldCategories(applicationId, directoryId, userId)
-    
-    return c.json({
-      success: true,
-      data: {
-        categories,
-        total: categories.length
-      }
-    } as { success: true; data: FieldCategoriesListResponse })
-  } catch (error) {
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : "未知错误"
-    }, 400)
-  }
-})
 
-fields.get("/categories/:id", async (c) => {
-  try {
-    const id = c.req.param("id")
-    const userId = getCurrentUserId(c)
-    
-    const category = await service.getFieldCategory(id, userId)
-    
-    return c.json({
-      success: true,
-      data: category
-    } as { success: true; data: FieldCategoryResponse })
-  } catch (error) {
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : "未知错误"
-    }, 400)
-  }
-})
-
-fields.post("/categories", zValidator("json", CreateFieldCategoryRequest), async (c) => {
-  try {
-    const data = c.req.valid("json")
-    const userId = getCurrentUserId(c)
-    
-    // 从URL参数获取applicationId和directoryId
-    const applicationId = c.req.query("applicationId")
-    const directoryId = c.req.query("directoryId")
-    
-    if (!applicationId || !directoryId) {
-      return c.json({
-        success: false,
-        error: "缺少必要参数：applicationId 和 directoryId"
-      }, 400)
-    }
-    
-    const category = await service.createFieldCategory({
-      ...data,
-      applicationId,
-      directoryId
-    }, userId)
-    
-    return c.json({
-      success: true,
-      data: category
-    } as { success: true; data: FieldCategoryResponse })
-  } catch (error) {
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : "未知错误"
-    }, 400)
-  }
-})
-
-fields.put("/categories/:id", zValidator("json", UpdateFieldCategoryRequest), async (c) => {
-  try {
-    const id = c.req.param("id")
-    const data = c.req.valid("json")
-    const userId = getCurrentUserId(c)
-    
-    const category = await service.updateFieldCategory(id, data, userId)
-    
-    return c.json({
-      success: true,
-      data: category
-    } as { success: true; data: FieldCategoryResponse })
-  } catch (error) {
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : "未知错误"
-    }, 400)
-  }
-})
-
-fields.delete("/categories/:id", async (c) => {
-  try {
-    const id = c.req.param("id")
-    const userId = getCurrentUserId(c)
-    
-    const category = await service.deleteFieldCategory(id, userId)
-    
-    return c.json({
-      success: true,
-      data: { success: true }
-    })
-  } catch (error) {
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : "未知错误"
-    }, 400)
-  }
-})
 
 export { fields }
 

@@ -2,9 +2,7 @@ import { FieldsRepository } from "./repo"
 import type { 
   CreateFieldRequest, 
   UpdateFieldRequest, 
-  GetFieldsRequest,
-  CreateFieldCategoryRequest,
-  UpdateFieldCategoryRequest
+  GetFieldsRequest
 } from "./dto"
 
 export class FieldsService {
@@ -31,13 +29,14 @@ export class FieldsService {
 
     // 如果指定了分类，检查分类是否存在
     if (data.categoryId) {
-      const category = await this.repo.getFieldCategory(data.categoryId)
-      if (!category) {
-        throw new Error("指定的字段分类不存在")
-      }
-      if (category.directoryId !== data.directoryId) {
-        throw new Error("字段分类与目录不匹配")
-      }
+      // TODO: 实现字段分类验证
+      // const category = await this.repo.getFieldCategory(data.categoryId)
+      // if (!category) {
+      //   throw new Error("指定的字段分类不存在")
+      // }
+      // if (category.directoryId !== data.directoryId) {
+      //   throw new Error("字段分类与目录不匹配")
+      // }
     }
 
     // 创建字段
@@ -70,13 +69,14 @@ export class FieldsService {
 
     // 如果指定了分类，检查分类是否存在
     if (data.categoryId) {
-      const category = await this.repo.getFieldCategory(data.categoryId)
-      if (!category) {
-        throw new Error("指定的字段分类不存在")
-      }
-      if (category.directoryId !== existingField.directoryId) {
-        throw new Error("字段分类与目录不匹配")
-      }
+      // TODO: 实现字段分类验证
+      // const category = await this.repo.getFieldCategory(data.categoryId)
+      // if (!category) {
+      //   throw new Error("指定的字段分类不存在")
+      // }
+      // if (category.directoryId !== existingField.directoryId) {
+      //   throw new Error("字段分类与目录不匹配")
+      // }
     }
 
     // 更新字段
@@ -183,142 +183,6 @@ export class FieldsService {
     return field
   }
 
-  // 字段分类相关业务逻辑
-  async createFieldCategory(data: CreateFieldCategoryRequest & { applicationId: string; directoryId: string }, userId: string) {
-    // 权限验证
-    const hasAppAccess = await this.repo.checkApplicationAccess(data.applicationId, userId)
-    if (!hasAppAccess) {
-      throw new Error("无权访问该应用")
-    }
 
-    const hasDirAccess = await this.repo.checkDirectoryAccess(data.directoryId, userId)
-    if (!hasDirAccess) {
-      throw new Error("无权访问该目录")
-    }
-
-    // 检查分类名称是否已存在
-    const nameExists = await this.repo.checkCategoryNameExists(data.name, data.directoryId)
-    if (nameExists) {
-      throw new Error(`分类名称 "${data.name}" 已存在`)
-    }
-
-    // 创建字段分类
-    const category = await this.repo.createFieldCategory(data)
-    return category
-  }
-
-  async updateFieldCategory(id: string, data: UpdateFieldCategoryRequest, userId: string) {
-    // 获取分类信息
-    const existingCategory = await this.repo.getFieldCategory(id)
-    if (!existingCategory) {
-      throw new Error("字段分类不存在")
-    }
-
-    // 权限验证
-    const hasAppAccess = await this.repo.checkApplicationAccess(existingCategory.applicationId, userId)
-    if (!hasAppAccess) {
-      throw new Error("无权访问该应用")
-    }
-
-    const hasDirAccess = await this.repo.checkDirectoryAccess(existingCategory.directoryId, userId)
-    if (!hasDirAccess) {
-      throw new Error("无权访问该目录")
-    }
-
-    // 检查是否为系统分类
-    if (existingCategory.system) {
-      throw new Error("系统分类不能修改")
-    }
-
-    // 如果修改了名称，检查名称是否已存在
-    if (data.name && data.name !== existingCategory.name) {
-      const nameExists = await this.repo.checkCategoryNameExists(data.name, existingCategory.directoryId, id)
-      if (nameExists) {
-        throw new Error(`分类名称 "${data.name}" 已存在`)
-      }
-    }
-
-    // 更新字段分类
-    const category = await this.repo.updateFieldCategory(id, data)
-    return category
-  }
-
-  async deleteFieldCategory(id: string, userId: string) {
-    // 获取分类信息
-    const existingCategory = await this.repo.getFieldCategory(id)
-    if (!existingCategory) {
-      throw new Error("字段分类不存在")
-    }
-
-    // 权限验证
-    const hasAppAccess = await this.repo.checkApplicationAccess(existingCategory.applicationId, userId)
-    if (!hasAppAccess) {
-      throw new Error("无权访问该应用")
-    }
-
-    const hasDirAccess = await this.repo.checkDirectoryAccess(existingCategory.directoryId, userId)
-    if (!hasDirAccess) {
-      throw new Error("无权访问该目录")
-    }
-
-    // 检查是否为系统分类
-    if (existingCategory.system) {
-      throw new Error("系统分类不能删除")
-    }
-
-    // 检查分类下是否有字段
-    const fieldsInCategory = await this.repo.getFields({
-      applicationId: existingCategory.applicationId,
-      directoryId: existingCategory.directoryId,
-      categoryId: id,
-      page: 1,
-      limit: 1
-    }, userId)
-
-    if (fieldsInCategory.total > 0) {
-      throw new Error(`该分类下还有 ${fieldsInCategory.total} 个字段，请先移除或重新分类这些字段`)
-    }
-
-    // 删除字段分类
-    const category = await this.repo.deleteFieldCategory(id)
-    return category
-  }
-
-  async getFieldCategory(id: string, userId: string) {
-    // 获取分类信息
-    const category = await this.repo.getFieldCategory(id)
-    if (!category) {
-      throw new Error("字段分类不存在")
-    }
-
-    // 权限验证
-    const hasAppAccess = await this.repo.checkApplicationAccess(category.applicationId, userId)
-    if (!hasAppAccess) {
-      throw new Error("无权访问该应用")
-    }
-
-    return category
-  }
-
-  async getFieldCategories(applicationId: string, directoryId?: string, userId?: string) {
-    // 权限验证
-    if (userId) {
-      const hasAppAccess = await this.repo.checkApplicationAccess(applicationId, userId)
-      if (!hasAppAccess) {
-        throw new Error("无权访问该应用")
-      }
-
-      if (directoryId) {
-        const hasDirAccess = await this.repo.checkDirectoryAccess(directoryId, userId)
-        if (!hasDirAccess) {
-          throw new Error("无权访问该目录")
-        }
-      }
-    }
-
-    // 查询字段分类列表
-    const categories = await this.repo.getFieldCategories(applicationId, directoryId)
-    return categories
-  }
 }
 
