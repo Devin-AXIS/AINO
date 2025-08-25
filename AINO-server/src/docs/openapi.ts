@@ -21,6 +21,8 @@ export const openApiConfig = {
     { name: '应用用户', description: '应用内用户管理相关接口' },
     { name: '应用模块', description: '应用模块管理相关接口' },
     { name: '目录管理', description: '目录管理相关接口' },
+    { name: '字段分类', description: '字段分类管理相关接口' },
+    { name: '字段管理', description: '字段管理相关接口' },
     { name: '健康检查', description: '系统健康检查' },
   ],
 }
@@ -231,6 +233,162 @@ export const DirectoriesListResponse = z.object({
   }),
 })
 
+// 字段分类相关 Schema
+export const CreateFieldCategoryRequest = z.object({
+  name: z.string().min(1, "分类名称不能为空").max(128, "分类名称不能超过128个字符"),
+  description: z.string().optional(),
+  order: z.number().int().min(0).default(0),
+  enabled: z.boolean().default(true),
+  system: z.boolean().default(false),
+  predefinedFields: z.array(z.any()).default([]),
+})
+
+export const UpdateFieldCategoryRequest = CreateFieldCategoryRequest.partial()
+
+export const GetFieldCategoriesQuery = z.object({
+  applicationId: z.string().optional(),
+  directoryId: z.string().optional(),
+  enabled: z.boolean().optional(),
+  system: z.boolean().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+})
+
+export const FieldCategoryResponse = z.object({
+  id: z.string(),
+  applicationId: z.string(),
+  directoryId: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  order: z.number(),
+  enabled: z.boolean(),
+  system: z.boolean(),
+  predefinedFields: z.array(z.any()),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
+export const FieldCategoriesListResponse = z.object({
+  categories: z.array(FieldCategoryResponse),
+  pagination: z.object({
+    page: z.number(),
+    limit: z.number(),
+    total: z.number(),
+    totalPages: z.number(),
+  }),
+})
+
+// 字段相关 Schema
+export const CreateFieldRequest = z.object({
+  key: z.string().min(1, "字段标识符不能为空").max(64, "字段标识符不能超过64个字符"),
+  label: z.string().min(1, "字段名称不能为空").max(128, "字段名称不能超过128个字符"),
+  type: z.string().min(1, "字段类型不能为空"),
+  required: z.boolean().default(false),
+  unique: z.boolean().default(false),
+  locked: z.boolean().default(false),
+  enabled: z.boolean().default(true),
+  categoryId: z.string().optional(),
+  desc: z.string().optional(),
+  placeholder: z.string().optional(),
+  min: z.number().optional(),
+  max: z.number().optional(),
+  step: z.number().optional(),
+  unit: z.string().optional(),
+  options: z.array(z.string()).optional(),
+  default: z.any().optional(),
+  showInList: z.boolean().default(true),
+  showInForm: z.boolean().default(true),
+  showInDetail: z.boolean().default(true),
+  trueLabel: z.string().optional(),
+  falseLabel: z.string().optional(),
+  accept: z.string().optional(),
+  maxSizeMB: z.number().optional(),
+  relation: z.any().optional(),
+  cascaderOptions: z.any().optional(),
+  dateMode: z.string().optional(),
+  preset: z.string().optional(),
+  skillsConfig: z.any().optional(),
+  progressConfig: z.any().optional(),
+  customExperienceConfig: z.any().optional(),
+  identityVerificationConfig: z.any().optional(),
+  certificateConfig: z.any().optional(),
+  otherVerificationConfig: z.any().optional(),
+  imageConfig: z.any().optional(),
+  videoConfig: z.any().optional(),
+  booleanConfig: z.any().optional(),
+  multiselectConfig: z.any().optional(),
+  config: z.any().default({}),
+  order: z.number().default(0),
+})
+
+export const UpdateFieldRequest = CreateFieldRequest.partial()
+
+export const GetFieldsQuery = z.object({
+  applicationId: z.string().optional(),
+  directoryId: z.string().optional(),
+  categoryId: z.string().optional(),
+  enabled: z.boolean().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+})
+
+export const FieldResponse = z.object({
+  id: z.string(),
+  applicationId: z.string(),
+  directoryId: z.string(),
+  categoryId: z.string().nullable(),
+  key: z.string(),
+  label: z.string(),
+  type: z.string(),
+  required: z.boolean(),
+  unique: z.boolean(),
+  locked: z.boolean(),
+  enabled: z.boolean(),
+  desc: z.string().nullable(),
+  placeholder: z.string().nullable(),
+  min: z.number().nullable(),
+  max: z.number().nullable(),
+  step: z.number().nullable(),
+  unit: z.string().nullable(),
+  options: z.array(z.string()).nullable(),
+  default: z.any().nullable(),
+  showInList: z.boolean(),
+  showInForm: z.boolean(),
+  showInDetail: z.boolean(),
+  trueLabel: z.string().nullable(),
+  falseLabel: z.string().nullable(),
+  accept: z.string().nullable(),
+  maxSizeMB: z.number().nullable(),
+  relation: z.any().nullable(),
+  cascaderOptions: z.any().nullable(),
+  dateMode: z.string().nullable(),
+  preset: z.string().nullable(),
+  skillsConfig: z.any().nullable(),
+  progressConfig: z.any().nullable(),
+  customExperienceConfig: z.any().nullable(),
+  identityVerificationConfig: z.any().nullable(),
+  certificateConfig: z.any().nullable(),
+  otherVerificationConfig: z.any().nullable(),
+  imageConfig: z.any().nullable(),
+  videoConfig: z.any().nullable(),
+  booleanConfig: z.any().nullable(),
+  multiselectConfig: z.any().nullable(),
+  config: z.any(),
+  order: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
+export const FieldsListResponse = z.object({
+  fields: z.array(FieldResponse),
+  pagination: z.object({
+    page: z.number(),
+    limit: z.number(),
+    total: z.number(),
+    totalPages: z.number(),
+  }),
+})
+
 // API 路由定义
 export const apiRoutes = {
   // 健康检查
@@ -239,13 +397,15 @@ export const apiRoutes = {
     path: '/health',
     tags: ['健康检查'],
     summary: '健康检查',
-    description: '检查服务是否正常运行',
+    description: '检查系统健康状态',
     responses: {
       200: {
-        description: '服务正常',
+        description: '系统健康',
         content: {
-          'text/plain': {
-            schema: z.string(),
+          'application/json': {
+            schema: z.object({
+              status: z.string(),
+            }),
           },
         },
       },
@@ -1233,6 +1393,640 @@ export const apiRoutes = {
       },
       404: {
         description: '目录不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  // 字段分类相关API
+  getFieldCategories: {
+    method: 'get' as const,
+    path: '/field-categories',
+    tags: ['字段分类'],
+    summary: '获取字段分类列表',
+    description: '获取字段分类列表，支持分页、过滤等功能',
+    request: {
+      query: GetFieldCategoriesQuery.openapi({
+        param: {
+          name: 'query',
+          in: 'query',
+        },
+      }),
+    },
+    responses: {
+      200: {
+        description: '获取成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: FieldCategoriesListResponse,
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      403: {
+        description: '没有权限访问该应用',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  createFieldCategory: {
+    method: 'post' as const,
+    path: '/field-categories',
+    tags: ['字段分类'],
+    summary: '创建字段分类',
+    description: '创建新的字段分类',
+    request: {
+      query: z.object({
+        applicationId: z.string().openapi({
+          param: {
+            name: 'applicationId',
+            in: 'query',
+            description: '应用ID',
+            required: true,
+          },
+        }),
+        directoryId: z.string().openapi({
+          param: {
+            name: 'directoryId',
+            in: 'query',
+            description: '目录ID',
+            required: true,
+          },
+        }),
+      }),
+      body: {
+        content: {
+          'application/json': {
+            schema: CreateFieldCategoryRequest,
+          },
+        },
+      },
+    },
+    responses: {
+      201: {
+        description: '创建成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: FieldCategoryResponse,
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      403: {
+        description: '没有权限访问该应用',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  getFieldCategory: {
+    method: 'get' as const,
+    path: '/field-categories/{id}',
+    tags: ['字段分类'],
+    summary: '获取字段分类详情',
+    description: '根据ID获取字段分类详细信息',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '字段分类ID',
+          },
+        }),
+      }),
+    },
+    responses: {
+      200: {
+        description: '获取成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: FieldCategoryResponse,
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      404: {
+        description: '字段分类不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  updateFieldCategory: {
+    method: 'put' as const,
+    path: '/field-categories/{id}',
+    tags: ['字段分类'],
+    summary: '更新字段分类',
+    description: '更新字段分类信息',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '字段分类ID',
+          },
+        }),
+      }),
+      body: {
+        content: {
+          'application/json': {
+            schema: UpdateFieldCategoryRequest,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: '更新成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: FieldCategoryResponse,
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      403: {
+        description: '没有权限修改该字段分类',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      404: {
+        description: '字段分类不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  deleteFieldCategory: {
+    method: 'delete' as const,
+    path: '/field-categories/{id}',
+    tags: ['字段分类'],
+    summary: '删除字段分类',
+    description: '删除字段分类并返回删除结果',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '字段分类ID',
+          },
+        }),
+      }),
+    },
+    responses: {
+      200: {
+        description: '删除成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              message: z.string(),
+            }),
+          },
+        },
+      },
+      400: {
+        description: '删除失败',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      403: {
+        description: '没有权限删除该字段分类',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      404: {
+        description: '字段分类不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  // 字段相关API
+  getFields: {
+    method: 'get' as const,
+    path: '/fields',
+    tags: ['字段管理'],
+    summary: '获取字段列表',
+    description: '获取字段列表，支持分页、过滤等功能',
+    request: {
+      query: GetFieldsQuery.openapi({
+        param: {
+          name: 'query',
+          in: 'query',
+        },
+      }),
+    },
+    responses: {
+      200: {
+        description: '获取成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: FieldsListResponse,
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      403: {
+        description: '没有权限访问该应用',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  createField: {
+    method: 'post' as const,
+    path: '/fields',
+    tags: ['字段管理'],
+    summary: '创建字段',
+    description: '创建新的字段',
+    request: {
+      query: z.object({
+        applicationId: z.string().openapi({
+          param: {
+            name: 'applicationId',
+            in: 'query',
+            description: '应用ID',
+            required: true,
+          },
+        }),
+        directoryId: z.string().openapi({
+          param: {
+            name: 'directoryId',
+            in: 'query',
+            description: '目录ID',
+            required: true,
+          },
+        }),
+      }),
+      body: {
+        content: {
+          'application/json': {
+            schema: CreateFieldRequest,
+          },
+        },
+      },
+    },
+    responses: {
+      201: {
+        description: '创建成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: FieldResponse,
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      403: {
+        description: '没有权限访问该应用',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  getField: {
+    method: 'get' as const,
+    path: '/fields/{id}',
+    tags: ['字段管理'],
+    summary: '获取字段详情',
+    description: '根据ID获取字段详细信息',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '字段ID',
+          },
+        }),
+      }),
+    },
+    responses: {
+      200: {
+        description: '获取成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: FieldResponse,
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      404: {
+        description: '字段不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  updateField: {
+    method: 'put' as const,
+    path: '/fields/{id}',
+    tags: ['字段管理'],
+    summary: '更新字段',
+    description: '更新字段信息',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '字段ID',
+          },
+        }),
+      }),
+      body: {
+        content: {
+          'application/json': {
+            schema: UpdateFieldRequest,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: '更新成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: FieldResponse,
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      403: {
+        description: '没有权限修改该字段',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      404: {
+        description: '字段不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  deleteField: {
+    method: 'delete' as const,
+    path: '/fields/{id}',
+    tags: ['字段管理'],
+    summary: '删除字段',
+    description: '删除字段并返回删除结果',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '字段ID',
+          },
+        }),
+      }),
+    },
+    responses: {
+      200: {
+        description: '删除成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              message: z.string(),
+            }),
+          },
+        },
+      },
+      400: {
+        description: '删除失败',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      403: {
+        description: '没有权限删除该字段',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      404: {
+        description: '字段不存在',
         content: {
           'application/json': {
             schema: ErrorResponse,
