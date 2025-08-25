@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, useEffect } from "react"
+import React, { useMemo, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
@@ -342,7 +342,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
             const fieldCount = categoryData ? categoryData.fields.length : 0
             return (
               <Button
-                key={category.id}
+                key={`category-${category.id}`}
                 variant={selectedCategoryId === category.id ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategoryId(category.id)}
@@ -454,37 +454,36 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
             </Button>
             
             {/* 页码按钮 */}
-            {Array.from({ length: paginationInfo.totalPages }, (_, i) => i + 1).map((page) => {
-              // 显示当前页附近的页码，避免页码过多
-              const shouldShow = 
-                page === 1 || 
-                page === paginationInfo.totalPages || 
-                Math.abs(page - paginationInfo.currentPage) <= 1
-              
-              if (!shouldShow) {
-                // 显示省略号
-                if (page === 2 || page === paginationInfo.totalPages - 1) {
-                  return (
-                    <span key={page} className="px-3 py-2 text-sm text-muted-foreground">
-                      ...
-                    </span>
-                  )
-                }
-                return null
-              }
-              
-              return (
-                <Button
-                  key={page}
-                  variant={page === paginationInfo.currentPage ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => goToPage(page)}
-                  className="w-9 h-9 p-0"
-                >
-                  {page}
-                </Button>
-              )
-            })}
+            {Array.from({ length: paginationInfo.totalPages }, (_, i) => i + 1)
+              .filter((page) => {
+                // 显示当前页附近的页码，避免页码过多
+                return page === 1 || 
+                       page === paginationInfo.totalPages || 
+                       Math.abs(page - paginationInfo.currentPage) <= 1
+              })
+              .map((page, index, filteredArray) => {
+                // 检查是否需要显示省略号
+                const prevPage = filteredArray[index - 1]
+                const shouldShowEllipsisBefore = prevPage && page - prevPage > 1
+                
+                return (
+                  <React.Fragment key={`pagination-${page}`}>
+                    {shouldShowEllipsisBefore && (
+                      <span className="px-3 py-2 text-sm text-muted-foreground">
+                        ...
+                      </span>
+                    )}
+                    <Button
+                      variant={page === paginationInfo.currentPage ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => goToPage(page)}
+                      className="w-9 h-9 p-0"
+                    >
+                      {page}
+                    </Button>
+                  </React.Fragment>
+                )
+              })}
             
             <Button
               variant="outline"
