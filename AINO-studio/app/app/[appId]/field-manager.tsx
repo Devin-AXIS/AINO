@@ -14,6 +14,7 @@ import { AddFieldDialog } from "@/components/dialogs/add-field-dialog"
 import { DEFAULT_FIELD_CATEGORIES, type FieldCategoryModel } from "@/lib/field-categories"
 import { usePagination } from "@/hooks/use-pagination"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { uid } from "@/lib/utils"
 
 type Props = {
   app: AppModel

@@ -1326,7 +1326,7 @@ export function AddFieldDialog({
                               }}
                               className="rounded"
                             />
-                            {category.name}
+                            {category?.name || 'Unknown'}
                           </label>
                         ))}
                       </div>
