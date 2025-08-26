@@ -7,7 +7,8 @@ import applicationUsersRoute from "./modules/application-users/routes"
 import directoriesRoute from "./modules/directories/routes"
 
 import fieldCategoriesRoute from "./modules/field-categories/routes"
-import recordsRoute from "./modules/records/routes"
+import { records } from "./modules/records/routes"
+import { fieldDefs } from "./modules/field-defs/routes"
 import { docsRoute } from "./docs/routes"
 
 const app = new Hono()
@@ -44,8 +45,11 @@ app.route("/api/directories", directoriesRoute)
 // 字段分类管理路由
 app.route("/api/field-categories", fieldCategoriesRoute)
 
-// 动态记录管理路由
-app.route("/api/records", recordsRoute)
+// 统一记录CRUD路由
+app.route("/api/records", records)
+
+// 字段定义管理路由
+app.route("/api/field-defs", fieldDefs)
 
 // API 文档路由
 app.route("/docs", docsRoute)

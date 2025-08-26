@@ -1,70 +1,140 @@
 🚀 AINO Server running at http://localhost:3001
 📊 Health check: http://localhost:3001/health
 🌍 Environment: development
-Current database: aino
-Table check result: [ { table_name: 'dir_users' } ]
-Simple test result: [ { count: '6' } ]
-Processing fields: 6
-Processing field: name kind: primitive value: 最终测试
-Processed result: 最终测试
-Processing field: email kind: primitive value: final@example.com
-Processed result: final@example.com
-Processing field: city kind: lookup value: 杭州
-Lookup processor - input: 杭州 field: city
-Lookup processor - output: { code: '杭州', name: '杭州', source: 'china_cities' }
-Processed result: { code: '杭州', name: '杭州', source: 'china_cities' }
-Processing fields: 6
-Processing field: name kind: primitive value: 复合测试
-Processed result: 复合测试
-Processing field: email kind: primitive value: composite@example.com
-Processed result: composite@example.com
-Processing field: experience kind: composite value: [
-  {
-    company: '阿里巴巴',
-    position: '高级工程师',
-    startDate: '2021-01',
-    endDate: '2023-12',
-    description: '负责电商平台开发'
+获取应用列表失败: DrizzleQueryError: Failed query: select "id" from "applications" where "applications"."owner_id" = $1
+params: f09ebe12-f517-42a2-b41a-7092438b79c3
+    at NodePgPreparedQuery.queryWithCache (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:73:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+    ... 4 lines matching cause stack trace ...
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async mockRequireAuthMiddleware (/Users/devin/Documents/AINO-main/AINO-server/src/middleware/auth.ts:41:3)
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+  query: 'select "id" from "applications" where "applications"."owner_id" = $1',
+  params: [ 'f09ebe12-f517-42a2-b41a-7092438b79c3' ],
+  cause: AggregateError [ECONNREFUSED]: 
+      at /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:161:13)
+      at async NodePgPreparedQuery.queryWithCache (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:71:12)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+      at async ApplicationService.getApplications (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/service.ts:148:25)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/routes.ts:24:22)
+      at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+      at async /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/validator/validator.js:103:5
+      at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
   }
-]
-Processed result: [
-  {
-    company: '阿里巴巴',
-    position: '高级工程师',
-    startDate: '2021-01',
-    endDate: '2023-12',
-    description: '负责电商平台开发'
+}
+获取应用列表失败: DrizzleQueryError: Failed query: select "id" from "applications" where "applications"."owner_id" = $1
+params: f09ebe12-f517-42a2-b41a-7092438b79c3
+    at NodePgPreparedQuery.queryWithCache (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:73:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+    ... 4 lines matching cause stack trace ...
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async mockRequireAuthMiddleware (/Users/devin/Documents/AINO-main/AINO-server/src/middleware/auth.ts:41:3)
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+  query: 'select "id" from "applications" where "applications"."owner_id" = $1',
+  params: [ 'f09ebe12-f517-42a2-b41a-7092438b79c3' ],
+  cause: AggregateError [ECONNREFUSED]: 
+      at /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:161:13)
+      at async NodePgPreparedQuery.queryWithCache (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:71:12)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+      at async ApplicationService.getApplications (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/service.ts:148:25)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/routes.ts:24:22)
+      at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+      at async /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/validator/validator.js:103:5
+      at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
   }
-]
-Processing fields: 6
-Processing field: name kind: primitive value: 关联测试
-Processed result: 关联测试
-Processing field: email kind: primitive value: relation@example.com
-Processed result: relation@example.com
-Processing field: skills kind: relation value: [ 'JavaScript', 'React', 'Node.js' ]
-Processed result: [ 'JavaScript', 'React', 'Node.js' ]
-Processing fields: 5
-Processing field: title kind: primitive value: 前端工程师
-Processed result: 前端工程师
-Processing field: company kind: primitive value: 字节跳动
-Processed result: 字节跳动
-Processing field: location kind: lookup value: 北京
-Lookup processor - input: 北京 field: location
-Lookup processor - output: { code: '北京', name: '北京', source: 'china_cities' }
-Processed result: { code: '北京', name: '北京', source: 'china_cities' }
-Processing field: salary kind: primitive value: 25000
-Processed result: 25000
-Processing field: requirements kind: composite value: {
-  experience: '3-5年',
-  education: '本科',
-  skills: [ 'JavaScript', 'React', 'Vue' ]
 }
-Processed result: {
-  experience: '3-5年',
-  education: '本科',
-  skills: [ 'JavaScript', 'React', 'Vue' ]
+获取应用列表失败: DrizzleQueryError: Failed query: select "id" from "applications" where "applications"."owner_id" = $1
+params: f09ebe12-f517-42a2-b41a-7092438b79c3
+    at NodePgPreparedQuery.queryWithCache (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:73:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+    ... 4 lines matching cause stack trace ...
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async mockRequireAuthMiddleware (/Users/devin/Documents/AINO-main/AINO-server/src/middleware/auth.ts:41:3)
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+  query: 'select "id" from "applications" where "applications"."owner_id" = $1',
+  params: [ 'f09ebe12-f517-42a2-b41a-7092438b79c3' ],
+  cause: AggregateError [ECONNREFUSED]: 
+      at /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:161:13)
+      at async NodePgPreparedQuery.queryWithCache (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:71:12)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+      at async ApplicationService.getApplications (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/service.ts:148:25)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/routes.ts:24:22)
+      at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+      at async /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/validator/validator.js:103:5
+      at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
+  }
 }
-查询目录列表成功，共 3 个目录
-查询字段分类列表成功，共 0 个分类
-查询字段分类列表成功，共 0 个分类
-创建字段分类成功: 65fdc845-1387-4ac1-afe6-74efe654194a
+获取应用列表失败: DrizzleQueryError: Failed query: select "id" from "applications" where "applications"."owner_id" = $1
+params: f09ebe12-f517-42a2-b41a-7092438b79c3
+    at NodePgPreparedQuery.queryWithCache (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:73:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+    ... 4 lines matching cause stack trace ...
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async mockRequireAuthMiddleware (/Users/devin/Documents/AINO-main/AINO-server/src/middleware/auth.ts:41:3)
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+  query: 'select "id" from "applications" where "applications"."owner_id" = $1',
+  params: [ 'f09ebe12-f517-42a2-b41a-7092438b79c3' ],
+  cause: AggregateError [ECONNREFUSED]: 
+      at /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:161:13)
+      at async NodePgPreparedQuery.queryWithCache (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:71:12)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+      at async ApplicationService.getApplications (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/service.ts:148:25)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/routes.ts:24:22)
+      at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+      at async /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/validator/validator.js:103:5
+      at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
+  }
+}
+获取应用列表失败: DrizzleQueryError: Failed query: select "id" from "applications" where "applications"."owner_id" = $1
+params: f09ebe12-f517-42a2-b41a-7092438b79c3
+    at NodePgPreparedQuery.queryWithCache (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:73:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+    ... 4 lines matching cause stack trace ...
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async mockRequireAuthMiddleware (/Users/devin/Documents/AINO-main/AINO-server/src/middleware/auth.ts:41:3)
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+  query: 'select "id" from "applications" where "applications"."owner_id" = $1',
+  params: [ 'f09ebe12-f517-42a2-b41a-7092438b79c3' ],
+  cause: AggregateError [ECONNREFUSED]: 
+      at /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:161:13)
+      at async NodePgPreparedQuery.queryWithCache (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:71:12)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+      at async ApplicationService.getApplications (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/service.ts:148:25)
+      at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/routes.ts:24:22)
+      at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+      at async /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/validator/validator.js:103:5
+      at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
+  }
+}
+查询目录列表成功，共 2 个目录
+查询目录列表成功，共 2 个目录
+查询目录列表成功，共 2 个目录
+查询目录列表成功，共 2 个目录
+查询字段分类列表成功，共 6 个分类
+查询字段分类列表成功，共 6 个分类
+创建字段分类成功: 21c63d42-c631-4350-b5c1-0aa16214d56e
