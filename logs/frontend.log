@@ -1,35 +1,25 @@
 
-> my-v0-project@0.1.0 dev /Users/devin/Documents/AINO/AINO-studio
+> my-v0-project@0.1.0 dev /Users/devin/Documents/AINO-main/AINO-studio
 > next dev
 
    ▲ Next.js 15.2.4
    - Local:        http://localhost:3000
-   - Network:      http://192.168.28.72:3000
+   - Network:      http://192.200.101.1:3000
 
  ✓ Starting...
- ✓ Ready in 3.1s
+ ✓ Ready in 2.5s
  ○ Compiling / ...
- ✓ Compiled / in 1384ms (1095 modules)
- GET / 200 in 1584ms
- GET / 200 in 37ms
- GET / 200 in 32ms
+ ✓ Compiled / in 1787ms (1095 modules)
+ GET / 200 in 1991ms
+ GET / 200 in 21ms
  ○ Compiling /app/[appId] ...
- ✓ Compiled /app/[appId] in 2.4s (2335 modules)
- GET / 200 in 2032ms
- GET /app/1a2f2284-1e17-4b87-bb97-be1015db7685 200 in 2874ms
- GET /app/1a2f2284-1e17-4b87-bb97-be1015db7685 200 in 7ms
- GET /app/1a2f2284-1e17-4b87-bb97-be1015db7685 200 in 10ms
- ✓ Compiled in 259ms (1099 modules)
- GET /app/1a2f2284-1e17-4b87-bb97-be1015db7685 200 in 9ms
- ✓ Compiled in 157ms (1099 modules)
- GET /app/1a2f2284-1e17-4b87-bb97-be1015db7685 200 in 10ms
- ✓ Compiled /test-page in 350ms (1239 modules)
- ✓ Compiled /_not-found in 321ms (2328 modules)
- GET /test-page 404 in 414ms
- ⚠ Found a change in next.config.mjs. Restarting the server to apply the changes...
-   ▲ Next.js 15.2.4
-   - Local:        http://localhost:3000
-   - Network:      http://192.168.28.72:3000
-
- ✓ Starting...
- ✓ Ready in 3s
+ ✓ Compiled /app/[appId] in 1670ms (2335 modules)
+ GET /app/0dc32167-d533-4465-ac20-415d80791633 200 in 2267ms
+ GET / 200 in 12ms
+ GET /app/d5686733-5b05-4b71-a375-f87dac4fbfca 200 in 7ms
+ ✓ Compiled in 405ms (2335 modules)
+ GET /app/d5686733-5b05-4b71-a375-f87dac4fbfca 200 in 43ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled in 459ms (2274 modules)
+ GET /app/d5686733-5b05-4b71-a375-f87dac4fbfca 200 in 325ms
+ GET /app/d5686733-5b05-4b71-a375-f87dac4fbfca 200 in 519ms

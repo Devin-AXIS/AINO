@@ -1,12 +1,16 @@
-
-> server@1.0.0 dev /Users/devin/Documents/AINO/AINO-server
-> tsx src/server.ts
-
 🚀 AINO Server running at http://localhost:3001
 📊 Health check: http://localhost:3001/health
 🌍 Environment: development
-查询目录列表成功，共 2 个目录
-创建目录成功: a31a69ec-fe71-47da-841a-7262a6b5b1d6
-查询目录列表成功，共 3 个目录
-删除目录成功: true
-查询目录列表成功，共 2 个目录
+获取应用模块失败: Error: 应用不存在或无权限访问
+    at ApplicationService.getApplicationById (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/service.ts:183:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async ApplicationService.getApplicationModules (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/service.ts:231:25)
+    at async <anonymous> (/Users/devin/Documents/AINO-main/AINO-server/src/modules/applications/routes.ts:149:22)
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async mockRequireAuthMiddleware (/Users/devin/Documents/AINO-main/AINO-server/src/middleware/auth.ts:41:3)
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async cors2 (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/middleware/cors/index.js:106:5)
+    at async dispatch (/Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async /Users/devin/Documents/AINO-main/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/hono-base.js:223:25
+查询目录列表成功，共 8 个目录
+查询目录列表成功，共 8 个目录
