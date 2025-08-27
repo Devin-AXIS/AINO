@@ -1,5 +1,5 @@
 import { db } from "../../db"
-import { directories, applications } from "../../db/schema"
+import { directories, applications, directoryDefs } from "../../db/schema"
 import { eq, and, desc, asc, count, sql } from "drizzle-orm"
 import type {
   CreateDirectoryRequest,
@@ -154,5 +154,11 @@ export class DirectoryRepository {
       createdAt: dbRecord.createdAt instanceof Date ? dbRecord.createdAt.toISOString() : String(dbRecord.createdAt),
       updatedAt: dbRecord.updatedAt instanceof Date ? dbRecord.updatedAt.toISOString() : String(dbRecord.updatedAt),
     }
+  }
+
+  // 通过目录ID获取对应的目录定义
+  async getDirectoryDefByDirectoryId(directoryId: string): Promise<any> {
+    const [result] = await db.select().from(directoryDefs).where(eq(directoryDefs.directoryId, directoryId)).limit(1)
+    return result || null
   }
 }

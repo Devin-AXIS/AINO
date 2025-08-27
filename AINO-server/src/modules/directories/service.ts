@@ -1,5 +1,6 @@
 import { DirectoryRepository } from "./repo"
 import { RecordCategoriesRepository } from "../record-categories/repo"
+import { FieldDefsService } from "../field-defs/service"
 import type {
   CreateDirectoryRequest,
   UpdateDirectoryRequest,
@@ -11,6 +12,7 @@ import type {
 export class DirectoryService {
   private repo = new DirectoryRepository()
   private recordCategoriesRepo = new RecordCategoriesRepository()
+  private fieldDefsService = new FieldDefsService()
 
   // 检查用户是否有权限访问应用
   async checkUserAccess(applicationId: string, userId: string): Promise<boolean> {
@@ -50,6 +52,41 @@ export class DirectoryService {
     }
   }
 
+  // 获取目录的字段定义并转换为前端期望的格式
+  private async getDirectoryFields(directoryId: string): Promise<any[]> {
+    try {
+      // 通过目录ID找到对应的directoryDefs ID
+      const directoryDef = await this.repo.getDirectoryDefByDirectoryId(directoryId)
+      if (!directoryDef) {
+        console.log("未找到目录定义:", directoryId)
+        return []
+      }
+      
+      // 获取字段定义
+      const fieldDefs = await this.fieldDefsService.getFieldDefsByDirectoryId(directoryDef.id)
+      
+      // 转换为前端期望的格式
+      return fieldDefs.map(field => ({
+        id: field.id,
+        key: field.key,
+        type: field.type,
+        label: field.schema?.label || field.key,
+        required: field.required,
+        showInForm: field.schema?.showInForm ?? true,
+        showInList: field.schema?.showInList ?? true,
+        showInDetail: field.schema?.showInDetail ?? true,
+        enabled: true, // 默认启用
+        options: field.schema?.options || [],
+        validators: field.validators,
+        description: field.schema?.description || "",
+        placeholder: field.schema?.placeholder || ""
+      }))
+    } catch (error) {
+      console.error("获取目录字段定义失败:", error)
+      return []
+    }
+  }
+
   // 将数据库分类格式转换为前端期望的格式
   private convertCategoriesToFrontendFormat(categories: any[]): any[] {
     return categories.map(category => ({
@@ -84,35 +121,40 @@ export class DirectoryService {
       // 使用真实数据库操作
       const result = await this.repo.findMany(query)
       
-      // 为每个目录获取分类数据并转换为前端期望的格式
-      const directoriesWithCategories = await Promise.all(
+      // 为每个目录获取分类数据和字段定义并转换为前端期望的格式
+      const directoriesWithData = await Promise.all(
         result.directories.map(async (dir) => {
           try {
-            const categories = await this.getDirectoryCategories(dir.id, query.applicationId)
+            const [categories, fields] = await Promise.all([
+              this.getDirectoryCategories(dir.id, query.applicationId),
+              this.getDirectoryFields(dir.id)
+            ])
             return {
               ...dir,
               config: {
                 ...dir.config,
-                categories: categories
+                categories: categories,
+                fields: fields
               }
             }
           } catch (error) {
-            console.error(`获取目录 ${dir.id} 的分类数据失败:`, error)
+            console.error(`获取目录 ${dir.id} 的数据失败:`, error)
             return {
               ...dir,
               config: {
                 ...dir.config,
-                categories: []
+                categories: [],
+                fields: []
               }
             }
           }
         })
       )
       
-      console.log("查询目录列表成功，共", directoriesWithCategories.length, "个目录")
+      console.log("查询目录列表成功，共", directoriesWithData.length, "个目录")
       return {
         ...result,
-        directories: directoriesWithCategories
+        directories: directoriesWithData
       }
     } catch (error) {
       console.error("获取目录列表失败:", error)
