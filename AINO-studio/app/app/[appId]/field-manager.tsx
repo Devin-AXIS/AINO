@@ -128,26 +128,42 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
       console.log("📡 字段定义API响应:", response)
       
       if (response.success && response.data) {
-        // 将API数据转换为前端期望的格式
-        const apiFields = response.data.map((field: any) => ({
-          id: field.id,
-          key: field.key,
-          label: field.schema?.label || field.key,
-          type: field.type,
-          required: field.required || false,
-          unique: false, // API中没有unique字段，默认为false
-          showInList: true, // API中没有showInList字段，默认为true
-          showInForm: true, // API中没有showInForm字段，默认为true
-          showInDetail: true, // API中没有showInDetail字段，默认为true
-          placeholder: field.schema?.placeholder || '',
-          desc: field.schema?.description || '',
-          options: field.schema?.options || [],
-          config: field.schema || {},
-          validators: field.validators || {},
-          enabled: true, // API中没有enabled字段，默认为true
-          locked: false, // API中没有locked字段，默认为false
-          categoryId: null, // API中没有categoryId字段，默认为null
-        }))
+        // 将API数据转换为前端期望的格式，并关联分类信息
+        const apiFields = response.data.map((field: any) => {
+          // 查找字段所属的分类
+          let categoryId = null
+          if (fieldCategories.length > 0) {
+            for (const category of fieldCategories) {
+              if (category.fields && Array.isArray(category.fields)) {
+                const foundField = category.fields.find((pf: any) => pf.id === field.id)
+                if (foundField) {
+                  categoryId = category.id
+                  break
+                }
+              }
+            }
+          }
+          
+          return {
+            id: field.id,
+            key: field.key,
+            label: field.schema?.label || field.key,
+            type: field.type,
+            required: field.required || false,
+            unique: false, // API中没有unique字段，默认为false
+            showInList: field.schema?.showInList ?? true, // 使用API数据，默认为true
+            showInForm: field.schema?.showInForm ?? true, // 使用API数据，默认为true
+            showInDetail: field.schema?.showInDetail ?? true, // 使用API数据，默认为true
+            placeholder: field.schema?.placeholder || '',
+            desc: field.schema?.description || '',
+            options: field.schema?.options || [],
+            config: field.schema || {},
+            validators: field.validators || {},
+            enabled: true, // API中没有enabled字段，默认为true
+            locked: false, // API中没有locked字段，默认为false
+            categoryId: categoryId, // 根据predefinedFields确定分类
+          }
+        })
         
         setFieldDefs(apiFields)
         console.log("✅ 使用API字段定义:", apiFields)
@@ -181,11 +197,18 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     if (app?.id && dir?.id) {
       console.log("🔄 应用或目录变化，重新获取数据:", { appId: app.id, dirId: dir.id })
       fetchFieldCategories()
-      fetchFieldDefs()
     } else {
       console.log("⏸️ 等待必要参数就绪:", { appId: app?.id, dirId: dir?.id })
     }
   }, [app?.id, dir?.id]) // 使用可选链确保依赖项稳定
+
+  // 当字段分类获取完成后，获取字段定义
+  useEffect(() => {
+    if (app?.id && dir?.id && fieldCategories.length > 0) {
+      console.log("🔄 字段分类已获取，开始获取字段定义")
+      fetchFieldDefs()
+    }
+  }, [app?.id, dir?.id, fieldCategories.length])
 
   const categorizedFields = useMemo(() => 
     categorizeFields(fieldDefs, fieldCategories), 
