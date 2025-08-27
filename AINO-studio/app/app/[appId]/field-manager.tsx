@@ -24,6 +24,19 @@ import {
 import { cn } from "@/lib/utils"
 import type { FieldCategoryModel } from "@/lib/field-categories"
 
+// API返回的字段分类类型
+type ApiFieldCategoryModel = {
+  id: string
+  name: string
+  description: string
+  order: number
+  enabled: boolean
+  system?: boolean
+  predefinedFields: any[]
+  createdAt: string
+  updatedAt: string
+}
+
 type Props = {
   app: AppModel
   dir: DirectoryModel
@@ -40,7 +53,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [categoryManagerOpen, setCategoryManagerOpen] = useState(false)
   const [addFieldOpen, setAddFieldOpen] = useState(false)
-  const [fieldCategories, setFieldCategories] = useState<FieldCategoryModel[]>([])
+  const [fieldCategories, setFieldCategories] = useState<ApiFieldCategoryModel[]>([])
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [fieldDefs, setFieldDefs] = useState<any[]>([])
@@ -134,8 +147,9 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           let categoryId = null
           if (fieldCategories.length > 0) {
             for (const category of fieldCategories) {
-              if (category.fields && Array.isArray(category.fields)) {
-                const foundField = category.fields.find((pf: any) => pf.id === field.id)
+              // 使用API返回的predefinedFields字段
+              if (category.predefinedFields && Array.isArray(category.predefinedFields)) {
+                const foundField = category.predefinedFields.find((pf: any) => pf.id === field.id)
                 if (foundField) {
                   categoryId = category.id
                   break
@@ -210,10 +224,19 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     }
   }, [app?.id, dir?.id, fieldCategories.length])
 
-  const categorizedFields = useMemo(() => 
-    categorizeFields(fieldDefs, fieldCategories), 
-    [fieldDefs, fieldCategories]
-  )
+  const categorizedFields = useMemo(() => {
+    // 将API数据转换为前端期望的格式
+    const frontendCategories: FieldCategoryModel[] = fieldCategories.map(cat => ({
+      id: cat.id,
+      name: cat.name,
+      description: cat.description,
+      order: cat.order,
+      enabled: cat.enabled,
+      system: cat.system,
+      fields: cat.predefinedFields || []
+    }))
+    return categorizeFields(fieldDefs, frontendCategories)
+  }, [fieldDefs, fieldCategories])
 
   const filteredFields = useMemo(() => 
     filterFieldsByCategory(fieldDefs, selectedCategoryId, categorizedFields), 
@@ -245,9 +268,19 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     onChange(next)
   }
 
-  function updateFieldCategories(categories: FieldCategoryModel[]) {
+  function updateFieldCategories(categories: ApiFieldCategoryModel[]) {
     setFieldCategories(categories)
-    const updatedDir = updateFieldCategoriesInDirectory(dir, categories)
+    // 将API数据转换为前端期望的格式
+    const frontendCategories: FieldCategoryModel[] = categories.map(cat => ({
+      id: cat.id,
+      name: cat.name,
+      description: cat.description,
+      order: cat.order,
+      enabled: cat.enabled,
+      system: cat.system,
+      fields: cat.predefinedFields || []
+    }))
+    const updatedDir = updateFieldCategoriesInDirectory(dir, frontendCategories)
     onChange(updatedDir)
   }
 
@@ -336,9 +369,9 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           try {
             const categoryToUpdate = fieldCategories.find(cat => cat.id === fieldData.categoryId)
             if (categoryToUpdate) {
-              // 更新分类的fields
+              // 更新分类的predefinedFields
               const updatedFields = [
-                ...(categoryToUpdate.fields || []),
+                ...(categoryToUpdate.predefinedFields || []),
                 {
                   id: response.data.id,
                   key: response.data.key,
@@ -615,7 +648,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
         {filteredFields.map((f, idx) => {
           const category = f.categoryId
             ? fieldCategories.find((cat) => cat.id === f.categoryId)
-            : fieldCategories.find((cat) => cat.fields?.some((predefined: any) => predefined.key === f.key))
+            : fieldCategories.find((cat) => cat.predefinedFields?.some((predefined: any) => predefined.key === f.key))
 
           return (
             <div
@@ -632,7 +665,15 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
                 idx={idx}
                 total={filteredFields.length}
                 typeNames={typeNames}
-                category={category}
+                category={category ? {
+                  id: category.id,
+                  name: category.name,
+                  description: category.description,
+                  order: category.order,
+                  enabled: category.enabled,
+                  system: category.system,
+                  fields: category.predefinedFields || []
+                } : undefined}
                 onToggleEnabled={(v) => toggleFieldEnabled(f.id, v)}
                 onToggleRequired={(v) => toggleFieldRequired(f.id, v)}
                 onToggleList={(v) => toggleFieldShowInList(f.id, v)}
@@ -685,8 +726,30 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
       <FieldCategoryManager
         open={categoryManagerOpen}
         onOpenChange={setCategoryManagerOpen}
-        categories={fieldCategories}
-        onCategoriesChange={updateFieldCategories}
+        categories={fieldCategories.map(cat => ({
+          id: cat.id,
+          name: cat.name,
+          description: cat.description,
+          order: cat.order,
+          enabled: cat.enabled,
+          system: cat.system,
+          fields: cat.predefinedFields || []
+        }))}
+        onCategoriesChange={(categories) => {
+          // 将前端格式转换回API格式
+          const apiCategories: ApiFieldCategoryModel[] = categories.map(cat => ({
+            id: cat.id,
+            name: cat.name,
+            description: cat.description,
+            order: cat.order,
+            enabled: cat.enabled,
+            system: cat.system,
+            predefinedFields: cat.fields || [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }))
+          updateFieldCategories(apiCategories)
+        }}
         applicationId={app.id}
         directoryId={dir.id}
         onFieldAdded={() => {
