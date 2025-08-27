@@ -170,7 +170,7 @@ export function useApiBuilderController({
     try {
       const response = await api.records.listRecords(dirId, {
         page: 1,
-        pageSize: 100, // 获取更多记录
+        pageSize: 20, // 修复：后端最大限制是50，使用20更安全
       })
       
       if (response.success && response.data) {
