@@ -193,10 +193,26 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     onChange(updatedDir)
   }
 
-  function removeField(id: string) {
+  async function removeField(id: string) {
     if (!confirm(t("confirmDeleteField"))) return
-    const updatedDir = removeFieldFromDirectory(dir, id)
-    onChange(updatedDir)
+    
+    try {
+      console.log("🔍 删除字段定义:", id)
+      
+      const response = await fieldsApi.deleteField(id)
+      
+      if (response.success) {
+        console.log("✅ 字段定义删除成功")
+        // 刷新字段定义列表
+        await fetchFieldDefs()
+      } else {
+        console.error("❌ 字段定义删除失败:", response.error)
+        // 可以在这里添加用户提示
+      }
+    } catch (error) {
+      console.error("❌ 字段定义删除出错:", error)
+      // 可以在这里添加用户提示
+    }
   }
 
   async function addField(fieldData: any) {
