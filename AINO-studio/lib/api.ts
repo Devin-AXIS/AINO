@@ -411,19 +411,20 @@ export const fieldsApi = {
     return apiRequest<any>(endpoint)
   },
 
-  // 创建字段
+  // 创建字段定义
   async createField(data: {
-    name: string
+    directoryId: string
     key: string
+    kind: string
     type: string
+    schema?: any
+    relation?: any
+    lookup?: any
+    computed?: any
+    validators?: any
+    readRoles?: string[]
+    writeRoles?: string[]
     required?: boolean
-    unique?: boolean
-    showInList?: boolean
-    showInForm?: boolean
-    showInDetail?: boolean
-    categoryId?: string
-    directoryId?: string
-    config?: any
   }): Promise<ApiResponse<any>> {
     return apiRequest<any>('/api/field-defs', {
       method: 'POST',
@@ -431,18 +432,19 @@ export const fieldsApi = {
     })
   },
 
-  // 更新字段
+  // 更新字段定义
   async updateField(id: string, data: Partial<{
-    name: string
     key: string
+    kind: string
     type: string
-    required: boolean
-    unique: boolean
-    showInList: boolean
-    showInForm: boolean
-    showInDetail: boolean
-    categoryId: string
-    config: any
+    schema?: any
+    relation?: any
+    lookup?: any
+    computed?: any
+    validators?: any
+    readRoles?: string[]
+    writeRoles?: string[]
+    required?: boolean
   }>): Promise<ApiResponse<any>> {
     return apiRequest<any>(`/api/field-defs/${id}`, {
       method: 'PATCH',

@@ -199,12 +199,46 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     onChange(updatedDir)
   }
 
-  function addField(fieldData: any) {
-    const newField = createField(fieldData)
-
-    commit((d) => {
-      d.fields.push(newField)
-    })
+  async function addField(fieldData: any) {
+    try {
+      console.log("🔍 创建字段定义参数:", fieldData)
+      
+      // 转换前端字段数据格式为API格式
+      const apiFieldData = {
+        directoryId: dir.id,
+        key: fieldData.key,
+        kind: 'primitive', // 默认为primitive类型
+        type: fieldData.type,
+        schema: {
+          label: fieldData.label,
+          required: fieldData.required || false,
+          ...(fieldData.options && { options: fieldData.options }),
+          ...(fieldData.placeholder && { placeholder: fieldData.placeholder }),
+          ...(fieldData.desc && { description: fieldData.desc }),
+        },
+        validators: {
+          ...(fieldData.min !== undefined && { min: fieldData.min }),
+          ...(fieldData.max !== undefined && { max: fieldData.max }),
+          ...(fieldData.maxLength !== undefined && { maxLength: fieldData.maxLength }),
+          ...(fieldData.pattern && { pattern: fieldData.pattern }),
+        },
+        required: fieldData.required || false,
+      }
+      
+      const response = await fieldsApi.createField(apiFieldData)
+      
+      if (response.success && response.data) {
+        console.log("✅ 字段定义创建成功:", response.data)
+        // 刷新字段定义列表
+        await fetchFieldDefs()
+      } else {
+        console.error("❌ 字段定义创建失败:", response.error)
+        // 可以在这里添加用户提示
+      }
+    } catch (error) {
+      console.error("❌ 字段定义创建出错:", error)
+      // 可以在这里添加用户提示
+    }
   }
 
   const i18n = useMemo(
