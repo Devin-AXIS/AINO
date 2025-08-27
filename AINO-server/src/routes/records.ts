@@ -51,7 +51,8 @@ records.get('/:dir', zValidator('query', listQuerySchema), async (c) => {
   
   try {
     const t = tableFor(dir)
-    const tenantId = c.get('tenantId') as string || 'default-tenant'
+    const user = c.get('user') as any
+    const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3' // 使用用户ID作为tenantId
     const page = query.page
     const pageSize = query.pageSize
     const sort = query.sort
@@ -119,7 +120,8 @@ records.get('/:dir/:id', async (c) => {
   
   try {
     const t = tableFor(dir)
-    const tenantId = c.get('tenantId') as string || 'default-tenant'
+    const user = c.get('user') as any
+    const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
     
     const [row] = await db.select()
       .from(t)
@@ -155,7 +157,8 @@ records.post('/:dir', async (c) => {
   
   try {
     const t = tableFor(dir)
-    const tenantId = c.get('tenantId') as string || 'default-tenant'
+    const user = c.get('user') as any
+    const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
     
     // 获取字段定义和校验器
     const { fields } = await getDirectoryMeta(dir)
@@ -198,7 +201,8 @@ records.patch('/:dir/:id', async (c) => {
   
   try {
     const t = tableFor(dir)
-    const tenantId = c.get('tenantId') as string || 'default-tenant'
+    const user = c.get('user') as any
+    const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
     
     // 获取字段定义和校验器
     const { fields } = await getDirectoryMeta(dir)
@@ -252,7 +256,8 @@ records.delete('/:dir/:id', async (c) => {
   
   try {
     const t = tableFor(dir)
-    const tenantId = c.get('tenantId') as string || 'default-tenant'
+    const user = c.get('user') as any
+    const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
     
     const [row] = await db.update(t)
       .set({ 
