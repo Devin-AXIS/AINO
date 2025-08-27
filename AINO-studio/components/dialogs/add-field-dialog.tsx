@@ -55,6 +55,7 @@ import { RelationConfig, type RelationConfigValue } from "@/components/dialogs/r
 import { skillCategories } from "@/lib/data/skills-data"
 import { DEFAULT_FIELD_CATEGORIES, getCategoryName } from "@/lib/field-categories"
 import { useLocale } from "@/hooks/use-locale"
+import { fieldCategoriesApi } from "@/lib/api"
 
 type CatNode = { id: string; name: string; children?: CatNode[] }
 
@@ -394,6 +395,10 @@ export function AddFieldDialog({
   const [cascaderOptions, setCascaderOptions] = useState<CatNode[]>([])
   const [openCategory, setOpenCategory] = useState(false)
   const [openSkillsConfig, setOpenSkillsConfig] = useState(false)
+  
+  // 字段分类相关状态
+  const [fieldCategories, setFieldCategories] = useState<any[]>([])
+  const [fieldCategoriesLoading, setFieldCategoriesLoading] = useState(false)
 
   // advanced relation state
   const [rel, setRel] = useState<RelationConfigValue>({
@@ -487,9 +492,60 @@ export function AddFieldDialog({
     maxSelection: undefined as number | undefined,
   })
 
+  // 获取字段分类数据
+  const fetchFieldCategories = async () => {
+    // ✅ 必须：API调用前检查必要参数
+    if (!app?.id || !currentDir?.id) {
+      console.warn("⚠️ 缺少必要参数，跳过字段分类获取:", { appId: app?.id, dirId: currentDir?.id })
+      setFieldCategories([])
+      return
+    }
+
+    try {
+      setFieldCategoriesLoading(true)
+      console.log("🔍 获取字段分类参数:", { appId: app.id, dirId: currentDir.id })
+      
+      const response = await fieldCategoriesApi.getFieldCategories({
+        applicationId: app.id,
+        directoryId: currentDir.id,
+        enabled: true,
+      })
+      
+      console.log("📡 字段分类API响应:", response)
+      
+      if (response.success && response.data?.categories) {
+        setFieldCategories(response.data.categories)
+      } else {
+        console.error("获取字段分类失败:", response.error)
+        setFieldCategories([])
+      }
+    } catch (error) {
+      // ✅ 必须：为所有API调用添加try-catch错误处理
+      console.error("获取字段分类出错:", error)
+      
+      // ✅ 必须：错误信息要用户友好
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch')) {
+          console.warn("🌐 网络连接问题，使用默认字段分类")
+        } else {
+          console.error("❌ API调用失败:", error.message)
+        }
+      }
+      
+      // ✅ 必须：错误恢复机制 - 使用默认数据而不是空数组
+      setFieldCategories([])
+    } finally {
+      setFieldCategoriesLoading(false)
+    }
+  }
+
   // 初始化（支持编辑模式）
   useEffect(() => {
     if (!open) return
+    
+    // 获取字段分类数据
+    fetchFieldCategories()
+    
     if (mode === "edit" && initialDraft) {
       setLabel(initialDraft.label ?? "")
       setKey(initialDraft.key ?? "")
@@ -1010,11 +1066,23 @@ export function AddFieldDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">无分类</SelectItem>
-                  {(currentDir?.fieldCategories || DEFAULT_FIELD_CATEGORIES).map((category: any) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
+                  {fieldCategoriesLoading ? (
+                    <SelectItem value="loading" disabled>
+                      {locale === "zh" ? "加载中..." : "Loading..."}
                     </SelectItem>
-                  ))}
+                  ) : fieldCategories.length > 0 ? (
+                    fieldCategories.map((category: any) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    DEFAULT_FIELD_CATEGORIES.map((category: any) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -1032,7 +1100,15 @@ export function AddFieldDialog({
                 )}
                 {categoryId && (
                   <span className="text-xs rounded-full border border-green-200 bg-green-50 text-green-700 px-2 py-0.5">
-                    {getCategoryName(categoryId)}
+                    {(() => {
+                      // 优先从API数据中查找分类名称
+                      const apiCategory = fieldCategories.find((cat: any) => cat.id === categoryId)
+                      if (apiCategory) {
+                        return apiCategory.name
+                      }
+                      // 如果API数据中没有，则从默认数据中查找
+                      return getCategoryName(categoryId)
+                    })()}
                   </span>
                 )}
               </div>
