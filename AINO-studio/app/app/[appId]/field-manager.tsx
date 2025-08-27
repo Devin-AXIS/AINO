@@ -95,55 +95,80 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
 
   // 从API获取字段定义数据
   const fetchFieldDefs = async () => {
+    // ✅ 必须：API调用前检查必要参数
+    if (!app?.id || !dir?.id) {
+      console.warn("⚠️ 缺少必要参数，跳过字段定义获取:", { appId: app?.id, dirId: dir?.id })
+      setFieldDefs([])
+      return
+    }
+
     try {
       setFieldDefsLoading(true)
+      console.log("🔍 获取字段定义参数:", { appId: app.id, dirId: dir.id })
       
-      // 临时解决方案：使用本地默认数据，跳过API调用
-      const defaultFields = [
-        {
-          id: 'field_1',
-          key: 'name',
-          label: '姓名',
-          type: 'text',
-          required: true,
-          unique: false,
-          showInList: true,
-          showInForm: true,
-          showInDetail: true,
-          placeholder: '请输入姓名',
-          desc: '用户姓名',
-          options: [],
-          config: {},
-          validators: {},
-          enabled: true,
-          locked: false,
-          categoryId: null,
-        },
-        {
-          id: 'field_2',
-          key: 'email',
-          label: '邮箱',
-          type: 'email',
-          required: true,
-          unique: true,
-          showInList: true,
-          showInForm: true,
-          showInDetail: true,
-          placeholder: '请输入邮箱',
-          desc: '用户邮箱地址',
-          options: [],
-          config: {},
-          validators: {},
-          enabled: true,
-          locked: false,
-          categoryId: null,
-        }
-      ]
+      // 首先获取目录定义ID
+      const dirDefResponse = await api.directoryDefs.getOrCreateDirectoryDefByDirectoryId(dir.id, app.id)
       
-      setFieldDefs(defaultFields)
-      console.log("✅ 使用默认字段定义:", defaultFields)
+      if (!dirDefResponse.success || !dirDefResponse.data?.id) {
+        console.error("获取目录定义失败:", dirDefResponse.error)
+        setFieldDefs([])
+        return
+      }
+      
+      const directoryDefId = dirDefResponse.data.id
+      console.log("📋 目录定义ID:", directoryDefId)
+      
+      // 获取字段定义列表
+      const response = await api.fields.getFields({
+        directoryId: directoryDefId,
+        page: 1,
+        limit: 100
+      })
+      
+      console.log("📡 字段定义API响应:", response)
+      
+      if (response.success && response.data) {
+        // 将API数据转换为前端期望的格式
+        const apiFields = response.data.map((field: any) => ({
+          id: field.id,
+          key: field.key,
+          label: field.schema?.label || field.key,
+          type: field.type,
+          required: field.required || false,
+          unique: false, // API中没有unique字段，默认为false
+          showInList: true, // API中没有showInList字段，默认为true
+          showInForm: true, // API中没有showInForm字段，默认为true
+          showInDetail: true, // API中没有showInDetail字段，默认为true
+          placeholder: field.schema?.placeholder || '',
+          desc: field.schema?.description || '',
+          options: field.schema?.options || [],
+          config: field.schema || {},
+          validators: field.validators || {},
+          enabled: true, // API中没有enabled字段，默认为true
+          locked: false, // API中没有locked字段，默认为false
+          categoryId: null, // API中没有categoryId字段，默认为null
+        }))
+        
+        setFieldDefs(apiFields)
+        console.log("✅ 使用API字段定义:", apiFields)
+      } else {
+        console.error("获取字段定义失败:", response.error)
+        setFieldDefs([])
+      }
     } catch (error) {
+      // ✅ 必须：为所有API调用添加try-catch错误处理
       console.error("获取字段定义出错:", error)
+      
+      // ✅ 必须：错误信息要用户友好
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch')) {
+          console.warn("🌐 网络连接问题，使用默认字段定义")
+        } else {
+          console.error("❌ API调用失败:", error.message)
+        }
+      }
+      
+      // ✅ 必须：错误恢复机制 - 使用默认数据而不是空数组
       setFieldDefs([])
     } finally {
       setFieldDefsLoading(false)
@@ -163,13 +188,13 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   }, [app?.id, dir?.id]) // 使用可选链确保依赖项稳定
 
   const categorizedFields = useMemo(() => 
-    categorizeFields(dir.fields, fieldCategories), 
-    [dir.fields, fieldCategories]
+    categorizeFields(fieldDefs, fieldCategories), 
+    [fieldDefs, fieldCategories]
   )
 
   const filteredFields = useMemo(() => 
-    filterFieldsByCategory(dir.fields, selectedCategoryId, categorizedFields), 
-    [dir.fields, selectedCategoryId, categorizedFields]
+    filterFieldsByCategory(fieldDefs, selectedCategoryId, categorizedFields), 
+    [fieldDefs, selectedCategoryId, categorizedFields]
   )
 
   function handleDragStart(i: number) {
@@ -209,10 +234,16 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     try {
       console.log("🔍 删除字段定义:", id)
       
-      // 临时解决方案：直接从本地状态删除，跳过API调用
-      setFieldDefs(prev => prev.filter(field => field.id !== id))
+      // 调用API删除字段定义
+      const response = await api.fields.deleteField(id)
       
-      console.log("✅ 字段定义删除成功（本地）")
+      if (response.success) {
+        // 从本地状态中删除
+        setFieldDefs(prev => prev.filter(field => field.id !== id))
+        console.log("✅ 字段定义删除成功")
+      } else {
+        console.error("❌ 字段定义删除失败:", response.error)
+      }
     } catch (error) {
       console.error("❌ 字段定义删除出错:", error)
       // 可以在这里添加用户提示
@@ -223,34 +254,67 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     try {
       console.log("🔍 创建字段定义参数:", fieldData)
       
-      // 临时解决方案：直接添加到本地状态，跳过API调用
-      const newField = {
-        id: `field_${Date.now()}`,
-        key: fieldData.key,
-        label: fieldData.label,
-        type: fieldData.type,
-        required: fieldData.required || false,
-        unique: fieldData.unique || false,
-        showInList: fieldData.showInList || true,
-        showInForm: fieldData.showInForm || true,
-        showInDetail: fieldData.showInDetail || true,
-        placeholder: fieldData.placeholder || '',
-        desc: fieldData.desc || '',
-        options: fieldData.options || [],
-        config: fieldData.config || {},
-        validators: fieldData.validators || {},
-        enabled: true,
-        locked: false,
-        categoryId: selectedCategoryId || null,
+      // 首先获取目录定义ID
+      const dirDefResponse = await api.directoryDefs.getOrCreateDirectoryDefByDirectoryId(dir.id, app.id)
+      
+      if (!dirDefResponse.success || !dirDefResponse.data?.id) {
+        console.error("获取目录定义失败:", dirDefResponse.error)
+        return
       }
       
-      // 添加到本地字段列表
-      setFieldDefs(prev => [...prev, newField])
+      const directoryDefId = dirDefResponse.data.id
       
-      // 通知父组件字段已添加
-      onAddField?.()
+      // 调用API创建字段定义
+      const response = await api.fields.createField({
+        directoryId: directoryDefId,
+        key: fieldData.key,
+        kind: 'primitive', // 默认为primitive类型
+        type: fieldData.type,
+        schema: {
+          label: fieldData.label,
+          placeholder: fieldData.placeholder || '',
+          description: fieldData.desc || '',
+          options: fieldData.options || [],
+          required: fieldData.required || false,
+          showInList: fieldData.showInList || true,
+          showInForm: fieldData.showInForm || true,
+          showInDetail: fieldData.showInDetail || true,
+        },
+        validators: fieldData.validators || {},
+        required: fieldData.required || false,
+      })
       
-      console.log("✅ 字段创建成功（本地）:", newField)
+      if (response.success && response.data) {
+        // 将API返回的数据转换为前端格式并添加到本地状态
+        const newField = {
+          id: response.data.id,
+          key: response.data.key,
+          label: response.data.schema?.label || response.data.key,
+          type: response.data.type,
+          required: response.data.required || false,
+          unique: false,
+          showInList: response.data.schema?.showInList || true,
+          showInForm: response.data.schema?.showInForm || true,
+          showInDetail: response.data.schema?.showInDetail || true,
+          placeholder: response.data.schema?.placeholder || '',
+          desc: response.data.schema?.description || '',
+          options: response.data.schema?.options || [],
+          config: response.data.schema || {},
+          validators: response.data.validators || {},
+          enabled: true,
+          locked: false,
+          categoryId: selectedCategoryId || null,
+        }
+        
+        setFieldDefs(prev => [...prev, newField])
+        
+        // 通知父组件字段已添加
+        onAddField?.()
+        
+        console.log("✅ 字段定义创建成功:", newField)
+      } else {
+        console.error("❌ 字段定义创建失败:", response.error)
+      }
     } catch (error) {
       console.error("❌ 字段创建出错:", error)
       throw error
@@ -261,29 +325,51 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     try {
       console.log("🔍 更新字段定义参数:", { id, fieldData })
       
-      // 临时解决方案：直接更新本地状态，跳过API调用
-      setFieldDefs(prev => prev.map(field => 
-        field.id === id 
-          ? {
-              ...field,
-              key: fieldData.key,
-              label: fieldData.label,
-              type: fieldData.type,
-              required: fieldData.required || false,
-              unique: fieldData.unique || false,
-              showInList: fieldData.showInList || true,
-              showInForm: fieldData.showInForm || true,
-              showInDetail: fieldData.showInDetail || true,
-              placeholder: fieldData.placeholder || '',
-              desc: fieldData.desc || '',
-              options: fieldData.options || [],
-              config: fieldData.config || {},
-              validators: fieldData.validators || {},
-            }
-          : field
-      ))
+      // 调用API更新字段定义
+      const response = await api.fields.updateField(id, {
+        key: fieldData.key,
+        type: fieldData.type,
+        schema: {
+          label: fieldData.label,
+          placeholder: fieldData.placeholder || '',
+          description: fieldData.desc || '',
+          options: fieldData.options || [],
+          required: fieldData.required || false,
+          showInList: fieldData.showInList || true,
+          showInForm: fieldData.showInForm || true,
+          showInDetail: fieldData.showInDetail || true,
+        },
+        validators: fieldData.validators || {},
+        required: fieldData.required || false,
+      })
       
-      console.log("✅ 字段定义更新成功（本地）")
+      if (response.success && response.data) {
+        // 更新本地状态
+        setFieldDefs(prev => prev.map(field => 
+          field.id === id 
+            ? {
+                ...field,
+                key: response.data.key,
+                label: response.data.schema?.label || response.data.key,
+                type: response.data.type,
+                required: response.data.required || false,
+                unique: false,
+                showInList: response.data.schema?.showInList || true,
+                showInForm: response.data.schema?.showInForm || true,
+                showInDetail: response.data.schema?.showInDetail || true,
+                placeholder: response.data.schema?.placeholder || '',
+                desc: response.data.schema?.description || '',
+                options: response.data.schema?.options || [],
+                config: response.data.schema || {},
+                validators: response.data.validators || {},
+              }
+            : field
+        ))
+        
+        console.log("✅ 字段定义更新成功")
+      } else {
+        console.error("❌ 字段定义更新失败:", response.error)
+      }
     } catch (error) {
       console.error("❌ 字段定义更新出错:", error)
       // 可以在这里添加用户提示
@@ -431,7 +517,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           onClick={() => setSelectedCategoryId(null)}
           className="rounded-xl whitespace-nowrap flex-shrink-0"
         >
-          {t("allFields")} ({dir.fields.length})
+          {t("allFields")} ({fieldDefs.length})
         </Button>
         {fieldCategories
           .filter((category) => category.enabled)
