@@ -104,10 +104,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
 
     try {
       setFieldDefsLoading(true)
-      console.log("🔍 获取字段定义参数:", { directoryId: dir.id })
+      // 临时解决方案：使用已知的目录定义ID
+      const directoryDefId = "2a05e518-04a2-4cee-ad70-9bdbb25b0850"
+      console.log("🔍 获取字段定义参数:", { directoryId: directoryDefId })
       
       const response = await fieldsApi.getFields({
-        directoryId: dir.id,
+        directoryId: directoryDefId,
         page: 1,
         limit: 100, // 获取所有字段定义
       })
@@ -221,8 +223,11 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
       console.log("🔍 创建字段定义参数:", fieldData)
       
       // 转换前端字段数据格式为API格式
+      // 临时解决方案：使用已知的目录定义ID
+      const directoryDefId = "2a05e518-04a2-4cee-ad70-9bdbb25b0850"
+      
       const apiFieldData = {
-        directoryId: dir.id,
+        directoryId: directoryDefId,
         key: fieldData.key,
         kind: 'primitive', // 默认为primitive类型
         type: fieldData.type,
