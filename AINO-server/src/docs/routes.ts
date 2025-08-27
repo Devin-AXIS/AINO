@@ -890,6 +890,225 @@ openApiApp.openapi(apiRoutes.getOrCreateDirectoryDefByDirectoryId, (c) => {
   })
 })
 
+// 记录分类相关API
+openApiApp.openapi(apiRoutes.getRecordCategories, (c) => {
+  // 这里只是文档定义，实际处理在 record-categories/routes.ts 中
+  const query = c.req.valid('query')
+  return c.json({
+    success: true,
+    data: {
+      categories: [
+        {
+          id: 'rcat-1',
+          applicationId: query.applicationId,
+          directoryId: query.directoryId,
+          name: '电子产品',
+          path: '/',
+          level: 1,
+          parentId: null,
+          order: 0,
+          enabled: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+        {
+          id: 'rcat-2',
+          applicationId: query.applicationId,
+          directoryId: query.directoryId,
+          name: '手机',
+          path: '/电子产品/手机',
+          level: 2,
+          parentId: 'rcat-1',
+          order: 0,
+          enabled: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      ],
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 2,
+        totalPages: 1,
+      },
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.createRecordCategory, (c) => {
+  // 这里只是文档定义，实际处理在 record-categories/routes.ts 中
+  const data = c.req.valid('json')
+  const query = c.req.valid('query')
+  return c.json({
+    success: true,
+    data: {
+      id: 'rcat-new',
+      applicationId: query.applicationId,
+      directoryId: query.directoryId,
+      name: data.name,
+      path: data.path || '/',
+      level: data.level || 1,
+      parentId: data.parentId || null,
+      order: data.order || 0,
+      enabled: data.enabled !== undefined ? data.enabled : true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  }, 201)
+})
+
+openApiApp.openapi(apiRoutes.getRecordCategory, (c) => {
+  // 这里只是文档定义，实际处理在 record-categories/routes.ts 中
+  const { id } = c.req.valid('param')
+  return c.json({
+    success: true,
+    data: {
+      id,
+      applicationId: 'app-1',
+      directoryId: 'dir-1',
+      name: '电子产品',
+      path: '/',
+      level: 1,
+      parentId: null,
+      order: 0,
+      enabled: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.updateRecordCategory, (c) => {
+  // 这里只是文档定义，实际处理在 record-categories/routes.ts 中
+  const { id } = c.req.valid('param')
+  const data = c.req.valid('json')
+  return c.json({
+    success: true,
+    data: {
+      id,
+      applicationId: 'app-1',
+      directoryId: 'dir-1',
+      name: data.name || '电子产品',
+      path: data.path || '/',
+      level: data.level || 1,
+      parentId: data.parentId || null,
+      order: data.order !== undefined ? data.order : 0,
+      enabled: data.enabled !== undefined ? data.enabled : true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: new Date().toISOString(),
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.deleteRecordCategory, (c) => {
+  // 这里只是文档定义，实际处理在 record-categories/routes.ts 中
+  const { id } = c.req.valid('param')
+  return c.json({
+    success: true,
+    message: `记录分类 ${id} 删除成功`,
+  })
+})
+
+// 记录管理相关API
+openApiApp.openapi(apiRoutes.getRecords, (c) => {
+  // 这里只是文档定义，实际处理在 records/routes.ts 中
+  const { dirId } = c.req.valid('param')
+  const query = c.req.valid('query')
+  return c.json({
+    success: true,
+    data: {
+      records: [
+        {
+          id: 'record-1',
+          data: {
+            name: '张三',
+            email: 'zhangsan@example.com',
+            phone: '13800138000',
+            department: '技术部',
+          },
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+        {
+          id: 'record-2',
+          data: {
+            name: '李四',
+            email: 'lisi@example.com',
+            phone: '13800138001',
+            department: '产品部',
+          },
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      ],
+      pagination: {
+        page: query.page || 1,
+        pageSize: query.pageSize || 20,
+        total: 2,
+        totalPages: 1,
+      },
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.createRecord, (c) => {
+  // 这里只是文档定义，实际处理在 records/routes.ts 中
+  const { dirId } = c.req.valid('param')
+  const data = c.req.valid('json')
+  return c.json({
+    success: true,
+    data: {
+      id: 'record-new',
+      data: data.data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  }, 201)
+})
+
+openApiApp.openapi(apiRoutes.getRecord, (c) => {
+  // 这里只是文档定义，实际处理在 records/routes.ts 中
+  const { dirId, id } = c.req.valid('param')
+  return c.json({
+    success: true,
+    data: {
+      id,
+      data: {
+        name: '张三',
+        email: 'zhangsan@example.com',
+        phone: '13800138000',
+        department: '技术部',
+      },
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.updateRecord, (c) => {
+  // 这里只是文档定义，实际处理在 records/routes.ts 中
+  const { dirId, id } = c.req.valid('param')
+  const data = c.req.valid('json')
+  return c.json({
+    success: true,
+    data: {
+      id,
+      data: data.data,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: new Date().toISOString(),
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.deleteRecord, (c) => {
+  // 这里只是文档定义，实际处理在 records/routes.ts 中
+  const { dirId, id } = c.req.valid('param')
+  return c.json({
+    success: true,
+    message: `记录 ${id} 删除成功`,
+  })
+})
+
 
 
 // 生成 OpenAPI 规范
