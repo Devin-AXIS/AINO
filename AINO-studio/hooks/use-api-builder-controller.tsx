@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useLocale } from "@/hooks/use-locale"
 import { useApplicationModules } from "@/hooks/use-application-modules"
 import { type ApplicationModule } from "@/lib/api"
@@ -121,7 +121,6 @@ export function useApiBuilderController({
   // 记录数据状态
   const [recordsData, setRecordsData] = useState<Record<string, any[]>>({})
   const [recordsLoading, setRecordsLoading] = useState<Record<string, boolean>>({})
-  const [lastFetchTime, setLastFetchTime] = useState<Record<string, number>>({})
 
   // 获取目录数据的函数
   const fetchDirectories = async (moduleId: string) => {
@@ -162,27 +161,19 @@ export function useApiBuilderController({
     }
   }
 
-  // 获取记录数据的函数
+  // 获取记录数据的函数 - 使用ref来避免依赖项问题
+  const fetchRecordsRef = useRef<Record<string, boolean>>({})
+  
   const fetchRecords = useCallback(async (dirId: string) => {
-    const now = Date.now()
-    const lastFetch = lastFetchTime[dirId] || 0
-    const timeDiff = now - lastFetch
-    
-    // 如果正在加载中，跳过请求
-    if (recordsLoading[dirId]) {
+    // 使用ref来跟踪请求状态，避免依赖项问题
+    if (fetchRecordsRef.current[dirId]) {
       console.log('🔍 记录正在加载中，跳过重复请求:', dirId)
       return
     }
     
-    // 如果距离上次请求不到1秒，跳过请求（防抖）
-    if (timeDiff < 1000) {
-      console.log('🔍 请求过于频繁，跳过:', dirId, '时间差:', timeDiff + 'ms')
-      return
-    }
-    
     console.log('🔍 开始获取记录数据:', dirId)
+    fetchRecordsRef.current[dirId] = true
     setRecordsLoading(prev => ({ ...prev, [dirId]: true }))
-    setLastFetchTime(prev => ({ ...prev, [dirId]: now }))
     
     try {
       const response = await api.records.listRecords(dirId, {
@@ -207,9 +198,10 @@ export function useApiBuilderController({
         variant: "destructive",
       })
     } finally {
+      fetchRecordsRef.current[dirId] = false
       setRecordsLoading(prev => ({ ...prev, [dirId]: false }))
     }
-  }, [recordsLoading, lastFetchTime, toast, locale])
+  }, [toast, locale]) // 移除recordsLoading和lastFetchTime依赖
 
   // 将API模块数据转换为ModuleModel格式，并合并目录数据
   const apiModules = useMemo<ModuleModel[]>(() => {
@@ -270,7 +262,7 @@ export function useApiBuilderController({
       console.log('🔍 useEffect触发，准备获取记录:', currentDir.id, '类型:', currentDir.type)
       fetchRecords(currentDir.id)
     }
-  }, [currentDir?.id, currentDir?.type, fetchRecords]) // 修复：包含fetchRecords依赖
+  }, [currentDir?.id, currentDir?.type]) // 修复：移除fetchRecords依赖，使用ref避免循环
 
   // reset selection when directory or filters change
   useEffect(() => {
