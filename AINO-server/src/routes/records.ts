@@ -339,7 +339,12 @@ records.patch('/:dir/:id', async (c) => {
     // 如果有字段定义，进行验证
     if (fieldDefinitions.length > 0) {
       const propsData = input.props || input
-      const validation = fieldProcessorManager.validateRecord(propsData, fieldDefinitions)
+      
+      // 更新记录时，只验证提供的字段
+      const providedFields = Object.keys(propsData)
+      const fieldsToValidate = fieldDefinitions.filter(fd => providedFields.includes(fd.key))
+      
+      const validation = fieldProcessorManager.validateRecord(propsData, fieldsToValidate)
       
       if (!validation.valid) {
         return c.json({ 
@@ -350,7 +355,7 @@ records.patch('/:dir/:id', async (c) => {
       }
       
       // 转换数据
-      const transformedData = fieldProcessorManager.transformRecord(propsData, fieldDefinitions)
+      const transformedData = fieldProcessorManager.transformRecord(propsData, fieldsToValidate)
       console.log('🔍 验证和转换后的更新数据:', transformedData)
 
       const [row] = await db.update(t)
