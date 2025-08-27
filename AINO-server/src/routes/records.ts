@@ -10,7 +10,15 @@ import { runSerialize } from '../lib/processors'
 import { buildOrderBy, projectProps, buildJsonbWhere } from '../lib/jsonb'
 import { mockRequireAuthMiddleware } from '../middleware/auth'
 
-const records = new Hono()
+// 定义Context类型
+type AppContext = {
+  Variables: {
+    tenantId: string
+    user: any
+  }
+}
+
+const records = new Hono<AppContext>()
 
 // 中间件
 records.use('*', mockRequireAuthMiddleware)

@@ -3,6 +3,7 @@
 
 export interface FieldDef {
   id: string
+  directoryId: string
   key: string
   kind: 'primitive' | 'composite' | 'relation' | 'lookup' | 'computed'
   type: string

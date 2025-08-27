@@ -40,13 +40,13 @@ export function zodFromFields(fields: FieldDef[]) {
     
     // 添加验证规则
     if (field.validators) {
-      if (field.validators.min !== undefined && field.type === 'number') {
+      if (field.validators.min !== undefined && field.type === 'number' && fieldSchema instanceof z.ZodNumber) {
         fieldSchema = fieldSchema.min(field.validators.min)
       }
-      if (field.validators.max !== undefined && field.type === 'number') {
+      if (field.validators.max !== undefined && field.type === 'number' && fieldSchema instanceof z.ZodNumber) {
         fieldSchema = fieldSchema.max(field.validators.max)
       }
-      if (field.validators.pattern && field.type === 'text') {
+      if (field.validators.pattern && field.type === 'text' && fieldSchema instanceof z.ZodString) {
         fieldSchema = fieldSchema.regex(new RegExp(field.validators.pattern))
       }
     }
@@ -103,13 +103,13 @@ export function zodFromFieldsPartial(fields: FieldDef[]) {
     
     // 添加验证规则
     if (field.validators) {
-      if (field.validators.min !== undefined && field.type === 'number') {
+      if (field.validators.min !== undefined && field.type === 'number' && fieldSchema instanceof z.ZodNumber) {
         fieldSchema = fieldSchema.min(field.validators.min)
       }
-      if (field.validators.max !== undefined && field.type === 'number') {
+      if (field.validators.max !== undefined && field.type === 'number' && fieldSchema instanceof z.ZodNumber) {
         fieldSchema = fieldSchema.max(field.validators.max)
       }
-      if (field.validators.pattern && field.type === 'text') {
+      if (field.validators.pattern && field.type === 'text' && fieldSchema instanceof z.ZodString) {
         fieldSchema = fieldSchema.regex(new RegExp(field.validators.pattern))
       }
     }
