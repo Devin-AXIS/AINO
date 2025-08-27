@@ -298,6 +298,68 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     }
   }
 
+  // 字段状态切换函数
+  async function toggleFieldEnabled(id: string, enabled: boolean) {
+    try {
+      console.log("🔍 切换字段启用状态:", { id, enabled })
+      
+      const response = await fieldsApi.updateField(id, {
+        schema: { enabled }
+      })
+      
+      if (response.success && response.data) {
+        console.log("✅ 字段启用状态切换成功")
+        // 刷新字段定义列表
+        await fetchFieldDefs()
+      } else {
+        console.error("❌ 字段启用状态切换失败:", response.error)
+      }
+    } catch (error) {
+      console.error("❌ 字段启用状态切换出错:", error)
+    }
+  }
+
+  async function toggleFieldRequired(id: string, required: boolean) {
+    try {
+      console.log("🔍 切换字段必填状态:", { id, required })
+      
+      const response = await fieldsApi.updateField(id, {
+        schema: { required },
+        required
+      })
+      
+      if (response.success && response.data) {
+        console.log("✅ 字段必填状态切换成功")
+        // 刷新字段定义列表
+        await fetchFieldDefs()
+      } else {
+        console.error("❌ 字段必填状态切换失败:", response.error)
+      }
+    } catch (error) {
+      console.error("❌ 字段必填状态切换出错:", error)
+    }
+  }
+
+  async function toggleFieldShowInList(id: string, showInList: boolean) {
+    try {
+      console.log("🔍 切换字段列表显示状态:", { id, showInList })
+      
+      const response = await fieldsApi.updateField(id, {
+        schema: { showInList }
+      })
+      
+      if (response.success && response.data) {
+        console.log("✅ 字段列表显示状态切换成功")
+        // 刷新字段定义列表
+        await fetchFieldDefs()
+      } else {
+        console.error("❌ 字段列表显示状态切换失败:", response.error)
+      }
+    } catch (error) {
+      console.error("❌ 字段列表显示状态切换出错:", error)
+    }
+  }
+
   const i18n = useMemo(
     () =>
       locale === "zh"
@@ -446,24 +508,9 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
                 total={filteredFields.length}
                 typeNames={typeNames}
                 category={category}
-                onToggleEnabled={(v) =>
-                  commit((d) => {
-                    const ff = d.fields.find((x) => x.id === f.id)!
-                    ff.enabled = v
-                  })
-                }
-                onToggleRequired={(v) =>
-                  commit((d) => {
-                    const ff = d.fields.find((x) => x.id === f.id)!
-                    ff.required = v
-                  })
-                }
-                onToggleList={(v) =>
-                  commit((d) => {
-                    const ff = d.fields.find((x) => x.id === f.id)!
-                    ff.showInList = v
-                  })
-                }
+                onToggleEnabled={(v) => toggleFieldEnabled(f.id, v)}
+                onToggleRequired={(v) => toggleFieldRequired(f.id, v)}
+                onToggleList={(v) => toggleFieldShowInList(f.id, v)}
                 onEdit={() => {
                   setEditing(f)
                   setEditOpen(true)
