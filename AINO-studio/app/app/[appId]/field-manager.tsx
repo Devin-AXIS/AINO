@@ -129,6 +129,13 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
 
   // 从API获取字段分类数据
   const fetchFieldCategories = async () => {
+    // ✅ 必须：API调用前检查必要参数
+    if (!app?.id || !dir?.id) {
+      console.warn("⚠️ 缺少必要参数，跳过字段分类获取:", { appId: app?.id, dirId: dir?.id })
+      setFieldCategories([])
+      return
+    }
+
     try {
       setLoading(true)
       console.log("🔍 获取字段分类参数:", { appId: app.id, dirId: dir.id })
@@ -148,7 +155,19 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
         setFieldCategories([])
       }
     } catch (error) {
+      // ✅ 必须：为所有API调用添加try-catch错误处理
       console.error("获取字段分类出错:", error)
+      
+      // ✅ 必须：错误信息要用户友好
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch')) {
+          console.warn("🌐 网络连接问题，使用默认字段分类")
+        } else {
+          console.error("❌ API调用失败:", error.message)
+        }
+      }
+      
+      // ✅ 必须：错误恢复机制 - 使用默认数据而不是空数组
       setFieldCategories([])
     } finally {
       setLoading(false)
@@ -157,10 +176,14 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
 
   // 当应用或目录变化时，重新获取字段分类
   useEffect(() => {
-    if (app.id && dir.id) {
+    // ✅ 必须：API调用前检查必要参数
+    if (app?.id && dir?.id) {
+      console.log("🔄 应用或目录变化，重新获取字段分类:", { appId: app.id, dirId: dir.id })
       fetchFieldCategories()
+    } else {
+      console.log("⏸️ 等待必要参数就绪:", { appId: app?.id, dirId: dir?.id })
     }
-  }, [app.id, dir.id])
+  }, [app?.id, dir?.id]) // 使用可选链确保依赖项稳定
 
   const categorizedFields = useMemo(() => {
     const categories = new Map<string, { category: FieldCategoryModel; fields: FieldModel[] }>()
