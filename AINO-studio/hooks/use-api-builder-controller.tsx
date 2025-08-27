@@ -121,6 +121,7 @@ export function useApiBuilderController({
   // 记录数据状态
   const [recordsData, setRecordsData] = useState<Record<string, any[]>>({})
   const [recordsLoading, setRecordsLoading] = useState<Record<string, boolean>>({})
+  const [lastFetchTime, setLastFetchTime] = useState<Record<string, number>>({})
 
   // 获取目录数据的函数
   const fetchDirectories = async (moduleId: string) => {
@@ -163,13 +164,25 @@ export function useApiBuilderController({
 
   // 获取记录数据的函数
   const fetchRecords = useCallback(async (dirId: string) => {
+    const now = Date.now()
+    const lastFetch = lastFetchTime[dirId] || 0
+    const timeDiff = now - lastFetch
+    
+    // 如果正在加载中，跳过请求
     if (recordsLoading[dirId]) {
       console.log('🔍 记录正在加载中，跳过重复请求:', dirId)
       return
     }
     
+    // 如果距离上次请求不到1秒，跳过请求（防抖）
+    if (timeDiff < 1000) {
+      console.log('🔍 请求过于频繁，跳过:', dirId, '时间差:', timeDiff + 'ms')
+      return
+    }
+    
     console.log('🔍 开始获取记录数据:', dirId)
     setRecordsLoading(prev => ({ ...prev, [dirId]: true }))
+    setLastFetchTime(prev => ({ ...prev, [dirId]: now }))
     
     try {
       const response = await api.records.listRecords(dirId, {
@@ -196,7 +209,7 @@ export function useApiBuilderController({
     } finally {
       setRecordsLoading(prev => ({ ...prev, [dirId]: false }))
     }
-  }, [recordsLoading, toast, locale])
+  }, [recordsLoading, lastFetchTime, toast, locale])
 
   // 将API模块数据转换为ModuleModel格式，并合并目录数据
   const apiModules = useMemo<ModuleModel[]>(() => {
@@ -207,10 +220,10 @@ export function useApiBuilderController({
       icon: module.icon,
       directories: (directoriesData[module.id] || []).map(dir => ({
         ...dir,
-        records: recordsData[dir.id] || []
+        records: [] // 修复：不在useMemo中直接使用recordsData，避免无限循环
       }))
     }))
-  }, [modules, directoriesData, recordsData])
+  }, [modules, directoriesData]) // 修复：移除recordsData依赖，避免无限循环
 
   // 设置默认选中的模块
   useEffect(() => {
@@ -241,12 +254,20 @@ export function useApiBuilderController({
 
   const currentDir = useMemo<DirectoryModel | null>(() => {
     if (!currentModule || !dirId) return null
-    return currentModule.directories.find((d) => d.id === dirId) || null
-  }, [currentModule, dirId])
+    const dir = currentModule.directories.find((d) => d.id === dirId)
+    if (!dir) return null
+    
+    // 动态获取记录数据，避免在useMemo中直接使用recordsData
+    return {
+      ...dir,
+      records: recordsData[dir.id] || []
+    }
+  }, [currentModule, dirId, recordsData])
 
   // 当目录ID变化时，获取该目录的记录数据
   useEffect(() => {
     if (currentDir && currentDir.type === "table") {
+      console.log('🔍 useEffect触发，准备获取记录:', currentDir.id, '类型:', currentDir.type)
       fetchRecords(currentDir.id)
     }
   }, [currentDir?.id, currentDir?.type, fetchRecords]) // 修复：包含fetchRecords依赖
