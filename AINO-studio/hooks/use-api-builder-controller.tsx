@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useLocale } from "@/hooks/use-locale"
 import { useApplicationModules } from "@/hooks/use-application-modules"
 import { type ApplicationModule } from "@/lib/api"
@@ -162,9 +162,13 @@ export function useApiBuilderController({
   }
 
   // 获取记录数据的函数
-  const fetchRecords = async (dirId: string) => {
-    if (recordsLoading[dirId]) return
+  const fetchRecords = useCallback(async (dirId: string) => {
+    if (recordsLoading[dirId]) {
+      console.log('🔍 记录正在加载中，跳过重复请求:', dirId)
+      return
+    }
     
+    console.log('🔍 开始获取记录数据:', dirId)
     setRecordsLoading(prev => ({ ...prev, [dirId]: true }))
     
     try {
@@ -177,6 +181,7 @@ export function useApiBuilderController({
         // 后端返回格式: { data: [...], pagination: {...} }
         // 前端期望格式: 直接是记录数组
         const records = Array.isArray(response.data) ? response.data : response.data.records || response.data
+        console.log('🔍 记录数据获取成功:', dirId, '记录数量:', records.length)
         setRecordsData(prev => ({
           ...prev,
           [dirId]: records
@@ -191,7 +196,7 @@ export function useApiBuilderController({
     } finally {
       setRecordsLoading(prev => ({ ...prev, [dirId]: false }))
     }
-  }
+  }, [recordsLoading, toast, locale])
 
   // 将API模块数据转换为ModuleModel格式，并合并目录数据
   const apiModules = useMemo<ModuleModel[]>(() => {
@@ -244,7 +249,7 @@ export function useApiBuilderController({
     if (currentDir && currentDir.type === "table") {
       fetchRecords(currentDir.id)
     }
-  }, [currentDir?.id, currentDir?.type]) // 修复：只依赖id和type，避免无限循环
+  }, [currentDir?.id, currentDir?.type, fetchRecords]) // 修复：包含fetchRecords依赖
 
   // reset selection when directory or filters change
   useEffect(() => {
