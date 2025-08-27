@@ -1,4 +1,4 @@
-import { pgTable, index, uuid, integer, jsonb, timestamp, text, foreignKey, boolean, varchar, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, index, foreignKey, uuid, text, integer, timestamp, jsonb, boolean, varchar, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const fieldType = pgEnum("field_type", ['text', 'number', 'date', 'datetime', 'boolean', 'email', 'url', 'phone', 'select', 'multiselect', 'textarea', 'rich_text', 'file', 'image', 'relation', 'formula', 'json'])
@@ -6,6 +6,31 @@ export const moduleStatus = pgEnum("module_status", ['active', 'inactive', 'erro
 export const moduleType = pgEnum("module_type", ['system', 'custom', 'remote'])
 export const relationType = pgEnum("relation_type", ['one_to_one', 'one_to_many', 'many_to_many'])
 
+
+export const directoryDefs = pgTable("directory_defs", {
+	id: uuid().defaultRandom().notNull(),
+	slug: text().notNull(),
+	title: text().notNull(),
+	version: integer().default(1).notNull(),
+	status: text().default('active').notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow(),
+	applicationId: uuid("application_id"),
+	directoryId: uuid("directory_id"),
+}, (table) => [
+	index("idx_directory_defs_application").using("btree", table.applicationId.asc().nullsLast().op("uuid_ops")),
+	index("idx_directory_defs_directory").using("btree", table.directoryId.asc().nullsLast().op("uuid_ops")),
+	foreignKey({
+			columns: [table.applicationId],
+			foreignColumns: [applications.id],
+			name: "directory_defs_application_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.directoryId],
+			foreignColumns: [directories.id],
+			name: "directory_defs_directory_id_fkey"
+		}).onDelete("cascade"),
+]);
 
 export const dirUsers = pgTable("dir_users", {
 	id: uuid().defaultRandom().notNull(),
@@ -68,31 +93,6 @@ export const relations = pgTable("relations", {
 	createdBy: uuid("created_by"),
 	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
 });
-
-export const directoryDefs = pgTable("directory_defs", {
-	id: uuid().defaultRandom().notNull(),
-	slug: text().notNull(),
-	title: text().notNull(),
-	version: integer().default(1).notNull(),
-	status: text().default('active').notNull(),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow(),
-	applicationId: uuid("application_id"),
-	directoryId: uuid("directory_id"),
-}, (table) => [
-	index("idx_directory_defs_application").using("btree", table.applicationId.asc().nullsLast().op("uuid_ops")),
-	index("idx_directory_defs_directory").using("btree", table.directoryId.asc().nullsLast().op("uuid_ops")),
-	foreignKey({
-			columns: [table.applicationId],
-			foreignColumns: [applications.id],
-			name: "directory_defs_application_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
-			columns: [table.directoryId],
-			foreignColumns: [directories.id],
-			name: "directory_defs_directory_id_fkey"
-		}).onDelete("cascade"),
-]);
 
 export const applicationUsers = pgTable("application_users", {
 	id: uuid().defaultRandom().notNull(),
@@ -243,15 +243,15 @@ export const applicationMembers = pgTable("application_members", {
 ]);
 
 export const fieldCategories = pgTable("field_categories", {
-	id: uuid().notNull(),
+	id: uuid().defaultRandom().notNull(),
 	applicationId: uuid("application_id").notNull(),
 	directoryId: uuid("directory_id").notNull(),
 	name: text().notNull(),
 	description: text(),
-	order: integer(),
-	enabled: boolean(),
-	system: boolean(),
-	predefinedFields: jsonb("predefined_fields"),
-	createdAt: timestamp("created_at", { mode: 'string' }).notNull(),
-	updatedAt: timestamp("updated_at", { mode: 'string' }).notNull(),
+	order: integer().default(0),
+	enabled: boolean().default(true),
+	system: boolean().default(false),
+	predefinedFields: jsonb("predefined_fields").default([]),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
 });

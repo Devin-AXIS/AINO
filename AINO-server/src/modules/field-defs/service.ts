@@ -1,6 +1,6 @@
 import { eq, and, desc, asc, sql } from 'drizzle-orm'
 import { db } from '../../db'
-import { fieldDefs, directoryDefs } from '../../db/schema'
+import { fieldDefs, directoryDefs } from '../../../drizzle/schema'
 import type { FieldDef } from '../../lib/processors'
 
 export interface ListFieldDefsQuery {

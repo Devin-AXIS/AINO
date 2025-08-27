@@ -9,6 +9,7 @@ import directoriesRoute from "./modules/directories/routes"
 import fieldCategoriesRoute from "./modules/field-categories/routes"
 import { records } from "./routes/records"
 import { fieldDefs } from "./modules/field-defs/routes"
+import { directoryDefs } from "./modules/directory-defs/routes"
 import { docsRoute } from "./docs/routes"
 
 const app = new Hono()
@@ -50,6 +51,9 @@ app.route("/api/records", records)
 
 // 字段定义管理路由
 app.route("/api/field-defs", fieldDefs)
+
+// 目录定义管理路由
+app.route("/api/directory-defs", directoryDefs)
 
 // API 文档路由
 app.route("/docs", docsRoute)

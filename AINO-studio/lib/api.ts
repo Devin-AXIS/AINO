@@ -390,6 +390,83 @@ export const fieldCategoriesApi = {
   }
 }
 
+// 目录定义相关 API
+export const directoryDefsApi = {
+  // 获取目录定义列表
+  async getDirectoryDefs(params: {
+    applicationId?: string
+    directoryId?: string
+    status?: string
+    page?: number
+    limit?: number
+  }): Promise<ApiResponse<any>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString())
+      }
+    })
+    
+    const queryString = searchParams.toString()
+    const endpoint = `/api/directory-defs${queryString ? `?${queryString}` : ''}`
+    
+    return apiRequest<any>(endpoint)
+  },
+
+  // 获取单个目录定义
+  async getDirectoryDef(id: string): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/directory-defs/${id}`)
+  },
+
+  // 根据slug获取目录定义
+  async getDirectoryDefBySlug(slug: string): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/directory-defs/slug/${slug}`)
+  },
+
+  // 创建目录定义
+  async createDirectoryDef(data: {
+    slug: string
+    title: string
+    version?: number
+    status?: string
+    applicationId: string
+    directoryId: string
+  }): Promise<ApiResponse<any>> {
+    return apiRequest<any>('/api/directory-defs', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 更新目录定义
+  async updateDirectoryDef(id: string, data: Partial<{
+    slug: string
+    title: string
+    version: number
+    status: string
+  }>): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/directory-defs/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 删除目录定义
+  async deleteDirectoryDef(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/directory-defs/${id}`, {
+      method: 'DELETE',
+    })
+  },
+
+  // 根据旧目录ID获取或创建目录定义
+  async getOrCreateDirectoryDefByDirectoryId(directoryId: string, applicationId: string): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/directory-defs/by-directory/${directoryId}`, {
+      method: 'POST',
+      body: JSON.stringify({ applicationId }),
+    })
+  }
+}
+
 // 字段相关 API
 export const fieldsApi = {
   // 获取字段列表
@@ -470,6 +547,7 @@ export const api = {
   auth: authApi,
   applications: applicationsApi,
   directories: directoriesApi,
+  directoryDefs: directoryDefsApi,
   fieldCategories: fieldCategoriesApi,
   fields: fieldsApi,
 }

@@ -1,15 +1,7 @@
 import { relations } from "drizzle-orm/relations";
-import { directoryDefs, fieldDefs, applications, directories, applicationUsers, modules, auditLogs, users, applicationMembers } from "./schema";
-
-export const fieldDefsRelations = relations(fieldDefs, ({one}) => ({
-	directoryDef: one(directoryDefs, {
-		fields: [fieldDefs.directoryId],
-		references: [directoryDefs.id]
-	}),
-}));
+import { applications, directoryDefs, directories, fieldDefs, applicationUsers, modules, auditLogs, users, applicationMembers } from "./schema";
 
 export const directoryDefsRelations = relations(directoryDefs, ({one, many}) => ({
-	fieldDefs: many(fieldDefs),
 	application: one(applications, {
 		fields: [directoryDefs.applicationId],
 		references: [applications.id]
@@ -18,6 +10,7 @@ export const directoryDefsRelations = relations(directoryDefs, ({one, many}) => 
 		fields: [directoryDefs.directoryId],
 		references: [directories.id]
 	}),
+	fieldDefs: many(fieldDefs),
 }));
 
 export const applicationsRelations = relations(applications, ({many}) => ({
@@ -38,6 +31,13 @@ export const directoriesRelations = relations(directories, ({one, many}) => ({
 	module: one(modules, {
 		fields: [directories.moduleId],
 		references: [modules.id]
+	}),
+}));
+
+export const fieldDefsRelations = relations(fieldDefs, ({one}) => ({
+	directoryDef: one(directoryDefs, {
+		fields: [fieldDefs.directoryId],
+		references: [directoryDefs.id]
 	}),
 }));
 

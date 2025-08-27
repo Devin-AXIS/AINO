@@ -22,7 +22,8 @@ export const openApiConfig = {
     { name: '应用模块', description: '应用模块管理相关接口' },
     { name: '目录管理', description: '目录管理相关接口' },
     { name: '字段分类', description: '字段分类管理相关接口' },
-
+    { name: '字段定义', description: '字段定义管理相关接口' },
+    { name: '目录定义', description: '目录定义管理相关接口' },
     { name: '健康检查', description: '系统健康检查' },
   ],
 }
@@ -1601,6 +1602,725 @@ export const apiRoutes = {
       },
       404: {
         description: '字段分类不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  // 字段定义相关API
+  getFieldDefs: {
+    method: 'get' as const,
+    path: '/field-defs',
+    tags: ['字段定义'],
+    summary: '获取字段定义列表',
+    description: '获取字段定义列表，支持分页和筛选',
+    request: {
+      query: z.object({
+        directoryId: z.string().optional().openapi({
+          param: {
+            name: 'directoryId',
+            in: 'query',
+            description: '目录定义ID',
+          },
+        }),
+        page: z.coerce.number().min(1).default(1).openapi({
+          param: {
+            name: 'page',
+            in: 'query',
+            description: '页码',
+          },
+        }),
+        limit: z.coerce.number().min(1).max(100).default(20).openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            description: '每页数量',
+          },
+        }),
+      }),
+    },
+    responses: {
+      200: {
+        description: '获取成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: z.array(z.object({
+                id: z.string(),
+                directoryId: z.string(),
+                key: z.string(),
+                kind: z.string(),
+                type: z.string(),
+                schema: z.any(),
+                relation: z.any().optional(),
+                lookup: z.any().optional(),
+                computed: z.any().optional(),
+                validators: z.any().optional(),
+                readRoles: z.array(z.string()),
+                writeRoles: z.array(z.string()),
+                required: z.boolean(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              })),
+              pagination: z.object({
+                page: z.number(),
+                limit: z.number(),
+                total: z.number(),
+                totalPages: z.number(),
+              }),
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  getFieldDef: {
+    method: 'get' as const,
+    path: '/field-defs/{id}',
+    tags: ['字段定义'],
+    summary: '获取单个字段定义',
+    description: '根据ID获取单个字段定义详情',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '字段定义ID',
+          },
+        }),
+      }),
+    },
+    responses: {
+      200: {
+        description: '获取成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: z.object({
+                id: z.string(),
+                directoryId: z.string(),
+                key: z.string(),
+                kind: z.string(),
+                type: z.string(),
+                schema: z.any(),
+                relation: z.any().optional(),
+                lookup: z.any().optional(),
+                computed: z.any().optional(),
+                validators: z.any().optional(),
+                readRoles: z.array(z.string()),
+                writeRoles: z.array(z.string()),
+                required: z.boolean(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
+          },
+        },
+      },
+      404: {
+        description: '字段定义不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  createFieldDef: {
+    method: 'post' as const,
+    path: '/field-defs',
+    tags: ['字段定义'],
+    summary: '创建字段定义',
+    description: '创建新的字段定义',
+    request: {
+      json: z.object({
+        directoryId: z.string(),
+        key: z.string(),
+        kind: z.enum(['primitive', 'composite', 'relation', 'lookup', 'computed']),
+        type: z.string(),
+        schema: z.any().optional(),
+        relation: z.any().optional(),
+        lookup: z.any().optional(),
+        computed: z.any().optional(),
+        validators: z.any().optional(),
+        readRoles: z.array(z.string()).default(['admin', 'member']),
+        writeRoles: z.array(z.string()).default(['admin']),
+        required: z.boolean().default(false),
+      }),
+    },
+    responses: {
+      201: {
+        description: '创建成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: z.object({
+                id: z.string(),
+                directoryId: z.string(),
+                key: z.string(),
+                kind: z.string(),
+                type: z.string(),
+                schema: z.any(),
+                relation: z.any().optional(),
+                lookup: z.any().optional(),
+                computed: z.any().optional(),
+                validators: z.any().optional(),
+                readRoles: z.array(z.string()),
+                writeRoles: z.array(z.string()),
+                required: z.boolean(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  updateFieldDef: {
+    method: 'patch' as const,
+    path: '/field-defs/{id}',
+    tags: ['字段定义'],
+    summary: '更新字段定义',
+    description: '更新字段定义信息',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '字段定义ID',
+          },
+        }),
+      }),
+      json: z.object({
+        key: z.string().optional(),
+        kind: z.enum(['primitive', 'composite', 'relation', 'lookup', 'computed']).optional(),
+        type: z.string().optional(),
+        schema: z.any().optional(),
+        relation: z.any().optional(),
+        lookup: z.any().optional(),
+        computed: z.any().optional(),
+        validators: z.any().optional(),
+        readRoles: z.array(z.string()).optional(),
+        writeRoles: z.array(z.string()).optional(),
+        required: z.boolean().optional(),
+      }),
+    },
+    responses: {
+      200: {
+        description: '更新成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: z.object({
+                id: z.string(),
+                directoryId: z.string(),
+                key: z.string(),
+                kind: z.string(),
+                type: z.string(),
+                schema: z.any(),
+                relation: z.any().optional(),
+                lookup: z.any().optional(),
+                computed: z.any().optional(),
+                validators: z.any().optional(),
+                readRoles: z.array(z.string()),
+                writeRoles: z.array(z.string()),
+                required: z.boolean(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
+          },
+        },
+      },
+      404: {
+        description: '字段定义不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  deleteFieldDef: {
+    method: 'delete' as const,
+    path: '/field-defs/{id}',
+    tags: ['字段定义'],
+    summary: '删除字段定义',
+    description: '删除字段定义',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '字段定义ID',
+          },
+        }),
+      }),
+    },
+    responses: {
+      200: {
+        description: '删除成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+            }),
+          },
+        },
+      },
+      404: {
+        description: '字段定义不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  // 目录定义相关API
+  getDirectoryDefs: {
+    method: 'get' as const,
+    path: '/directory-defs',
+    tags: ['目录定义'],
+    summary: '获取目录定义列表',
+    description: '获取目录定义列表，支持分页和筛选',
+    request: {
+      query: z.object({
+        applicationId: z.string().optional().openapi({
+          param: {
+            name: 'applicationId',
+            in: 'query',
+            description: '应用ID',
+          },
+        }),
+        directoryId: z.string().optional().openapi({
+          param: {
+            name: 'directoryId',
+            in: 'query',
+            description: '目录ID',
+          },
+        }),
+        status: z.string().optional().openapi({
+          param: {
+            name: 'status',
+            in: 'query',
+            description: '状态',
+          },
+        }),
+        page: z.coerce.number().min(1).default(1).openapi({
+          param: {
+            name: 'page',
+            in: 'query',
+            description: '页码',
+          },
+        }),
+        limit: z.coerce.number().min(1).max(100).default(20).openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            description: '每页数量',
+          },
+        }),
+      }),
+    },
+    responses: {
+      200: {
+        description: '获取成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: z.array(z.object({
+                id: z.string(),
+                slug: z.string(),
+                title: z.string(),
+                version: z.number(),
+                status: z.string(),
+                applicationId: z.string(),
+                directoryId: z.string(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              })),
+              pagination: z.object({
+                page: z.number(),
+                limit: z.number(),
+                total: z.number(),
+                totalPages: z.number(),
+              }),
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      401: {
+        description: '未授权',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  getDirectoryDef: {
+    method: 'get' as const,
+    path: '/directory-defs/{id}',
+    tags: ['目录定义'],
+    summary: '获取单个目录定义',
+    description: '根据ID获取单个目录定义详情',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '目录定义ID',
+          },
+        }),
+      }),
+    },
+    responses: {
+      200: {
+        description: '获取成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: z.object({
+                id: z.string(),
+                slug: z.string(),
+                title: z.string(),
+                version: z.number(),
+                status: z.string(),
+                applicationId: z.string(),
+                directoryId: z.string(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
+          },
+        },
+      },
+      404: {
+        description: '目录定义不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  getDirectoryDefBySlug: {
+    method: 'get' as const,
+    path: '/directory-defs/slug/{slug}',
+    tags: ['目录定义'],
+    summary: '根据slug获取目录定义',
+    description: '根据slug获取目录定义详情',
+    request: {
+      params: z.object({
+        slug: z.string().openapi({
+          param: {
+            name: 'slug',
+            in: 'path',
+            description: '目录定义slug',
+          },
+        }),
+      }),
+    },
+    responses: {
+      200: {
+        description: '获取成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: z.object({
+                id: z.string(),
+                slug: z.string(),
+                title: z.string(),
+                version: z.number(),
+                status: z.string(),
+                applicationId: z.string(),
+                directoryId: z.string(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
+          },
+        },
+      },
+      404: {
+        description: '目录定义不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  createDirectoryDef: {
+    method: 'post' as const,
+    path: '/directory-defs',
+    tags: ['目录定义'],
+    summary: '创建目录定义',
+    description: '创建新的目录定义',
+    request: {
+      json: z.object({
+        slug: z.string().min(1),
+        title: z.string().min(1),
+        version: z.number().min(1).optional(),
+        status: z.string().optional(),
+        applicationId: z.string(),
+        directoryId: z.string(),
+      }),
+    },
+    responses: {
+      201: {
+        description: '创建成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: z.object({
+                id: z.string(),
+                slug: z.string(),
+                title: z.string(),
+                version: z.number(),
+                status: z.string(),
+                applicationId: z.string(),
+                directoryId: z.string(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  updateDirectoryDef: {
+    method: 'patch' as const,
+    path: '/directory-defs/{id}',
+    tags: ['目录定义'],
+    summary: '更新目录定义',
+    description: '更新目录定义信息',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '目录定义ID',
+          },
+        }),
+      }),
+      json: z.object({
+        slug: z.string().min(1).optional(),
+        title: z.string().min(1).optional(),
+        version: z.number().min(1).optional(),
+        status: z.string().optional(),
+      }),
+    },
+    responses: {
+      200: {
+        description: '更新成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: z.object({
+                id: z.string(),
+                slug: z.string(),
+                title: z.string(),
+                version: z.number(),
+                status: z.string(),
+                applicationId: z.string(),
+                directoryId: z.string(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
+          },
+        },
+      },
+      404: {
+        description: '目录定义不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  deleteDirectoryDef: {
+    method: 'delete' as const,
+    path: '/directory-defs/{id}',
+    tags: ['目录定义'],
+    summary: '删除目录定义',
+    description: '删除目录定义',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            description: '目录定义ID',
+          },
+        }),
+      }),
+    },
+    responses: {
+      200: {
+        description: '删除成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: z.object({
+                id: z.string(),
+                slug: z.string(),
+                title: z.string(),
+                version: z.number(),
+                status: z.string(),
+                applicationId: z.string(),
+                directoryId: z.string(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
+          },
+        },
+      },
+      404: {
+        description: '目录定义不存在',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+    },
+  },
+
+  getOrCreateDirectoryDefByDirectoryId: {
+    method: 'post' as const,
+    path: '/directory-defs/by-directory/{directoryId}',
+    tags: ['目录定义'],
+    summary: '根据旧目录ID获取或创建目录定义',
+    description: '根据旧的目录ID获取或创建目录定义，用于兼容旧系统',
+    request: {
+      params: z.object({
+        directoryId: z.string().openapi({
+          param: {
+            name: 'directoryId',
+            in: 'path',
+            description: '旧目录ID',
+          },
+        }),
+      }),
+      json: z.object({
+        applicationId: z.string(),
+      }),
+    },
+    responses: {
+      200: {
+        description: '获取或创建成功',
+        content: {
+          'application/json': {
+            schema: z.object({
+              success: z.boolean(),
+              data: z.object({
+                id: z.string(),
+                slug: z.string(),
+                title: z.string(),
+                version: z.number(),
+                status: z.string(),
+                applicationId: z.string(),
+                directoryId: z.string(),
+                createdAt: z.string(),
+                updatedAt: z.string(),
+              }),
+            }),
+          },
+        },
+      },
+      400: {
+        description: '参数错误',
+        content: {
+          'application/json': {
+            schema: ErrorResponse,
+          },
+        },
+      },
+      500: {
+        description: '服务器错误',
         content: {
           'application/json': {
             schema: ErrorResponse,

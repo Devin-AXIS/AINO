@@ -600,6 +600,296 @@ openApiApp.openapi(apiRoutes.deleteFieldCategory, (c) => {
   })
 })
 
+// 字段定义相关API
+openApiApp.openapi(apiRoutes.getFieldDefs, (c) => {
+  // 这里只是文档定义，实际处理在 field-defs/routes.ts 中
+  const query = c.req.valid('query')
+  return c.json({
+    success: true,
+    data: [
+      {
+        id: 'field-1',
+        directoryId: query.directoryId || 'dir-1',
+        key: 'name',
+        kind: 'primitive',
+        type: 'text',
+        schema: { label: '姓名', required: true },
+        relation: null,
+        lookup: null,
+        computed: null,
+        validators: {},
+        readRoles: ['admin', 'member'],
+        writeRoles: ['admin'],
+        required: true,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
+      {
+        id: 'field-2',
+        directoryId: query.directoryId || 'dir-1',
+        key: 'email',
+        kind: 'primitive',
+        type: 'email',
+        schema: { label: '邮箱', required: true },
+        relation: null,
+        lookup: null,
+        computed: null,
+        validators: {},
+        readRoles: ['admin', 'member'],
+        writeRoles: ['admin'],
+        required: true,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
+    ],
+    pagination: {
+      page: 1,
+      limit: 20,
+      total: 2,
+      totalPages: 1,
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.getFieldDef, (c) => {
+  // 这里只是文档定义，实际处理在 field-defs/routes.ts 中
+  const { id } = c.req.valid('param')
+  return c.json({
+    success: true,
+    data: {
+      id,
+      directoryId: 'dir-1',
+      key: 'name',
+      kind: 'primitive',
+      type: 'text',
+      schema: { label: '姓名', required: true },
+      relation: null,
+      lookup: null,
+      computed: null,
+      validators: {},
+      readRoles: ['admin', 'member'],
+      writeRoles: ['admin'],
+      required: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.createFieldDef, (c) => {
+  // 这里只是文档定义，实际处理在 field-defs/routes.ts 中
+  const data = c.req.valid('json')
+  return c.json({
+    success: true,
+    data: {
+      id: 'field-new',
+      directoryId: data.directoryId,
+      key: data.key,
+      kind: data.kind,
+      type: data.type,
+      schema: data.schema || {},
+      relation: data.relation,
+      lookup: data.lookup,
+      computed: data.computed,
+      validators: data.validators || {},
+      readRoles: data.readRoles || ['admin', 'member'],
+      writeRoles: data.writeRoles || ['admin'],
+      required: data.required || false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  }, 201)
+})
+
+openApiApp.openapi(apiRoutes.updateFieldDef, (c) => {
+  // 这里只是文档定义，实际处理在 field-defs/routes.ts 中
+  const { id } = c.req.valid('param')
+  const data = c.req.valid('json')
+  return c.json({
+    success: true,
+    data: {
+      id,
+      directoryId: 'dir-1',
+      key: data.key || 'name',
+      kind: data.kind || 'primitive',
+      type: data.type || 'text',
+      schema: data.schema || { label: '姓名', required: true },
+      relation: data.relation,
+      lookup: data.lookup,
+      computed: data.computed,
+      validators: data.validators || {},
+      readRoles: data.readRoles || ['admin', 'member'],
+      writeRoles: data.writeRoles || ['admin'],
+      required: data.required !== undefined ? data.required : true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: new Date().toISOString(),
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.deleteFieldDef, (c) => {
+  // 这里只是文档定义，实际处理在 field-defs/routes.ts 中
+  const { id } = c.req.valid('param')
+  return c.json({
+    success: true,
+  })
+})
+
+// 目录定义相关API
+openApiApp.openapi(apiRoutes.getDirectoryDefs, (c) => {
+  // 这里只是文档定义，实际处理在 directory-defs/routes.ts 中
+  const query = c.req.valid('query')
+  return c.json({
+    success: true,
+    data: [
+      {
+        id: 'dir-def-1',
+        slug: 'users',
+        title: '用户管理',
+        version: 1,
+        status: 'active',
+        applicationId: query.applicationId || 'app-1',
+        directoryId: query.directoryId || 'dir-1',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
+      {
+        id: 'dir-def-2',
+        slug: 'departments',
+        title: '部门管理',
+        version: 1,
+        status: 'active',
+        applicationId: query.applicationId || 'app-1',
+        directoryId: query.directoryId || 'dir-2',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
+    ],
+    pagination: {
+      page: 1,
+      limit: 20,
+      total: 2,
+      totalPages: 1,
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.getDirectoryDef, (c) => {
+  // 这里只是文档定义，实际处理在 directory-defs/routes.ts 中
+  const { id } = c.req.valid('param')
+  return c.json({
+    success: true,
+    data: {
+      id,
+      slug: 'users',
+      title: '用户管理',
+      version: 1,
+      status: 'active',
+      applicationId: 'app-1',
+      directoryId: 'dir-1',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.getDirectoryDefBySlug, (c) => {
+  // 这里只是文档定义，实际处理在 directory-defs/routes.ts 中
+  const { slug } = c.req.valid('param')
+  return c.json({
+    success: true,
+    data: {
+      id: 'dir-def-1',
+      slug,
+      title: '用户管理',
+      version: 1,
+      status: 'active',
+      applicationId: 'app-1',
+      directoryId: 'dir-1',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.createDirectoryDef, (c) => {
+  // 这里只是文档定义，实际处理在 directory-defs/routes.ts 中
+  const data = c.req.valid('json')
+  return c.json({
+    success: true,
+    data: {
+      id: 'dir-def-new',
+      slug: data.slug,
+      title: data.title,
+      version: data.version || 1,
+      status: data.status || 'active',
+      applicationId: data.applicationId,
+      directoryId: data.directoryId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  }, 201)
+})
+
+openApiApp.openapi(apiRoutes.updateDirectoryDef, (c) => {
+  // 这里只是文档定义，实际处理在 directory-defs/routes.ts 中
+  const { id } = c.req.valid('param')
+  const data = c.req.valid('json')
+  return c.json({
+    success: true,
+    data: {
+      id,
+      slug: data.slug || 'users',
+      title: data.title || '用户管理',
+      version: data.version || 1,
+      status: data.status || 'active',
+      applicationId: 'app-1',
+      directoryId: 'dir-1',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: new Date().toISOString(),
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.deleteDirectoryDef, (c) => {
+  // 这里只是文档定义，实际处理在 directory-defs/routes.ts 中
+  const { id } = c.req.valid('param')
+  return c.json({
+    success: true,
+    data: {
+      id,
+      slug: 'users',
+      title: '用户管理',
+      version: 1,
+      status: 'active',
+      applicationId: 'app-1',
+      directoryId: 'dir-1',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  })
+})
+
+openApiApp.openapi(apiRoutes.getOrCreateDirectoryDefByDirectoryId, (c) => {
+  // 这里只是文档定义，实际处理在 directory-defs/routes.ts 中
+  const { directoryId } = c.req.valid('param')
+  const { applicationId } = c.req.valid('json')
+  return c.json({
+    success: true,
+    data: {
+      id: 'dir-def-1',
+      slug: 'users',
+      title: '用户管理',
+      version: 1,
+      status: 'active',
+      applicationId,
+      directoryId,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  })
+})
+
 
 
 // 生成 OpenAPI 规范
