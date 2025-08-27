@@ -9,6 +9,7 @@ import { zodFromFields, zodFromFieldsPartial } from '../lib/zod-from-fields'
 import { runSerialize } from '../lib/processors'
 import { buildOrderBy, projectProps, buildJsonbWhere } from '../lib/jsonb'
 import { mockRequireAuthMiddleware } from '../middleware/auth'
+import { fieldProcessorManager } from '../lib/field-processors'
 
 // 定义Context类型
 type AppContext = {
@@ -217,27 +218,77 @@ records.post('/:dir', async (c) => {
       return c.json({ success: false, error: '目录ID格式无效' }, 400)
     }
     
+    // 获取目录信息
+    const directory = await getDirectoryById(dir)
+    if (!directory) {
+      return c.json({ success: false, error: '目录不存在' }, 404)
+    }
+    
     const t = tableFor(dir)
     const user = c.get('user') as any
     const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
     
-    // 简化处理：直接使用输入数据作为props
-    const propsData = input.props || input
-    console.log('🔍 处理后的数据:', propsData)
+    // 获取字段定义进行验证
+    const fieldDefsResult = await db.select().from(fieldDefs).where(eq(fieldDefs.directoryId, dir))
+    const fieldDefinitions = fieldDefsResult.map(fd => ({
+      id: fd.id,
+      key: fd.key,
+      kind: fd.kind,
+      type: fd.type,
+      schema: fd.schema,
+      validators: fd.validators,
+      required: fd.required
+    }))
     
-    const [row] = await db.insert(t).values({ 
-      tenantId, 
-      props: propsData
-    }).returning()
-    
-    return c.json({ 
-      success: true, 
-      data: { 
-        id: row.id, 
-        version: row.version, 
-        ...(row.props as Record<string, any>) 
-      } 
-    }, 201)
+    // 如果有字段定义，进行验证
+    if (fieldDefinitions.length > 0) {
+      const propsData = input.props || input
+      const validation = fieldProcessorManager.validateRecord(propsData, fieldDefinitions)
+      
+      if (!validation.valid) {
+        return c.json({ 
+          success: false, 
+          error: '数据验证失败', 
+          details: validation.errors 
+        }, 400)
+      }
+      
+      // 转换数据
+      const transformedData = fieldProcessorManager.transformRecord(propsData, fieldDefinitions)
+      console.log('🔍 验证和转换后的数据:', transformedData)
+      
+      const [row] = await db.insert(t).values({ 
+        tenantId, 
+        props: transformedData
+      }).returning()
+      
+      return c.json({ 
+        success: true, 
+        data: { 
+          id: row.id, 
+          version: row.version, 
+          ...(row.props as Record<string, any>) 
+        } 
+      }, 201)
+    } else {
+      // 没有字段定义时，直接使用输入数据
+      const propsData = input.props || input
+      console.log('🔍 无字段定义，直接使用数据:', propsData)
+      
+      const [row] = await db.insert(t).values({ 
+        tenantId, 
+        props: propsData
+      }).returning()
+      
+      return c.json({ 
+        success: true, 
+        data: { 
+          id: row.id, 
+          version: row.version, 
+          ...(row.props as Record<string, any>) 
+        } 
+      }, 201)
+    }
   } catch (error) {
     console.error('创建记录失败:', error)
     return c.json({ success: false, error: '创建记录失败' }, 500)
@@ -251,39 +302,101 @@ records.patch('/:dir/:id', async (c) => {
   const input = await c.req.json()
   
   try {
+    // 验证目录ID格式
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(dir)) {
+      return c.json({ success: false, error: '目录ID格式无效' }, 400)
+    }
+    
     const t = tableFor(dir)
     const user = c.get('user') as any
     const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
     
-    // 简化处理：直接使用输入数据作为props
-    const propsData = input.props || input
-    console.log('🔍 更新数据:', propsData)
+    // 获取字段定义进行验证
+    const fieldDefsResult = await db.select().from(fieldDefs).where(eq(fieldDefs.directoryId, dir))
+    const fieldDefinitions = fieldDefsResult.map(fd => ({
+      id: fd.id,
+      key: fd.key,
+      kind: fd.kind,
+      type: fd.type,
+      schema: fd.schema,
+      validators: fd.validators,
+      required: fd.required
+    }))
+    
+    // 如果有字段定义，进行验证
+    if (fieldDefinitions.length > 0) {
+      const propsData = input.props || input
+      const validation = fieldProcessorManager.validateRecord(propsData, fieldDefinitions)
+      
+      if (!validation.valid) {
+        return c.json({ 
+          success: false, 
+          error: '数据验证失败', 
+          details: validation.errors 
+        }, 400)
+      }
+      
+      // 转换数据
+      const transformedData = fieldProcessorManager.transformRecord(propsData, fieldDefinitions)
+      console.log('🔍 验证和转换后的更新数据:', transformedData)
 
-    const [row] = await db.update(t)
-      .set({ 
-        props: sql`${t.props} || ${JSON.stringify(propsData)}`,
-        version: sql`${t.version} + 1`,
-        updatedAt: sql`now()`
+      const [row] = await db.update(t)
+        .set({ 
+          props: sql`${t.props} || ${JSON.stringify(transformedData)}`,
+          version: sql`${t.version} + 1`,
+          updatedAt: sql`now()`
+        })
+        .where(and(
+          eq(t.id, id),
+          eq(t.tenantId, tenantId),
+          sql`${t.deletedAt} is null`
+        ))
+        .returning()
+      
+      if (!row) {
+        return c.json({ success: false, error: '记录不存在' }, 404)
+      }
+      
+      return c.json({ 
+        success: true, 
+        data: { 
+          id: row.id, 
+          version: row.version, 
+          ...(row.props as Record<string, any>) 
+        } 
       })
-      .where(and(
-        eq(t.id, id),
-        eq(t.tenantId, tenantId),
-        sql`${t.deletedAt} is null`
-      ))
-      .returning()
-    
-    if (!row) {
-      return c.json({ success: false, error: '记录不存在' }, 404)
+    } else {
+      // 没有字段定义时，直接使用输入数据
+      const propsData = input.props || input
+      console.log('🔍 无字段定义，直接更新数据:', propsData)
+
+      const [row] = await db.update(t)
+        .set({ 
+          props: sql`${t.props} || ${JSON.stringify(propsData)}`,
+          version: sql`${t.version} + 1`,
+          updatedAt: sql`now()`
+        })
+        .where(and(
+          eq(t.id, id),
+          eq(t.tenantId, tenantId),
+          sql`${t.deletedAt} is null`
+        ))
+        .returning()
+      
+      if (!row) {
+        return c.json({ success: false, error: '记录不存在' }, 404)
+      }
+      
+      return c.json({ 
+        success: true, 
+        data: { 
+          id: row.id, 
+          version: row.version, 
+          ...(row.props as Record<string, any>) 
+        } 
+      })
     }
-    
-    return c.json({ 
-      success: true, 
-      data: { 
-        id: row.id, 
-        version: row.version, 
-        ...(row.props as Record<string, any>) 
-      } 
-    })
   } catch (error) {
     console.error('更新记录失败:', error)
     return c.json({ success: false, error: '更新记录失败' }, 500)
