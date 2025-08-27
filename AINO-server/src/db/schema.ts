@@ -76,6 +76,21 @@ export const fieldCategories = pgTable("field_categories", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 })
 
+// 记录分类表 - 每个目录独立的分类系统
+export const recordCategories = pgTable("record_categories", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  applicationId: uuid("application_id").notNull().references(() => applications.id, { onDelete: "cascade" }),
+  directoryId: uuid("directory_id").notNull().references(() => directories.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  path: text("path").notNull(), // 分类路径，如 "电子产品/手机/智能手机"
+  level: integer("level").notNull(), // 分类级别 1, 2, 3
+  parentId: uuid("parent_id").references(() => recordCategories.id, { onDelete: "cascade" }), // 父分类ID
+  order: integer("order").default(0),
+  enabled: boolean("enabled").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+})
+
 
 
 // 应用用户表 - 每个应用内部的业务用户（与系统用户无关）

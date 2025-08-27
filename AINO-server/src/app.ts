@@ -7,6 +7,7 @@ import applicationUsersRoute from "./modules/application-users/routes"
 import directoriesRoute from "./modules/directories/routes"
 
 import fieldCategoriesRoute from "./modules/field-categories/routes"
+import recordCategoriesRoute from "./modules/record-categories/routes"
 import { records } from "./routes/records"
 import { fieldDefs } from "./modules/field-defs/routes"
 import { directoryDefs } from "./modules/directory-defs/routes"
@@ -45,6 +46,9 @@ app.route("/api/directories", directoriesRoute)
 
 // 字段分类管理路由
 app.route("/api/field-categories", fieldCategoriesRoute)
+
+// 记录分类管理路由
+app.route("/api/record-categories", recordCategoriesRoute)
 
 // 统一记录CRUD路由
 app.route("/api/records", records)

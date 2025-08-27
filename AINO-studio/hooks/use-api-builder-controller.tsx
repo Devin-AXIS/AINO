@@ -117,6 +117,10 @@ export function useApiBuilderController({
   // 目录数据状态
   const [directoriesData, setDirectoriesData] = useState<Record<string, DirectoryModel[]>>({})
   const [directoriesLoading, setDirectoriesLoading] = useState<Record<string, boolean>>({})
+  
+  // 记录数据状态
+  const [recordsData, setRecordsData] = useState<Record<string, any[]>>({})
+  const [recordsLoading, setRecordsLoading] = useState<Record<string, boolean>>({})
 
   // 获取目录数据的函数
   const fetchDirectories = async (moduleId: string) => {
@@ -157,6 +161,35 @@ export function useApiBuilderController({
     }
   }
 
+  // 获取记录数据的函数
+  const fetchRecords = async (dirId: string) => {
+    if (recordsLoading[dirId]) return
+    
+    setRecordsLoading(prev => ({ ...prev, [dirId]: true }))
+    
+    try {
+      const response = await api.records.listRecords(dirId, {
+        page: 1,
+        pageSize: 100, // 获取更多记录
+      })
+      
+      if (response.success && response.data) {
+        setRecordsData(prev => ({
+          ...prev,
+          [dirId]: response.data
+        }))
+      }
+    } catch (error) {
+      console.error("获取记录数据失败:", error)
+      toast({
+        description: locale === "zh" ? "获取记录数据失败" : "Failed to fetch records",
+        variant: "destructive",
+      })
+    } finally {
+      setRecordsLoading(prev => ({ ...prev, [dirId]: false }))
+    }
+  }
+
   // 将API模块数据转换为ModuleModel格式，并合并目录数据
   const apiModules = useMemo<ModuleModel[]>(() => {
     return modules.map((module: ApplicationModule) => ({
@@ -164,9 +197,12 @@ export function useApiBuilderController({
       name: module.name,
       type: module.type,
       icon: module.icon,
-      directories: directoriesData[module.id] || [], // 使用从API获取的目录数据
+      directories: (directoriesData[module.id] || []).map(dir => ({
+        ...dir,
+        records: recordsData[dir.id] || []
+      }))
     }))
-  }, [modules, directoriesData])
+  }, [modules, directoriesData, recordsData])
 
   // 设置默认选中的模块
   useEffect(() => {
@@ -199,6 +235,13 @@ export function useApiBuilderController({
     if (!currentModule || !dirId) return null
     return currentModule.directories.find((d) => d.id === dirId) || null
   }, [currentModule, dirId])
+
+  // 当目录ID变化时，获取该目录的记录数据
+  useEffect(() => {
+    if (currentDir && currentDir.type === "table") {
+      fetchRecords(currentDir.id)
+    }
+  }, [currentDir])
 
   // reset selection when directory or filters change
   useEffect(() => {
@@ -271,11 +314,26 @@ export function useApiBuilderController({
     console.log("Persist app:", app)
   }
 
-  function addRecord() {
-    // 临时实现
-    toast({
-      description: locale === "zh" ? "添加记录功能正在开发中" : "Add record feature is under development",
-    })
+  async function addRecord() {
+    if (!currentDir) return
+    if (!can("edit")) {
+      toast({ 
+        description: locale === "zh" ? "当前角色无权添加记录" : "Current role has no permission to add record", 
+        variant: "destructive" 
+      })
+      return
+    }
+
+    try {
+      // 打开记录抽屉进行创建
+      setDrawer({ open: true, dirId: currentDir.id, recordId: null, tab: "basic" })
+    } catch (error) {
+      console.error("添加记录失败:", error)
+      toast({
+        description: locale === "zh" ? "添加记录失败" : "Failed to add record",
+        variant: "destructive",
+      })
+    }
   }
 
   function openDrawer(dirId: string, recordId: string) {
@@ -402,17 +460,60 @@ export function useApiBuilderController({
     }
   }
 
-  function handleSaveCategories(newCats: any[]) {
-    if (!currentDir) return
+  async function handleSaveCategories(newCats: any[]) {
+    if (!currentDir || !appId) return
     
-    // 临时实现
-    toast({
-      description: locale === "zh" ? "保存分类功能正在开发中" : "Save categories feature is under development",
-    })
-    setOpenCategory(false)
+    try {
+      // 获取现有的分类
+      const existingCategories = currentDir.categories || []
+      
+      // 找出新增的分类
+      const newCategories = newCats.filter(newCat => 
+        !existingCategories.some(existingCat => existingCat.id === newCat.id)
+      )
+      
+      // 为每个新分类调用API
+      for (const category of newCategories) {
+        await api.recordCategories.createRecordCategory({
+          name: category.name,
+          order: newCats.indexOf(category),
+          enabled: true,
+          parentId: undefined // 暂时只支持一级分类
+        }, {
+          applicationId: appId,
+          directoryId: currentDir.id
+        })
+      }
+      
+      // 更新本地状态
+      const updatedDir = {
+        ...currentDir,
+        categories: newCats
+      }
+      
+      // 更新目录数据
+      setDirectoriesData(prev => ({
+        ...prev,
+        [currentModule?.id || '']: prev[currentModule?.id || '']?.map(dir => 
+          dir.id === currentDir.id ? updatedDir : dir
+        ) || []
+      }))
+      
+      toast({
+        description: locale === "zh" ? "分类保存成功" : "Categories saved successfully",
+      })
+      setOpenCategory(false)
+    } catch (error) {
+      console.error("保存分类失败:", error)
+      toast({
+        description: locale === "zh" ? "保存分类失败，请重试" : "Failed to save categories, please try again",
+        variant: "destructive"
+      })
+    }
   }
 
-  function handleSingleDelete(rid: string) {
+  async function handleSingleDelete(rid: string) {
+    if (!currentDir) return
     if (!can("delete")) {
       toast({ 
         description: locale === "zh" ? "当前角色无权删除记录" : "Current role has no permission to delete record", 
@@ -420,10 +521,25 @@ export function useApiBuilderController({
       })
       return
     }
-    // 临时实现
-    toast({
-      description: locale === "zh" ? "删除记录功能正在开发中" : "Delete record feature is under development",
-    })
+
+    try {
+      const response = await api.records.deleteRecord(currentDir.id, rid)
+      
+      if (response.success) {
+        // 重新获取记录数据
+        await fetchRecords(currentDir.id)
+        
+        toast({
+          description: locale === "zh" ? "记录删除成功" : "Record deleted successfully",
+        })
+      }
+    } catch (error) {
+      console.error("删除记录失败:", error)
+      toast({
+        description: locale === "zh" ? "删除记录失败" : "Failed to delete record",
+        variant: "destructive",
+      })
+    }
   }
 
   function handleBulkDelete() {

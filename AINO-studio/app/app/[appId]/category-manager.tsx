@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/pagination"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/hooks/use-locale"
+import { api } from "@/lib/api"
 
 type Props = {
   dir: DirectoryModel

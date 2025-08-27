@@ -84,7 +84,13 @@ async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('aino_token') : null
+  let token = typeof window !== 'undefined' ? localStorage.getItem('aino_token') : null
+  
+  // 如果没有token，设置默认的test-token（用于开发环境）
+  if (!token && typeof window !== 'undefined') {
+    token = 'test-token'
+    localStorage.setItem('aino_token', token)
+  }
   
   const config: RequestInit = {
     headers: {
@@ -542,6 +548,137 @@ export const fieldsApi = {
   }
 }
 
+// 记录相关 API
+export const recordsApi = {
+  // 获取记录列表
+  async listRecords(dirSlug: string, params: {
+    page?: number
+    pageSize?: number
+    sort?: string
+    fields?: string
+    filter?: string
+  } = {}): Promise<ApiResponse<any>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString())
+      }
+    })
+    
+    const queryString = searchParams.toString()
+    const endpoint = `/api/records/${dirSlug}${queryString ? `?${queryString}` : ''}`
+    
+    return apiRequest<any>(endpoint)
+  },
+
+  // 获取单个记录
+  async getRecord(dirSlug: string, recordId: string): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/records/${dirSlug}/${recordId}`)
+  },
+
+  // 创建记录
+  async createRecord(dirSlug: string, data: {
+    props: Record<string, any>
+  }): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/records/${dirSlug}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 更新记录
+  async updateRecord(dirSlug: string, recordId: string, data: {
+    props: Record<string, any>
+    version?: number
+  }): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/records/${dirSlug}/${recordId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 删除记录
+  async deleteRecord(dirSlug: string, recordId: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/records/${dirSlug}/${recordId}`, {
+      method: 'DELETE',
+    })
+  }
+}
+
+// 记录分类相关 API
+export const recordCategoriesApi = {
+  // 获取记录分类列表
+  async getRecordCategories(params: {
+    applicationId: string
+    directoryId: string
+    page?: number
+    limit?: number
+  }): Promise<ApiResponse<any>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString())
+      }
+    })
+    
+    const queryString = searchParams.toString()
+    const endpoint = `/api/record-categories${queryString ? `?${queryString}` : ''}`
+    
+    return apiRequest<any>(endpoint)
+  },
+
+  // 创建记录分类
+  async createRecordCategory(data: {
+    name: string
+    order?: number
+    enabled?: boolean
+    parentId?: string
+  }, params: {
+    applicationId: string
+    directoryId: string
+  }): Promise<ApiResponse<any>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString())
+      }
+    })
+    
+    const queryString = searchParams.toString()
+    const endpoint = `/api/record-categories${queryString ? `?${queryString}` : ''}`
+    
+    return apiRequest<any>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 更新记录分类
+  async updateRecordCategory(id: string, data: Partial<{
+    name: string
+    order: number
+    enabled: boolean
+    parentId: string
+  }>): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/record-categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 删除记录分类
+  async deleteRecordCategory(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/record-categories/${id}`, {
+      method: 'DELETE',
+    })
+  },
+
+  // 获取记录分类详情
+  async getRecordCategory(id: string): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/record-categories/${id}`)
+  }
+}
+
 // 导出默认 API 对象
 export const api = {
   auth: authApi,
@@ -549,5 +686,7 @@ export const api = {
   directories: directoriesApi,
   directoryDefs: directoryDefsApi,
   fieldCategories: fieldCategoriesApi,
+  recordCategories: recordCategoriesApi,
   fields: fieldsApi,
+  records: recordsApi,
 }

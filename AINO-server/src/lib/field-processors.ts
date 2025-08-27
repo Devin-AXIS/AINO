@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // 字段类型定义
 export type FieldKind = 'primitive' | 'composite' | 'relation' | 'lookup' | 'computed'
-export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json'
+export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table'
 
 // 字段定义接口
 export interface FieldDef {
@@ -372,6 +372,39 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
       }
       return value
     },
+    format: (value) => value
+  },
+
+  // 表格字段（兼容text类型）
+  table: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (!value || value.trim() === '')) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      if (value && typeof value !== 'string') {
+        return { valid: false, error: '必须是文本类型' }
+      }
+      
+      // 验证长度限制
+      if (value && fieldDef.validators) {
+        const validators = fieldDef.validators
+        if (validators.minLength && value.length < validators.minLength) {
+          return { valid: false, error: `文本长度不能少于${validators.minLength}个字符` }
+        }
+        if (validators.maxLength && value.length > validators.maxLength) {
+          return { valid: false, error: `文本长度不能超过${validators.maxLength}个字符` }
+        }
+        if (validators.pattern) {
+          const regex = new RegExp(validators.pattern)
+          if (!regex.test(value)) {
+            return { valid: false, error: '文本格式不符合要求' }
+          }
+        }
+      }
+      
+      return { valid: true }
+    },
+    transform: (value) => value ? String(value).trim() : value,
     format: (value) => value
   }
 }
