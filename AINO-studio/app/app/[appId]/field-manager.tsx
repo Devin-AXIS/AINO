@@ -326,15 +326,15 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           validators: response.data.validators || {},
           enabled: true,
           locked: false,
-          categoryId: selectedCategoryId || null,
+          categoryId: fieldData.categoryId || null,
         }
         
         setFieldDefs(prev => [...prev, newField])
         
         // 如果选择了分类，将字段添加到分类的fields中
-        if (selectedCategoryId) {
+        if (fieldData.categoryId) {
           try {
-            const categoryToUpdate = fieldCategories.find(cat => cat.id === selectedCategoryId)
+            const categoryToUpdate = fieldCategories.find(cat => cat.id === fieldData.categoryId)
             if (categoryToUpdate) {
               // 更新分类的fields
               const updatedFields = [
@@ -354,7 +354,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
               ]
               
               // 调用API更新字段分类
-              const categoryUpdateResponse = await api.fieldCategories.updateFieldCategory(selectedCategoryId, {
+              const categoryUpdateResponse = await api.fieldCategories.updateFieldCategory(fieldData.categoryId, {
                 predefinedFields: updatedFields
               })
               
