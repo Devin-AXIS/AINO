@@ -308,6 +308,46 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
         
         setFieldDefs(prev => [...prev, newField])
         
+        // 如果选择了分类，将字段添加到分类的fields中
+        if (selectedCategoryId) {
+          try {
+            const categoryToUpdate = fieldCategories.find(cat => cat.id === selectedCategoryId)
+            if (categoryToUpdate) {
+              // 更新分类的fields
+              const updatedFields = [
+                ...(categoryToUpdate.fields || []),
+                {
+                  id: response.data.id,
+                  key: response.data.key,
+                  label: response.data.schema?.label || response.data.key,
+                  type: response.data.type,
+                  description: response.data.schema?.description || '',
+                  visibility: "visible" as const,
+                  sensitive: false,
+                  editable: "user" as const,
+                  required: response.data.required || false,
+                  options: response.data.schema?.options || [],
+                }
+              ]
+              
+              // 调用API更新字段分类
+              const categoryUpdateResponse = await api.fieldCategories.updateFieldCategory(selectedCategoryId, {
+                predefinedFields: updatedFields
+              })
+              
+              if (categoryUpdateResponse.success) {
+                console.log("✅ 字段已成功归类到分类:", selectedCategoryId)
+                // 刷新字段分类数据
+                fetchFieldCategories()
+              } else {
+                console.error("❌ 字段归类失败:", categoryUpdateResponse.error)
+              }
+            }
+          } catch (error) {
+            console.error("❌ 字段归类出错:", error)
+          }
+        }
+        
         // 通知父组件字段已添加
         onAddField?.()
         
