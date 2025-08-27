@@ -114,8 +114,9 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
       
       console.log("📡 字段定义API响应:", response)
       
-      if (response.success && response.data?.data) {
-        setFieldDefs(response.data.data)
+      if (response.success && response.data) {
+        // API响应格式：response.data 直接是数组
+        setFieldDefs(response.data)
       } else {
         console.error("获取字段定义失败:", response.error)
         setFieldDefs([])
