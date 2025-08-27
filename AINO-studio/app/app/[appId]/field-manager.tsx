@@ -257,6 +257,47 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     }
   }
 
+  async function updateField(id: string, fieldData: any) {
+    try {
+      console.log("🔍 更新字段定义参数:", { id, fieldData })
+      
+      // 转换前端字段数据格式为API格式
+      const apiFieldData = {
+        key: fieldData.key,
+        kind: 'primitive', // 默认为primitive类型
+        type: fieldData.type,
+        schema: {
+          label: fieldData.label,
+          required: fieldData.required || false,
+          ...(fieldData.options && { options: fieldData.options }),
+          ...(fieldData.placeholder && { placeholder: fieldData.placeholder }),
+          ...(fieldData.desc && { description: fieldData.desc }),
+        },
+        validators: {
+          ...(fieldData.min !== undefined && { min: fieldData.min }),
+          ...(fieldData.max !== undefined && { max: fieldData.max }),
+          ...(fieldData.maxLength !== undefined && { maxLength: fieldData.maxLength }),
+          ...(fieldData.pattern && { pattern: fieldData.pattern }),
+        },
+        required: fieldData.required || false,
+      }
+      
+      const response = await fieldsApi.updateField(id, apiFieldData)
+      
+      if (response.success && response.data) {
+        console.log("✅ 字段定义更新成功:", response.data)
+        // 刷新字段定义列表
+        await fetchFieldDefs()
+      } else {
+        console.error("❌ 字段定义更新失败:", response.error)
+        // 可以在这里添加用户提示
+      }
+    } catch (error) {
+      console.error("❌ 字段定义更新出错:", error)
+      // 可以在这里添加用户提示
+    }
+  }
+
   const i18n = useMemo(
     () =>
       locale === "zh"
@@ -448,8 +489,10 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           field={editing}
           typeNames={typeNames}
           i18n={i18n}
-          onSubmit={(nextDir) => {
-            onChange(nextDir)
+          onSubmit={async (fieldData) => {
+            await updateField(editing.id, fieldData)
+            setEditOpen(false)
+            setEditing(null)
           }}
         />
       )}
