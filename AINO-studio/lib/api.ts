@@ -390,7 +390,78 @@ export const fieldCategoriesApi = {
   }
 }
 
+// 字段相关 API
+export const fieldsApi = {
+  // 获取字段列表
+  async getFields(params: {
+    directoryId?: string
+    page?: number
+    limit?: number
+  }): Promise<ApiResponse<any>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString())
+      }
+    })
+    
+    const queryString = searchParams.toString()
+    const endpoint = `/api/field-defs${queryString ? `?${queryString}` : ''}`
+    
+    return apiRequest<any>(endpoint)
+  },
 
+  // 创建字段
+  async createField(data: {
+    name: string
+    key: string
+    type: string
+    required?: boolean
+    unique?: boolean
+    showInList?: boolean
+    showInForm?: boolean
+    showInDetail?: boolean
+    categoryId?: string
+    directoryId?: string
+    config?: any
+  }): Promise<ApiResponse<any>> {
+    return apiRequest<any>('/api/field-defs', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 更新字段
+  async updateField(id: string, data: Partial<{
+    name: string
+    key: string
+    type: string
+    required: boolean
+    unique: boolean
+    showInList: boolean
+    showInForm: boolean
+    showInDetail: boolean
+    categoryId: string
+    config: any
+  }>): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/field-defs/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 删除字段
+  async deleteField(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/field-defs/${id}`, {
+      method: 'DELETE',
+    })
+  },
+
+  // 获取字段详情
+  async getField(id: string): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/field-defs/${id}`)
+  }
+}
 
 // 导出默认 API 对象
 export const api = {
@@ -398,4 +469,5 @@ export const api = {
   applications: applicationsApi,
   directories: directoriesApi,
   fieldCategories: fieldCategoriesApi,
+  fields: fieldsApi,
 }

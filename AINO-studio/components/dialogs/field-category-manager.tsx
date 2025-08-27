@@ -149,7 +149,7 @@ function CategoryList({
                 </div>
                 <div className="text-sm text-gray-600 line-clamp-2 mb-2">{category.description}</div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-500">{(category.fields?.length || category.predefinedFields?.length || 0)} 个字段</span>
+                  <span className="text-xs text-gray-500">{(category.fields?.length || (category as any).predefinedFields?.length || 0)} 个字段</span>
                   <Badge variant={category.enabled ? "default" : "secondary"} className="text-xs">
                     {category.enabled ? "已启用" : "已禁用"}
                   </Badge>
@@ -210,19 +210,26 @@ function FieldDetails({
     
     setLoading(true)
     try {
-      const response = await api.fields.getFields({
-        applicationId,
-        directoryId,
-        categoryId: category.id,
-        page: 1,
-        limit: 100
-      })
+      // ✅ 必须：从字段分类的predefinedFields中获取字段，而不是调用不存在的API
+      const predefinedFields = (category as any).predefinedFields || []
+      console.log("📋 从字段分类获取预定义字段:", predefinedFields)
       
-      if (response.success && response.data) {
-        setFields(response.data.fields || [])
-      }
+      // 将predefinedFields转换为前端期望的格式
+      const fields = Array.isArray(predefinedFields) ? predefinedFields.map((field: any, index: number) => ({
+        id: field.id || `field_${index}`,
+        label: field.name || field.label || field.key || `字段${index + 1}`,
+        key: field.key || field.name || `field_${index}`,
+        type: field.type || 'text',
+        required: field.required || false,
+        locked: field.locked || false,
+        desc: field.description || field.desc || '',
+        ...field
+      })) : []
+      
+      setFields(fields)
     } catch (error) {
       console.error("获取字段失败:", error)
+      setFields([])
     } finally {
       setLoading(false)
     }
@@ -251,13 +258,11 @@ function FieldDetails({
           categoryId: category?.id
         })
       } else {
-        // 创建字段
+        // 创建字段 - 使用PATCH方法，参数放在body中
         await api.fields.createField({
           ...fieldData,
-          categoryId: category?.id
-        }, {
-          applicationId,
-          directoryId
+          categoryId: category?.id,
+          directoryId // 后端期望directoryId在body中
         })
       }
       
@@ -611,7 +616,7 @@ function FieldCategoryManagerContent({
             category={selectedCategory} 
             applicationId={applicationId}
             directoryId={directoryId}
-            onFieldAdded={onFieldAdded}
+            onFieldAdded={onFieldAdded || (() => {})}
           />
         </div>
       </div>
@@ -640,7 +645,7 @@ export function FieldCategoryManager({
           onCategoriesChange={onCategoriesChange}
           applicationId={applicationId}
           directoryId={directoryId}
-          onFieldAdded={onFieldAdded}
+          onFieldAdded={onFieldAdded || (() => {})}
         />
       </DialogContent>
     </Dialog>
