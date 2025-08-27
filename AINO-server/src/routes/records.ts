@@ -229,16 +229,22 @@ records.post('/:dir', async (c) => {
     const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
     
     // 获取字段定义进行验证
-    const fieldDefsResult = await db.select().from(fieldDefs).where(eq(fieldDefs.directoryId, dir))
-    const fieldDefinitions = fieldDefsResult.map(fd => ({
-      id: fd.id,
-      key: fd.key,
-      kind: fd.kind,
-      type: fd.type,
-      schema: fd.schema,
-      validators: fd.validators,
-      required: fd.required
-    }))
+    // 首先通过directories表找到对应的directoryDefs
+    const directoryDef = await db.select().from(directoryDefs).where(eq(directoryDefs.directoryId, dir)).limit(1)
+    let fieldDefinitions = []
+    
+    if (directoryDef[0]) {
+      const fieldDefsResult = await db.select().from(fieldDefs).where(eq(fieldDefs.directoryId, directoryDef[0].id))
+      fieldDefinitions = fieldDefsResult.map(fd => ({
+        id: fd.id,
+        key: fd.key,
+        kind: fd.kind,
+        type: fd.type,
+        schema: fd.schema,
+        validators: fd.validators,
+        required: fd.required
+      }))
+    }
     
     // 如果有字段定义，进行验证
     if (fieldDefinitions.length > 0) {
@@ -313,16 +319,22 @@ records.patch('/:dir/:id', async (c) => {
     const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
     
     // 获取字段定义进行验证
-    const fieldDefsResult = await db.select().from(fieldDefs).where(eq(fieldDefs.directoryId, dir))
-    const fieldDefinitions = fieldDefsResult.map(fd => ({
-      id: fd.id,
-      key: fd.key,
-      kind: fd.kind,
-      type: fd.type,
-      schema: fd.schema,
-      validators: fd.validators,
-      required: fd.required
-    }))
+    // 首先通过directories表找到对应的directoryDefs
+    const directoryDef = await db.select().from(directoryDefs).where(eq(directoryDefs.directoryId, dir)).limit(1)
+    let fieldDefinitions = []
+    
+    if (directoryDef[0]) {
+      const fieldDefsResult = await db.select().from(fieldDefs).where(eq(fieldDefs.directoryId, directoryDef[0].id))
+      fieldDefinitions = fieldDefsResult.map(fd => ({
+        id: fd.id,
+        key: fd.key,
+        kind: fd.kind,
+        type: fd.type,
+        schema: fd.schema,
+        validators: fd.validators,
+        required: fd.required
+      }))
+    }
     
     // 如果有字段定义，进行验证
     if (fieldDefinitions.length > 0) {
