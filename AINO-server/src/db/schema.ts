@@ -121,6 +121,8 @@ export const directoryDefs = pgTable('directory_defs', {
   title: text('title').notNull(),
   version: integer('version').notNull().default(1),
   status: text('status').notNull().default('active'),
+  applicationId: uuid('application_id').references(() => applications.id, { onDelete: 'cascade' }),
+  directoryId: uuid('directory_id').references(() => directories.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 })

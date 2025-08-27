@@ -7,7 +7,7 @@ import applicationUsersRoute from "./modules/application-users/routes"
 import directoriesRoute from "./modules/directories/routes"
 
 import fieldCategoriesRoute from "./modules/field-categories/routes"
-import { records } from "./modules/records/routes"
+import { records } from "./routes/records"
 import { fieldDefs } from "./modules/field-defs/routes"
 import { docsRoute } from "./docs/routes"
 
