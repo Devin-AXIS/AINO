@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { and, eq, desc, sql } from 'drizzle-orm'
 import { db } from '../db'
-import { dirUsers, dirJobs, directories, directoryDefs, fieldDefs } from '../../drizzle/schema'
+import { dirUsers, directories, directoryDefs, fieldDefs } from '../../drizzle/schema'
 import { getDirectoryMeta } from '../lib/meta'
 import { zodFromFields, zodFromFieldsPartial } from '../lib/zod-from-fields'
 import { runSerialize } from '../lib/processors'
@@ -35,6 +35,13 @@ const listQuerySchema = z.object({
 // 获取表实例
 // 通过目录UUID获取目录信息
 async function getDirectoryById(dirId: string) {
+  // 验证UUID格式
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(dirId)) {
+    console.log('🔍 目录ID不是有效的UUID格式，返回null:', dirId)
+    return null
+  }
+  
   const dir = await db.select().from(directories).where(eq(directories.id, dirId)).limit(1)
   return dir[0]
 }
@@ -54,49 +61,103 @@ records.get('/:dir', zValidator('query', listQuerySchema), async (c) => {
   try {
     console.log('🔍 获取记录列表:', { dirId, query })
     
-    // 暂时跳过目录验证，直接返回mock数据
-    console.log('🔍 跳过目录验证，直接返回mock数据')
+    // 获取目录信息
+    const directory = await getDirectoryById(dirId)
+    if (!directory) {
+      console.log('🔍 目录不存在或ID格式无效，返回空数据:', dirId)
+      return c.json({ 
+        success: true, 
+        data: [],
+        pagination: {
+          page: query.page,
+          pageSize: query.pageSize,
+          total: 0,
+          totalPages: 0
+        }
+      })
+    }
     
-    // 暂时返回mock数据
-    const mockData = [
-      {
-        id: 'mock-record-1',
-        props: {
-          name: '测试记录1',
-          description: '这是一个测试记录',
-          status: 'active',
-          category: '默认分类'
-        },
-        version: 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        createdBy: 'system',
-        updatedBy: 'system'
-      },
-      {
-        id: 'mock-record-2', 
-        props: {
-          name: '测试记录2',
-          description: '这是另一个测试记录',
-          status: 'inactive',
-          category: '测试分类'
-        },
-        version: 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        createdBy: 'system',
-        updatedBy: 'system'
-      }
+    // 获取表实例
+    const t = tableFor(dirId)
+    const user = c.get('user') as any
+    const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+    
+    // 计算偏移量
+    const offset = (query.page - 1) * query.pageSize
+    
+    // 构建查询条件
+    const whereConditions = [
+      eq(t.tenantId, tenantId),
+      sql`${t.deletedAt} is null`
     ]
+    
+    // 如果有过滤条件，添加到where条件中
+    if (query.filter) {
+      try {
+        const filterObj = JSON.parse(query.filter)
+        // 这里可以根据需要添加JSONB字段的过滤逻辑
+        console.log('🔍 过滤条件:', filterObj)
+      } catch (e) {
+        console.log('🔍 过滤条件解析失败，忽略:', query.filter)
+      }
+    }
+    
+    // 构建排序
+    let orderBy = desc(t.createdAt) // 默认按创建时间降序
+    if (query.sort) {
+      try {
+        const sortObj = JSON.parse(query.sort)
+        if (sortObj.field && sortObj.order) {
+          // 这里可以根据需要添加动态排序逻辑
+          console.log('🔍 排序条件:', sortObj)
+        }
+      } catch (e) {
+        console.log('🔍 排序条件解析失败，使用默认排序:', query.sort)
+      }
+    }
+    
+    // 查询记录总数
+    const [totalResult] = await db.select({ count: sql<number>`count(*)` })
+      .from(t)
+      .where(and(...whereConditions))
+    
+    const total = totalResult.count
+    
+    // 查询记录列表
+    const rows = await db.select({
+      id: t.id,
+      version: t.version,
+      props: t.props,
+      createdAt: t.createdAt,
+      updatedAt: t.updatedAt,
+      createdBy: t.createdBy,
+      updatedBy: t.updatedBy
+    })
+      .from(t)
+      .where(and(...whereConditions))
+      .orderBy(orderBy)
+      .limit(query.pageSize)
+      .offset(offset)
+    
+    // 格式化返回数据
+    const data = rows.map(row => ({
+      id: row.id,
+      version: row.version,
+      ...(row.props as Record<string, any>),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      createdBy: row.createdBy,
+      updatedBy: row.updatedBy
+    }))
     
     return c.json({ 
       success: true, 
-      data: mockData,
+      data,
       pagination: {
         page: query.page,
         pageSize: query.pageSize,
-        total: mockData.length,
-        totalPages: 1
+        total,
+        totalPages: Math.ceil(total / query.pageSize)
       }
     })
   } catch (error) {
@@ -133,7 +194,7 @@ records.get('/:dir/:id', async (c) => {
       data: { 
         id: row.id, 
         version: row.version, 
-        ...row.props 
+        ...(row.props as Record<string, any>) 
       } 
     })
   } catch (error) {
@@ -148,34 +209,25 @@ records.post('/:dir', async (c) => {
   const input = await c.req.json()
   
   try {
+    console.log('🔍 创建记录请求:', { dir, input })
+    
+    // 验证目录ID格式
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(dir)) {
+      return c.json({ success: false, error: '目录ID格式无效' }, 400)
+    }
+    
     const t = tableFor(dir)
     const user = c.get('user') as any
     const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
     
-    // 获取字段定义和校验器
-    const { fields } = await getDirectoryMeta(dir)
-    console.log('🔍 获取到的字段定义:', fields.map(f => ({ key: f.key, type: f.type, required: f.required })))
-    
-    const zod = zodFromFields(fields)
-    
-    // 处理props包装的请求格式
+    // 简化处理：直接使用输入数据作为props
     const propsData = input.props || input
-    console.log('🔍 请求数据:', propsData)
+    console.log('🔍 处理后的数据:', propsData)
     
-    const clean = zod.parse(propsData)
-
-    const props: Record<string, any> = {}
-    for (const f of fields) {
-      if (clean[f.key] === undefined) continue
-      props[f.key] = await runSerialize(f.kind as any, clean[f.key], f, { 
-        tenantId, 
-        now: new Date() 
-      })
-    }
-
     const [row] = await db.insert(t).values({ 
       tenantId, 
-      props 
+      props: propsData
     }).returning()
     
     return c.json({ 
@@ -183,7 +235,7 @@ records.post('/:dir', async (c) => {
       data: { 
         id: row.id, 
         version: row.version, 
-        ...row.props 
+        ...(row.props as Record<string, any>) 
       } 
     }, 201)
   } catch (error) {
@@ -203,25 +255,15 @@ records.patch('/:dir/:id', async (c) => {
     const user = c.get('user') as any
     const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
     
-    // 获取字段定义和校验器
-    const { fields } = await getDirectoryMeta(dir)
-    const zod = zodFromFieldsPartial(fields)
-    const clean = zod.parse(input)
-
-    const props: Record<string, any> = {}
-    for (const f of fields) {
-      if (clean[f.key] === undefined) continue
-      props[f.key] = await runSerialize(f.kind as any, clean[f.key], f, { 
-        tenantId, 
-        now: new Date() 
-      })
-    }
+    // 简化处理：直接使用输入数据作为props
+    const propsData = input.props || input
+    console.log('🔍 更新数据:', propsData)
 
     const [row] = await db.update(t)
       .set({ 
-        props: sql`${t.props} || ${JSON.stringify(props)}`,
+        props: sql`${t.props} || ${JSON.stringify(propsData)}`,
         version: sql`${t.version} + 1`,
-        updatedAt: new Date()
+        updatedAt: sql`now()`
       })
       .where(and(
         eq(t.id, id),
@@ -239,7 +281,7 @@ records.patch('/:dir/:id', async (c) => {
       data: { 
         id: row.id, 
         version: row.version, 
-        ...row.props 
+        ...(row.props as Record<string, any>) 
       } 
     })
   } catch (error) {
@@ -260,7 +302,7 @@ records.delete('/:dir/:id', async (c) => {
     
     const [row] = await db.update(t)
       .set({ 
-        deletedAt: new Date(),
+        deletedAt: sql`now()`,
         version: sql`${t.version} + 1`
       })
       .where(and(

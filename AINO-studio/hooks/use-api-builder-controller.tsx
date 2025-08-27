@@ -244,7 +244,7 @@ export function useApiBuilderController({
     if (currentDir && currentDir.type === "table") {
       fetchRecords(currentDir.id)
     }
-  }, [currentDir])
+  }, [currentDir?.id, currentDir?.type]) // 修复：只依赖id和type，避免无限循环
 
   // reset selection when directory or filters change
   useEffect(() => {
