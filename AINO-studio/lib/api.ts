@@ -551,7 +551,7 @@ export const fieldsApi = {
 // 记录相关 API
 export const recordsApi = {
   // 获取记录列表
-  async listRecords(dirSlug: string, params: {
+  async listRecords(dirId: string, params: {
     page?: number
     pageSize?: number
     sort?: string
@@ -566,40 +566,40 @@ export const recordsApi = {
     })
     
     const queryString = searchParams.toString()
-    const endpoint = `/api/records/${dirSlug}${queryString ? `?${queryString}` : ''}`
+    const endpoint = `/api/records/${dirId}${queryString ? `?${queryString}` : ''}`
     
     return apiRequest<any>(endpoint)
   },
 
   // 获取单个记录
-  async getRecord(dirSlug: string, recordId: string): Promise<ApiResponse<any>> {
-    return apiRequest<any>(`/api/records/${dirSlug}/${recordId}`)
+  async getRecord(dirId: string, recordId: string): Promise<ApiResponse<any>> {
+    return apiRequest<any>(`/api/records/${dirId}/${recordId}`)
   },
 
   // 创建记录
-  async createRecord(dirSlug: string, data: {
+  async createRecord(dirId: string, data: {
     props: Record<string, any>
   }): Promise<ApiResponse<any>> {
-    return apiRequest<any>(`/api/records/${dirSlug}`, {
+    return apiRequest<any>(`/api/records/${dirId}`, {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   // 更新记录
-  async updateRecord(dirSlug: string, recordId: string, data: {
+  async updateRecord(dirId: string, recordId: string, data: {
     props: Record<string, any>
     version?: number
   }): Promise<ApiResponse<any>> {
-    return apiRequest<any>(`/api/records/${dirSlug}/${recordId}`, {
+    return apiRequest<any>(`/api/records/${dirId}/${recordId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     })
   },
 
   // 删除记录
-  async deleteRecord(dirSlug: string, recordId: string): Promise<ApiResponse<{ success: boolean }>> {
-    return apiRequest<{ success: boolean }>(`/api/records/${dirSlug}/${recordId}`, {
+  async deleteRecord(dirId: string, recordId: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/records/${dirId}/${recordId}`, {
       method: 'DELETE',
     })
   }

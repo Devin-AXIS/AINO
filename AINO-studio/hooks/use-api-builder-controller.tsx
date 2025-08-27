@@ -174,9 +174,12 @@ export function useApiBuilderController({
       })
       
       if (response.success && response.data) {
+        // 后端返回格式: { data: [...], pagination: {...} }
+        // 前端期望格式: 直接是记录数组
+        const records = Array.isArray(response.data) ? response.data : response.data.records || response.data
         setRecordsData(prev => ({
           ...prev,
-          [dirId]: response.data
+          [dirId]: records
         }))
       }
     } catch (error) {
