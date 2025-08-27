@@ -11,7 +11,16 @@ import { useLocale } from "@/hooks/use-locale"
 import { FieldEditor } from "@/components/dialogs/field-editor"
 import { FieldCategoryManager } from "@/components/dialogs/field-category-manager"
 import { AddFieldDialog } from "@/components/dialogs/add-field-dialog"
-import { fieldCategoriesApi } from "@/lib/api"
+import { FieldRow } from "@/components/field-manager/field-row"
+import { fieldCategoriesApi, fieldsApi } from "@/lib/api"
+import { getFieldTypeNames } from "@/lib/field-types"
+import { 
+  categorizeFields, 
+  filterFieldsByCategory, 
+  createField, 
+  removeFieldFromDirectory, 
+  updateFieldCategoriesInDirectory 
+} from "@/lib/field-operations"
 import { cn } from "@/lib/utils"
 import type { FieldCategoryModel } from "@/lib/field-categories"
 
@@ -22,99 +31,7 @@ type Props = {
   onAddField?: () => void
 }
 
-function FieldRow({
-  field,
-  idx,
-  total,
-  typeNames,
-  category,
-  onToggleEnabled,
-  onToggleRequired,
-  onToggleList,
-  onEdit,
-  onRemove,
-}: {
-  field: FieldModel
-  idx: number
-  total: number
-  typeNames: Record<FieldType, string>
-  category?: FieldCategoryModel
-  onToggleEnabled: (v: boolean) => void
-  onToggleRequired: (v: boolean) => void
-  onToggleList: (v: boolean) => void
-  onEdit: () => void
-  onRemove: () => void
-}) {
-  const { t, locale } = useLocale()
-  const f = field
-  return (
-    <Card className="p-3 bg-white/60 backdrop-blur border-white/60">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="font-medium truncate">{f.label}</div>
-            <Badge variant="outline" className="text-xs">
-              {typeNames[f.type]}
-            </Badge>
-            {category && (
-              <Badge variant="secondary" className="text-xs">
-                {category.name}
-              </Badge>
-            )}
-            {f.required && (
-              <Badge variant="destructive" className="text-xs">
-                {locale === "zh" ? "必填" : "Required"}
-              </Badge>
-            )}
-          </div>
-          <div className="text-xs text-muted-foreground truncate">{locale === "zh" ? "Key：" : "Key: "}{f.key}</div>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">{locale === "zh" ? "启用" : "Enabled"}</span>
-            <Switch checked={f.enabled !== false} onCheckedChange={onToggleEnabled} />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">{locale === "zh" ? "必填" : "Required"}</span>
-            <Switch checked={!!f.required} onCheckedChange={onToggleRequired} />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">{locale === "zh" ? "列表显示" : "Show in List"}</span>
-            <Switch checked={f.showInList !== false} onCheckedChange={onToggleList} />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="h-8 w-8 inline-flex items-center justify-center text-slate-600 cursor-grab active:cursor-grabbing rounded-md border border-white/60 bg-white/70"
-              title={t("dragToSort")}
-              aria-label={t("dragToSort")}
-              draggable
-            >
-              <GripVertical className="h-4 w-4" />
-            </button>
-
-            <Button size="sm" onClick={onEdit} className="rounded-xl" title={t("editField")}>
-              <Edit className="mr-1 size-4" />
-              {locale === "zh" ? "编辑" : "Edit"}
-            </Button>
-            {f.locked ? (
-              <Badge variant="secondary" className="text-xs">
-                {t("defaultField")}
-              </Badge>
-            ) : (
-              <Button variant="destructive" size="sm" onClick={onRemove} className="rounded-xl">
-                <Trash2 className="mr-1 size-4" />
-                {t("deleteField")}
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-    </Card>
-  )
-}
 
 export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   const { t, locale } = useLocale()
@@ -126,6 +43,8 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   const [fieldCategories, setFieldCategories] = useState<FieldCategoryModel[]>([])
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [fieldDefs, setFieldDefs] = useState<any[]>([])
+  const [fieldDefsLoading, setFieldDefsLoading] = useState(false)
 
   // 从API获取字段分类数据
   const fetchFieldCategories = async () => {
@@ -174,49 +93,74 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     }
   }
 
-  // 当应用或目录变化时，重新获取字段分类
+  // 从API获取字段定义数据
+  const fetchFieldDefs = async () => {
+    // ✅ 必须：API调用前检查必要参数
+    if (!dir?.id) {
+      console.warn("⚠️ 缺少必要参数，跳过字段定义获取:", { dirId: dir?.id })
+      setFieldDefs([])
+      return
+    }
+
+    try {
+      setFieldDefsLoading(true)
+      console.log("🔍 获取字段定义参数:", { directoryId: dir.id })
+      
+      const response = await fieldsApi.getFields({
+        directoryId: dir.id,
+        page: 1,
+        limit: 100, // 获取所有字段定义
+      })
+      
+      console.log("📡 字段定义API响应:", response)
+      
+      if (response.success && response.data?.data) {
+        setFieldDefs(response.data.data)
+      } else {
+        console.error("获取字段定义失败:", response.error)
+        setFieldDefs([])
+      }
+    } catch (error) {
+      // ✅ 必须：为所有API调用添加try-catch错误处理
+      console.error("获取字段定义出错:", error)
+      
+      // ✅ 必须：错误信息要用户友好
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch')) {
+          console.warn("🌐 网络连接问题，使用默认字段定义")
+        } else {
+          console.error("❌ API调用失败:", error.message)
+        }
+      }
+      
+      // ✅ 必须：错误恢复机制 - 使用默认数据而不是空数组
+      setFieldDefs([])
+    } finally {
+      setFieldDefsLoading(false)
+    }
+  }
+
+  // 当应用或目录变化时，重新获取字段分类和字段定义
   useEffect(() => {
     // ✅ 必须：API调用前检查必要参数
     if (app?.id && dir?.id) {
-      console.log("🔄 应用或目录变化，重新获取字段分类:", { appId: app.id, dirId: dir.id })
+      console.log("🔄 应用或目录变化，重新获取数据:", { appId: app.id, dirId: dir.id })
       fetchFieldCategories()
+      fetchFieldDefs()
     } else {
       console.log("⏸️ 等待必要参数就绪:", { appId: app?.id, dirId: dir?.id })
     }
   }, [app?.id, dir?.id]) // 使用可选链确保依赖项稳定
 
-  const categorizedFields = useMemo(() => {
-    const categories = new Map<string, { category: FieldCategoryModel; fields: FieldModel[] }>()
-    const uncategorizedFields: FieldModel[] = []
+  const categorizedFields = useMemo(() => 
+    categorizeFields(dir.fields, fieldCategories), 
+    [dir.fields, fieldCategories]
+  )
 
-    dir.fields.forEach((field) => {
-      const category = field.categoryId
-        ? fieldCategories.find((cat) => cat.id === field.categoryId)
-        : fieldCategories.find((cat) => cat.fields?.some((predefined: any) => predefined.key === field.key))
-
-      if (category) {
-        if (!categories.has(category.id)) {
-          categories.set(category.id, { category, fields: [] })
-        }
-        categories.get(category.id)!.fields.push(field)
-      } else {
-        uncategorizedFields.push(field)
-      }
-    })
-
-    return { categories: Array.from(categories.values()), uncategorizedFields }
-  }, [dir.fields, fieldCategories])
-
-  const filteredFields = useMemo(() => {
-    if (!selectedCategoryId) return dir.fields
-
-    if (selectedCategoryId === "uncategorized") {
-      return categorizedFields.uncategorizedFields
-    }
-
-    const categoryData = categorizedFields.categories.find((c) => c.category.id === selectedCategoryId)
-    return categoryData ? categoryData.fields : []
-  }, [dir.fields, selectedCategoryId, categorizedFields])
+  const filteredFields = useMemo(() => 
+    filterFieldsByCategory(dir.fields, selectedCategoryId, categorizedFields), 
+    [dir.fields, selectedCategoryId, categorizedFields]
+  )
 
   function handleDragStart(i: number) {
     setDragIndex(i)
@@ -235,31 +179,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     setDragIndex(null)
   }
 
-  const typeNames: Record<FieldType, string> = useMemo(
-    () => ({
-      text: t("ft_text"),
-      textarea: t("ft_textarea"),
-      number: t("ft_number"),
-      select: t("ft_select"),
-      multiselect: t("ft_multiselect"),
-      boolean: t("ft_boolean"),
-      date: t("ft_date"),
-      time: t("ft_time"),
-      tags: t("ft_tags"),
-      image: t("ft_image"),
-      video: t("ft_video"),
-      file: t("ft_file"),
-      richtext: t("ft_richtext"),
-      percent: t("ft_percent"),
-      barcode: t("ft_barcode"),
-      checkbox: t("ft_checkbox"),
-      cascader: t("ft_cascader"),
-      relation_one: t("ft_relation_one"),
-      relation_many: t("ft_relation_many"),
-      experience: t("ft_experience"),
-    }),
-    [t],
-  )
+  const typeNames = useMemo(() => getFieldTypeNames(t), [t])
 
   function commit(patch: (d: DirectoryModel) => void) {
     const next = structuredClone(dir)
@@ -269,67 +189,18 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
 
   function updateFieldCategories(categories: FieldCategoryModel[]) {
     setFieldCategories(categories)
-    commit((d) => {
-      d.fieldCategories = categories
-    })
+    const updatedDir = updateFieldCategoriesInDirectory(dir, categories)
+    onChange(updatedDir)
   }
 
   function removeField(id: string) {
     if (!confirm(t("confirmDeleteField"))) return
-    commit((d) => {
-      d.fields = d.fields.filter((x) => x.id !== id)
-      d.records.forEach((r) => {
-        const f = dir.fields.find((x) => x.id === id)
-        if (f && f.key in r) delete (r as any)[f.key]
-      })
-    })
+    const updatedDir = removeFieldFromDirectory(dir, id)
+    onChange(updatedDir)
   }
 
   function addField(fieldData: any) {
-    const newField: FieldModel = {
-      id: `field_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
-      key: fieldData.key,
-      label: fieldData.label,
-      type: fieldData.type,
-      required: fieldData.required,
-      unique: fieldData.unique,
-      locked: false,
-      enabled: true,
-      categoryId: fieldData.categoryId,
-      desc: fieldData.desc,
-      placeholder: fieldData.placeholder,
-      min: fieldData.min,
-      max: fieldData.max,
-      step: fieldData.step,
-      unit: fieldData.unit,
-      options: fieldData.options,
-      default: fieldData.default,
-      showInList: fieldData.showInList,
-      showInForm: fieldData.showInForm,
-      showInDetail: fieldData.showInDetail,
-      trueLabel: fieldData.trueLabel,
-      falseLabel: fieldData.falseLabel,
-      accept: fieldData.accept,
-      maxSizeMB: fieldData.maxSizeMB,
-      relation: fieldData.relation,
-      cascaderOptions: fieldData.cascaderOptions,
-      dateMode: fieldData.dateMode,
-      preset: fieldData.preset,
-      skillsConfig: fieldData.skillsConfig,
-      progressConfig: fieldData.progressConfig,
-      customExperienceConfig: fieldData.customExperienceConfig,
-      identityVerificationConfig: fieldData.identityVerificationConfig,
-      certificateConfig: fieldData.certificateConfig,
-      otherVerificationConfig: fieldData.otherVerificationConfig,
-      imageConfig: fieldData.imageConfig,
-      videoConfig: fieldData.videoConfig,
-      // booleanConfig: fieldData.booleanConfig,
-      // multiselectConfig: fieldData.multiselectConfig,
-      // config: fieldData.config || {},
-      // order: dir.fields.length,
-      // createdAt: new Date().toISOString(),
-      // updatedAt: new Date().toISOString(),
-    }
+    const newField = createField(fieldData)
 
     commit((d) => {
       d.fields.push(newField)
