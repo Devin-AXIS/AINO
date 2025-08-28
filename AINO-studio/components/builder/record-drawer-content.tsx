@@ -29,7 +29,7 @@ export function RecordDrawerContent({ app, dir, rec, onClose, onChange }: Props)
       dir.fields.filter(
         (f) =>
           (f.enabled && f.type !== "relation_many" && f.type !== "relation_one") ||
-          (f.preset && ["constellation", "skills"].includes(f.preset)),
+          (f.preset && ["constellation", "skills", "city", "country", "phone", "email", "url", "map", "currency", "rating", "progress", "work_experience", "education_experience", "certificate_experience", "custom_experience", "identity_verification", "other_verification", "barcode", "cascader"].includes(f.preset)),
       ),
     [dir.fields],
   )
@@ -40,7 +40,7 @@ export function RecordDrawerContent({ app, dir, rec, onClose, onChange }: Props)
         (f) =>
           f.enabled &&
           (f.type === "relation_many" || f.type === "relation_one") &&
-          (!f.preset || !["constellation", "skills"].includes(f.preset)),
+          (!f.preset || !["constellation", "skills", "city", "country", "phone", "email", "url", "map", "currency", "rating", "progress", "work_experience", "education_experience", "certificate_experience", "custom_experience", "identity_verification", "other_verification", "barcode", "cascader"].includes(f.preset)),
       ),
     [dir.fields],
   )

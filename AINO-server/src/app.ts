@@ -33,8 +33,9 @@ app.route("/users", usersRoute)
 app.route("/api/applications", applicationsRoute)
 app.route("/applications", applicationsRoute)
 
-// 模块路由系统
+// 模块路由系统（包括远程模块代理）
 app.route("/api/modules", modulesRoute)
+app.route("/api/remote", modulesRoute)
 
 // 应用用户路由（直接访问）
 app.route("/api/application-users", applicationUsersRoute)
@@ -63,6 +64,6 @@ app.route("/api/directory-defs", directoryDefs)
 app.route("/docs", docsRoute)
 
 // 兜底 404（结构化，不会是空对象）
-app.all("/api/*", (c) => c.json({ success:false, code:"NOT_FOUND", message:"Not Found" }, 404))
+app.notFound((c) => c.json({ success:false, code:"NOT_FOUND", message:"Not Found" }, 404))
 
 export default app

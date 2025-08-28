@@ -42,6 +42,39 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
         return <RatingInput value={value || 0} onChange={onChange} />
       case "currency":
         return <CurrencyInput value={value} onChange={onChange} />
+      case "constellation":
+        return <ConstellationSelect value={value || ""} onChange={onChange} />
+      case "progress":
+        return (
+          <div className="space-y-2">
+            <Input
+              type="number"
+              min={0}
+              max={field.progressConfig?.maxValue || 100}
+              value={value || ""}
+              onChange={(e) => onChange(Number(e.target.value) || 0)}
+              className="bg-white"
+              placeholder={`0-${field.progressConfig?.maxValue || 100}`}
+            />
+            {field.progressConfig?.showProgressBar && (
+              <div className="flex items-center gap-2">
+                <div className="flex-1 bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="h-2 rounded-full transition-all duration-300 bg-blue-500"
+                    style={{
+                      width: `${Math.min((value || 0) / (field.progressConfig?.maxValue || 100) * 100, 100)}%`
+                    }}
+                  />
+                </div>
+                {field.progressConfig?.showPercentage && (
+                  <span className="text-xs text-gray-600 w-12 text-right">
+                    {Math.round((value || 0) / (field.progressConfig?.maxValue || 100) * 100)}%
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )
       case "phone":
         return (
           <Input
@@ -72,6 +105,20 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
             placeholder="https://example.com"
           />
         )
+      case "map":
+        return (
+          <div className="space-y-2">
+            <Input
+              className="bg-white"
+              value={value || ""}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="请输入地址或坐标"
+            />
+            <div className="text-xs text-gray-500">
+              支持地址搜索或经纬度坐标（如：39.9042, 116.4074）
+            </div>
+          </div>
+        )
       case "skills":
         return (
           <SkillsSelect
@@ -98,6 +145,11 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
             config={field.otherVerificationConfig}
           />
         )
+      case "work_experience":
+      case "education_experience":
+      case "certificate_experience":
+      case "custom_experience":
+        return <ExperienceEditor value={value || []} onChange={onChange} className="bg-white rounded-md p-2" field={field} />
       default:
         break
     }
@@ -163,6 +215,35 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
       return <TagInput value={value} onChange={onChange} />
     case "date":
       return <ModernDateInput field={field} value={value} onChange={onChange} />
+    case "datetime":
+      return (
+        <div className="flex gap-2">
+          <Input
+            type="date"
+            className="bg-white flex-1"
+            value={value ? new Date(value).toISOString().split('T')[0] : ""}
+            onChange={(e) => {
+              const date = e.target.value
+              const time = value ? new Date(value).toTimeString().slice(0, 5) : "00:00"
+              onChange(new Date(`${date}T${time}`).toISOString())
+            }}
+          />
+          <Input
+            type="time"
+            className="bg-white flex-1"
+            value={value ? new Date(value).toTimeString().slice(0, 5) : ""}
+            onChange={(e) => {
+              const time = e.target.value
+              const date = value ? new Date(value).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+              onChange(new Date(`${date}T${time}`).toISOString())
+            }}
+          />
+        </div>
+      )
+    case "daterange":
+      return <ModernDateInput field={{...field, dateMode: "range"}} value={value} onChange={onChange} />
+    case "multidate":
+      return <ModernDateInput field={{...field, dateMode: "multiple"}} value={value} onChange={onChange} />
     case "time":
       return <TimeInput value={value} onChange={onChange} />
     case "file":
@@ -194,6 +275,15 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
           defaultImage={field.imageConfig?.defaultImage || ""}
         />
       )
+    case "multiimage":
+      return (
+        <ImageInput
+          value={value}
+          onChange={onChange}
+          multiple={true}
+          defaultImage={field.imageConfig?.defaultImage || ""}
+        />
+      )
     case "video":
       return (
         <VideoInput
@@ -220,51 +310,7 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
       return <RelationInput app={app} field={field} value={value} onChange={onChange} />
     case "experience":
       return <ExperienceEditor value={value || []} onChange={onChange} className="bg-white rounded-md p-2" field={field} />
-    case "constellation":
-      return <ConstellationSelect value={value || ""} onChange={onChange} />
-    case "skills":
-      return (
-        <SkillsSelect
-          value={value || []}
-          onChange={onChange}
-          allowedCategories={field.skillsConfig?.allowedCategories}
-          maxSkills={field.skillsConfig?.maxSkills}
-          showLevel={field.skillsConfig?.showLevel}
-          customCategories={field.skillsConfig?.customCategories}
-          customSkills={field.skillsConfig?.customSkills}
-        />
-      )
-    case "progress":
-      return (
-        <div className="space-y-2">
-          <Input
-            type="number"
-            min={0}
-            max={field.progressConfig?.maxValue || 100}
-            value={value || ""}
-            onChange={(e) => onChange(Number(e.target.value) || 0)}
-            className="bg-white"
-            placeholder={`0-${field.progressConfig?.maxValue || 100}`}
-          />
-          {field.progressConfig?.showProgressBar && (
-            <div className="flex items-center gap-2">
-              <div className="flex-1 bg-gray-200 rounded-full h-2">
-                <div 
-                  className="h-2 rounded-full transition-all duration-300 bg-blue-500"
-                  style={{
-                    width: `${Math.min((value || 0) / (field.progressConfig?.maxValue || 100) * 100, 100)}%`
-                  }}
-                />
-              </div>
-              {field.progressConfig?.showPercentage && (
-                <span className="text-xs text-gray-600 w-12 text-right">
-                  {Math.round((value || 0) / (field.progressConfig?.maxValue || 100) * 100)}%
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-      )
+
     default:
       return <Input className="bg-white" value={value || ""} onChange={(e) => onChange(e.target.value)} />
   }

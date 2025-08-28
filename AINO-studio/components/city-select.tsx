@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChevronDown, Check } from "lucide-react"
-import { cityData, type CityNode } from "@/lib/city-data"
+import { cityData, type CityNode } from "@/lib/city-data-complete"
 
 function findPathByLabel(tree: CityNode[], label: string): CityNode[] | null {
   if (!label) return null

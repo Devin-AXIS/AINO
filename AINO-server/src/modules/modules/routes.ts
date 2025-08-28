@@ -2,15 +2,55 @@ import { Hono } from "hono"
 import { mockRequireAuthMiddleware } from "../../middleware/auth"
 import { SYSTEM_MODULES } from "../../lib/system-modules"
 import applicationUsersRoute from "../application-users/routes"
+import { moduleRegistry, registerSystemModules, isRemoteModule } from "../../platform/modules/registry"
+import remoteProxy from "../../platform/modules/proxy"
 
 const app = new Hono()
+
+// 初始化系统模块注册
+registerSystemModules()
+
+// 获取系统模块列表（必须在 /system/:moduleKey/* 之前）
+app.get("/system", mockRequireAuthMiddleware, async (c) => {
+  const user = c.get("user")
+  const systemModules = moduleRegistry.getLocalModules()
+  
+  return c.json({
+    success: true,
+    data: {
+      modules: systemModules.map(module => ({
+        key: module.key,
+        name: module.name,
+        type: "system",
+        icon: getModuleIcon(module.key),
+        description: module.description,
+        version: module.version,
+        routes: module.routes,
+      })),
+    },
+  })
+})
 
 // 系统模块路由处理
 app.all("/system/:moduleKey/*", mockRequireAuthMiddleware, async (c) => {
   const moduleKey = c.req.param("moduleKey")
   const user = c.get("user")
   
-  // 检查是否为有效的系统模块
+  // 检查模块是否在注册表中
+  if (!moduleRegistry.has(moduleKey)) {
+    return c.json({
+      success: false,
+      error: "模块不存在",
+    }, 404)
+  }
+
+  // 检查是否为远程模块
+  if (isRemoteModule(moduleKey)) {
+    // 远程模块通过代理处理
+    return remoteProxy.fetch(c.req, { user })
+  }
+  
+  // 本地系统模块处理
   const validModules = ["user", "config", "audit"]
   if (!validModules.includes(moduleKey)) {
     return c.json({
@@ -158,38 +198,128 @@ async function handleAuditModule(c: any, user: any) {
   }, 501)
 }
 
-// 获取系统模块列表
-app.get("/system", mockRequireAuthMiddleware, async (c) => {
+
+
+// 获取所有模块列表（包括本地和远程）
+app.get("/", mockRequireAuthMiddleware, async (c) => {
   const user = c.get("user")
+  const allModules = moduleRegistry.getAll()
   
   return c.json({
     success: true,
     data: {
-      modules: [
-        {
-          key: "user",
-          name: "用户管理",
-          type: "system",
-          icon: "users",
-          description: "应用内用户管理，支持用户注册、登录、权限管理",
-        },
-        {
-          key: "config",
-          name: "系统配置",
-          type: "system",
-          icon: "settings",
-          description: "应用基础配置管理",
-        },
-        {
-          key: "audit",
-          name: "审计日志",
-          type: "system",
-          icon: "activity",
-          description: "记录用户操作和系统事件",
-        },
-      ],
+      modules: allModules.map(module => ({
+        key: module.key,
+        name: module.name,
+        version: module.version,
+        kind: module.kind,
+        description: module.description,
+        author: module.author,
+        homepage: module.homepage,
+        routes: module.routes,
+        // 远程模块特有信息
+        ...(module.kind === 'remote' && {
+          baseUrl: module.baseUrl,
+        }),
+      })),
     },
   })
 })
+
+// 获取所有模块列表（兼容性路由）
+app.get("/list", mockRequireAuthMiddleware, async (c) => {
+  const user = c.get("user")
+  const allModules = moduleRegistry.getAll()
+  
+  return c.json({
+    success: true,
+    data: {
+      modules: allModules.map(module => ({
+        key: module.key,
+        name: module.name,
+        version: module.version,
+        kind: module.kind,
+        description: module.description,
+        author: module.author,
+        homepage: module.homepage,
+        routes: module.routes,
+        // 远程模块特有信息
+        ...(module.kind === 'remote' && {
+          baseUrl: module.baseUrl,
+        }),
+      })),
+    },
+  })
+})
+
+// 获取远程模块列表
+app.get("/remote", mockRequireAuthMiddleware, async (c) => {
+  const user = c.get("user")
+  const remoteModules = moduleRegistry.getRemoteModules()
+  
+  return c.json({
+    success: true,
+    data: {
+      modules: remoteModules.map(module => ({
+        key: module.key,
+        name: module.name,
+        version: module.version,
+        baseUrl: module.baseUrl,
+        description: module.description,
+        author: module.author,
+        homepage: module.homepage,
+        routes: module.routes,
+      })),
+    },
+  })
+})
+
+// 远程模块路由处理（必须在 /:moduleKey 之前）
+app.all("/remote/:moduleKey/*", mockRequireAuthMiddleware, async (c) => {
+  const user = c.get("user")
+  return remoteProxy.fetch(c.req, { user })
+})
+
+// 获取特定模块信息
+app.get("/:moduleKey", mockRequireAuthMiddleware, async (c) => {
+  const moduleKey = c.req.param("moduleKey")
+  const user = c.get("user")
+  const module = moduleRegistry.get(moduleKey)
+  
+  if (!module) {
+    return c.json({
+      success: false,
+      error: "模块不存在",
+    }, 404)
+  }
+  
+  return c.json({
+    success: true,
+    data: {
+      key: module.key,
+      name: module.name,
+      version: module.version,
+      kind: module.kind,
+      description: module.description,
+      author: module.author,
+      homepage: module.homepage,
+      routes: module.routes,
+      // 远程模块特有信息
+      ...(module.kind === 'remote' && {
+        baseUrl: module.baseUrl,
+      }),
+    },
+  })
+})
+
+// 获取模块图标
+function getModuleIcon(moduleKey: string): string {
+  const iconMap: Record<string, string> = {
+    user: "users",
+    config: "settings",
+    audit: "activity",
+  }
+  return iconMap[moduleKey] || "package"
+}
 
 export default app
