@@ -68,13 +68,7 @@ records.get('/:dir', zValidator('query', listQuerySchema), async (c) => {
       console.log('🔍 目录不存在或ID格式无效，返回空数据:', dirId)
       return c.json({ 
         success: true, 
-        data: [],
-        pagination: {
-          page: query.page,
-          pageSize: query.pageSize,
-          total: 0,
-          totalPages: 0
-        }
+        data: []
       })
     }
     
@@ -151,15 +145,10 @@ records.get('/:dir', zValidator('query', listQuerySchema), async (c) => {
       updatedBy: row.updatedBy
     }))
     
+    // 前端期望直接返回记录数组，不包含pagination信息
     return c.json({ 
       success: true, 
-      data,
-      pagination: {
-        page: query.page,
-        pageSize: query.pageSize,
-        total,
-        totalPages: Math.ceil(total / query.pageSize)
-      }
+      data
     })
   } catch (error) {
     console.error('获取记录列表失败:', error)

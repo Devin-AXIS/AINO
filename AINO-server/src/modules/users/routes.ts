@@ -1,5 +1,6 @@
 import { Hono } from "hono"
 import { z } from "zod"
+import { getCurrentUserSvc } from "./service"
 
 // 兼容：邮箱/用户名字段名 & 任意内容类型
 const LoginBody = z.object({
@@ -105,4 +106,29 @@ usersRoute.post("/login", async (c) => {
     token,
     user: { id: user.id, email: user.email, name: user.name },
   }, 200)
+})
+
+// 获取当前用户信息（包含权限）
+usersRoute.get("/me", async (c) => {
+  try {
+    // 从Authorization header获取token
+    const authHeader = c.req.header("Authorization")
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return c.json({ success: false, error: "Missing or invalid authorization header" }, 401)
+    }
+    
+    const token = authHeader.substring(7) // 移除 "Bearer " 前缀
+    const user = await getCurrentUserSvc(token)
+    
+    return c.json({
+      success: true,
+      data: user
+    })
+  } catch (error) {
+    console.error("获取用户信息失败:", error)
+    return c.json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : "获取用户信息失败" 
+    }, 401)
+  }
 })

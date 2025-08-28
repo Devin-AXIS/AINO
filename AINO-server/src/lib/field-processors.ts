@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // 字段类型定义
 export type FieldKind = 'primitive' | 'composite' | 'relation' | 'lookup' | 'computed'
-export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table'
+export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table' | 'tags'
 
 // 字段定义接口
 export interface FieldDef {
@@ -405,6 +405,57 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
       return { valid: true }
     },
     transform: (value) => value ? String(value).trim() : value,
+    format: (value) => value
+  },
+
+  // 标签字段
+  tags: {
+    validate: (value, fieldDef) => {
+      // 标签字段可以为空
+      if (!value) {
+        return { valid: true }
+      }
+      
+      // 验证是否为数组
+      if (!Array.isArray(value)) {
+        return { valid: false, error: '标签必须是数组格式' }
+      }
+      
+      // 验证每个标签
+      for (let i = 0; i < value.length; i++) {
+        const tag = value[i]
+        if (typeof tag !== 'string') {
+          return { valid: false, error: `标签${i + 1}必须是文本类型` }
+        }
+        if (tag.trim() === '') {
+          return { valid: false, error: `标签${i + 1}不能为空` }
+        }
+        if (tag.length > 50) {
+          return { valid: false, error: `标签${i + 1}长度不能超过50个字符` }
+        }
+      }
+      
+      // 验证标签数量限制
+      if (fieldDef.validators) {
+        const validators = fieldDef.validators
+        if (validators.maxTags && value.length > validators.maxTags) {
+          return { valid: false, error: `标签数量不能超过${validators.maxTags}个` }
+        }
+        if (validators.minTags && value.length < validators.minTags) {
+          return { valid: false, error: `标签数量不能少于${validators.minTags}个` }
+        }
+      }
+      
+      return { valid: true }
+    },
+    transform: (value) => {
+      // 确保返回数组格式
+      if (!value) return []
+      if (Array.isArray(value)) {
+        return value.map(tag => tag.trim()).filter(tag => tag.length > 0)
+      }
+      return []
+    },
     format: (value) => value
   }
 }

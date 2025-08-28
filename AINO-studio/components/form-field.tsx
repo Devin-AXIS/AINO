@@ -21,6 +21,7 @@ import { ImageInput } from "@/components/form-inputs/image-input"
 import { VideoInput } from "@/components/form-inputs/video-input"
 
 import { ModernDateInput } from "@/components/form-inputs/modern-date-input"
+import { TimeInput } from "@/components/form-inputs/time-input"
 import { MultiSelectInput } from "@/components/form-inputs/multi-select-input"
 import { TagInput } from "@/components/form-inputs/tag-input"
 import { RelationInput } from "@/components/form-inputs/relation-input"
@@ -163,7 +164,7 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
     case "date":
       return <ModernDateInput field={field} value={value} onChange={onChange} />
     case "time":
-      return <Input type="time" className="bg-white" value={value || ""} onChange={(e) => onChange(e.target.value)} />
+      return <TimeInput value={value} onChange={onChange} />
     case "file":
       return (
         <div className="flex items-center gap-2">
@@ -274,14 +275,46 @@ interface FormFieldProps {
   record: RecordRow
   app: AppModel
   onChange: (value: any) => void
+  showValidation?: boolean
 }
 
-export function FormField({ field, record, app, onChange }: FormFieldProps) {
+export function FormField({ field, record, app, onChange, showValidation = false }: FormFieldProps) {
+  const value = (record as any)[field.key]
+  
+  // 验证字段值
+  const getValidationError = () => {
+    if (!showValidation || !field.required) return null
+    
+    const isEmpty = 
+      value === null ||
+      value === undefined ||
+      (typeof value === "string" && value.trim() === "") ||
+      (Array.isArray(value) && value.length === 0) ||
+      (typeof value === "object" && Object.keys(value).length === 0)
+    
+    if (field.type === "number" || field.type === "percent") {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) {
+        return "请输入有效的数字"
+      }
+    } else if (field.type === "boolean" || field.type === "checkbox") {
+      // booleans are always valid as required
+    } else if (isEmpty) {
+      return "此字段为必填项"
+    }
+    
+    return null
+  }
+  
+  const validationError = getValidationError()
+  
   // 对于experience类型的字段，不显示外层标签，避免重复标题
   if (field.type === "experience") {
     return (
       <div className="space-y-2">
         {renderInput(field, record, onChange, app)}
+        {validationError && (
+          <div className="text-sm text-red-500">{validationError}</div>
+        )}
       </div>
     )
   }
@@ -292,7 +325,15 @@ export function FormField({ field, record, app, onChange }: FormFieldProps) {
         {field.label}
         {field.required && <span className="ml-1 text-red-500">*</span>}
       </div>
-      {renderInput(field, record, onChange, app)}
+      <div className={validationError ? "border-red-300 rounded-md" : ""}>
+        {renderInput(field, record, onChange, app)}
+      </div>
+      {validationError && (
+        <div className="text-sm text-red-500">{validationError}</div>
+      )}
+      {field.desc && (
+        <div className="text-xs text-gray-500">{field.desc}</div>
+      )}
     </div>
   )
 }

@@ -89,8 +89,24 @@ export function ApiRecordDrawerContent({ dir, rec, app, onClose, onSave }: Props
 
   function validateRequired(): { ok: boolean; firstMissing?: string } {
     for (const field of basicFields) {
-      if (field.required && !formData[field.key]) {
-        return { ok: false, firstMissing: field.key }
+      if (!field.required) continue
+      
+      const value = formData[field.key]
+      const isEmpty = 
+        value === null ||
+        value === undefined ||
+        (typeof value === "string" && value.trim() === "") ||
+        (Array.isArray(value) && value.length === 0) ||
+        (typeof value === "object" && Object.keys(value).length === 0)
+      
+      if (field.type === "number" || field.type === "percent") {
+        if (value === null || value === undefined || Number.isNaN(Number(value))) {
+          return { ok: false, firstMissing: field.label || field.key }
+        }
+      } else if (field.type === "boolean" || field.type === "checkbox") {
+        // booleans are always valid as required
+      } else if (isEmpty) {
+        return { ok: false, firstMissing: field.label || field.key }
       }
     }
     return { ok: true }
@@ -112,45 +128,111 @@ export function ApiRecordDrawerContent({ dir, rec, app, onClose, onSave }: Props
       setIsSaving(true)
       await onSave(dir.id, rec.id, formData)
       setIsEditing(false)
+      toast({
+        description: locale === "zh" ? "保存成功" : "Saved successfully",
+      })
     } catch (error) {
-      // 错误已在onSave中处理
+      console.error("保存记录失败:", error)
+      toast({
+        description: locale === "zh" 
+          ? `保存失败: ${error instanceof Error ? error.message : "未知错误"}` 
+          : `Save failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        variant: "destructive",
+      })
     } finally {
       setIsSaving(false)
     }
   }
 
   return (
-    <SheetContent className="w-[600px] sm:max-w-[600px] flex flex-col p-0 gap-0">
-      <SheetHeader className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <SheetTitle className="text-lg font-semibold text-gray-900 truncate">
-          {title}
-        </SheetTitle>
-      </SheetHeader>
+    <SheetContent
+      side="right"
+      className="w-[min(958px,100vw)] max-w-[100vw] p-0 bg-white border-l border-gray-200 flex flex-col !w-[min(958px,100vw)] !max-w-[100vw]"
+    >
+      <SheetTitle className="sr-only">{title || "Record Details"}</SheetTitle>
+      <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-6 py-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 grid place-items-center font-medium text-sm text-white shadow-sm">
+              {String(title || "NA")
+                .slice(0, 2)
+                .toUpperCase()}
+            </div>
+            <div className="flex flex-col">
+              <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+              {String((rec as any).category || "") && (
+                <span className="text-sm text-gray-500">{t("category")}：{String((rec as any).category)}</span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {isEditing ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-gray-600"
+                  onClick={() => {
+                    setIsEditing(false)
+                    // 重置表单数据到原始状态
+                    const { id, directoryId, version, createdAt, updatedAt, createdBy, updatedBy, ...props } = rec
+                    setFormData(props)
+                  }}
+                >
+                  {locale === "zh" ? "取消" : "Cancel"}
+                </Button>
+                <Button 
+                  size="sm" 
+                  className="bg-gray-900 hover:bg-gray-800 text-white"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (locale === "zh" ? "保存中..." : "Saving...") : (locale === "zh" ? "保存" : "Save")}
+                </Button>
+              </>
+            ) : (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-gray-600"
+                onClick={() => setIsEditing(true)}
+              >
+                {locale === "zh" ? "编辑" : "Edit"}
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-        <div className="px-6 py-3 border-b border-gray-200">
-          <TabsList className="grid w-full grid-cols-auto">
-            <TabsTrigger value="basic" className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+        <div className="px-6 pt-4">
+          <TabsList className="bg-gray-50 rounded-lg p-1">
+            <TabsTrigger
+              value="basic"
+              className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm px-4 py-2"
+            >
               {t("basicInfo")}
             </TabsTrigger>
-            
-            {relationFields.map((field) => (
-              <TabsTrigger key={field.id} value={field.id} className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                {field.label}
+            {relationFields.map((f) => (
+              <TabsTrigger
+                key={f.id}
+                value={f.id}
+                className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm px-4 py-2"
+              >
+                {f.label}
               </TabsTrigger>
             ))}
-
-            <TabsTrigger value="dynamics" className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+            <TabsTrigger
+              value="dynamics"
+              className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm px-4 py-2"
+            >
               {t("dynamicRecord")}
             </TabsTrigger>
           </TabsList>
         </div>
 
-        <div className="flex-1 overflow-hidden">
-          <TabsContent value="basic" className="p-6 mt-0 flex-none h-full overflow-y-auto">
+        <div className="flex-1 overflow-y-auto bg-white min-h-0">
+          <TabsContent value="basic" className="p-6 mt-0 flex-none">
             <form
               id="record-form"
               className="space-y-6"
@@ -159,15 +241,51 @@ export function ApiRecordDrawerContent({ dir, rec, app, onClose, onSave }: Props
                 handleSave()
               }}
             >
-              {basicFields.map((field) => (
-                <FormField
-                  key={field.id}
-                  field={field}
-                  record={{ ...rec, ...formData }}
-                  app={app}
-                  onChange={(value) => updateField(field.key, value)}
-                />
-              ))}
+              {(() => {
+                // 将字段分为单排和双排布局
+                const singleRowFields = basicFields.filter(f => 
+                  f.type === "textarea" || 
+                  f.type === "rich_text" || 
+                  f.type === "markdown" ||
+                  f.type === "json" ||
+                  f.type === "experience" ||
+                  f.type === "identity_verification" ||
+                  f.type === "other_verification"
+                )
+                const doubleRowFields = basicFields.filter(f => 
+                  !singleRowFields.includes(f)
+                )
+                
+                return (
+                  <>
+                    {/* 双排布局字段 */}
+                    <div className="grid grid-cols-2 gap-6">
+                      {doubleRowFields.map((field) => (
+                        <FormField
+                          key={field.id}
+                          field={field}
+                          record={{ ...rec, ...formData }}
+                          app={app}
+                          onChange={(value) => updateField(field.key, value)}
+                          showValidation={isEditing}
+                        />
+                      ))}
+                    </div>
+                    
+                    {/* 单排布局字段 */}
+                    {singleRowFields.map((field) => (
+                      <FormField
+                        key={field.id}
+                        field={field}
+                        record={{ ...rec, ...formData }}
+                        app={app}
+                        onChange={(value) => updateField(field.key, value)}
+                        showValidation={isEditing}
+                      />
+                    ))}
+                  </>
+                )
+              })()}
             </form>
           </TabsContent>
 
@@ -197,18 +315,7 @@ export function ApiRecordDrawerContent({ dir, rec, app, onClose, onSave }: Props
         </div>
       </Tabs>
 
-      {isEditing && (
-        <div className="sticky bottom-0 z-10 border-t border-gray-200 bg-white px-6 py-3 flex items-center justify-end">
-          <Button 
-            type="submit" 
-            form="record-form" 
-            disabled={isSaving}
-            className="rounded-lg px-6 bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md transition-all duration-200"
-          >
-            {isSaving ? (locale === "zh" ? "保存中..." : "Saving...") : t("saveChanges")}
-          </Button>
-        </div>
-      )}
+
     </SheetContent>
   )
 }

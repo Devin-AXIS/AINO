@@ -18,3 +18,17 @@ export const LoginResp = z.object({
 })
 
 export type TLoginReq = z.infer<typeof LoginReq>
+
+// 获取当前用户信息
+export const GetCurrentUserResp = z.object({
+  success: z.literal(true),
+  data: z.object({
+    id: z.string(),
+    email: z.string().email(),
+    name: z.string(),
+    role: z.enum(["admin", "operator", "viewer"]),
+    permissions: z.array(z.string())
+  })
+})
+
+export type TGetCurrentUserResp = z.infer<typeof GetCurrentUserResp>

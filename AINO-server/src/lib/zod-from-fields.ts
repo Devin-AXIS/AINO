@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { FieldDef } from './processors'
+import type { FieldDef } from './field-processors'
 
 // 根据字段定义生成Zod校验器
 export function zodFromFields(fields: FieldDef[]) {
@@ -11,22 +11,37 @@ export function zodFromFields(fields: FieldDef[]) {
     // 根据字段类型生成校验规则
     switch (field.type) {
       case 'text':
+      case 'textarea':
+      case 'table':
         fieldSchema = z.string()
         break
       case 'number':
         fieldSchema = z.number()
         break
+      case 'email':
+        fieldSchema = z.string().email()
+        break
+      case 'phone':
+        fieldSchema = z.string().regex(/^1[3-9]\d{9}$/, '手机号格式不正确')
+        break
       case 'boolean':
         fieldSchema = z.boolean()
         break
       case 'date':
-        fieldSchema = z.string().datetime().optional()
+        fieldSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期格式不正确')
+        break
+      case 'datetime':
+        fieldSchema = z.string().datetime()
         break
       case 'select':
         fieldSchema = z.string()
         break
       case 'multiselect':
         fieldSchema = z.array(z.string())
+        break
+      case 'image':
+      case 'file':
+        fieldSchema = z.string().url('URL格式不正确')
         break
       case 'json':
         fieldSchema = z.any()
@@ -46,14 +61,26 @@ export function zodFromFields(fields: FieldDef[]) {
       if (field.validators.max !== undefined && field.type === 'number' && fieldSchema instanceof z.ZodNumber) {
         fieldSchema = fieldSchema.max(field.validators.max)
       }
-      if (field.validators.pattern && field.type === 'text' && fieldSchema instanceof z.ZodString) {
+      if (field.validators.minLength && (field.type === 'text' || field.type === 'textarea') && fieldSchema instanceof z.ZodString) {
+        fieldSchema = fieldSchema.min(field.validators.minLength)
+      }
+      if (field.validators.maxLength && (field.type === 'text' || field.type === 'textarea') && fieldSchema instanceof z.ZodString) {
+        fieldSchema = fieldSchema.max(field.validators.maxLength)
+      }
+      if (field.validators.pattern && (field.type === 'text' || field.type === 'textarea') && fieldSchema instanceof z.ZodString) {
         fieldSchema = fieldSchema.regex(new RegExp(field.validators.pattern))
+      }
+      if (field.validators.minItems && field.type === 'multiselect' && fieldSchema instanceof z.ZodArray) {
+        fieldSchema = fieldSchema.min(field.validators.minItems)
+      }
+      if (field.validators.maxItems && field.type === 'multiselect' && fieldSchema instanceof z.ZodArray) {
+        fieldSchema = fieldSchema.max(field.validators.maxItems)
       }
     }
     
     // 处理必填字段
     if (field.required) {
-      // 必填字段
+      // 必填字段保持原样
     } else {
       fieldSchema = fieldSchema.optional()
     }
@@ -74,22 +101,37 @@ export function zodFromFieldsPartial(fields: FieldDef[]) {
     // 根据字段类型生成校验规则
     switch (field.type) {
       case 'text':
+      case 'textarea':
+      case 'table':
         fieldSchema = z.string()
         break
       case 'number':
         fieldSchema = z.number()
         break
+      case 'email':
+        fieldSchema = z.string().email()
+        break
+      case 'phone':
+        fieldSchema = z.string().regex(/^1[3-9]\d{9}$/, '手机号格式不正确')
+        break
       case 'boolean':
         fieldSchema = z.boolean()
         break
       case 'date':
-        fieldSchema = z.string().datetime().optional()
+        fieldSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期格式不正确')
+        break
+      case 'datetime':
+        fieldSchema = z.string().datetime()
         break
       case 'select':
         fieldSchema = z.string()
         break
       case 'multiselect':
         fieldSchema = z.array(z.string())
+        break
+      case 'image':
+      case 'file':
+        fieldSchema = z.string().url('URL格式不正确')
         break
       case 'json':
         fieldSchema = z.any()
@@ -109,8 +151,20 @@ export function zodFromFieldsPartial(fields: FieldDef[]) {
       if (field.validators.max !== undefined && field.type === 'number' && fieldSchema instanceof z.ZodNumber) {
         fieldSchema = fieldSchema.max(field.validators.max)
       }
-      if (field.validators.pattern && field.type === 'text' && fieldSchema instanceof z.ZodString) {
+      if (field.validators.minLength && (field.type === 'text' || field.type === 'textarea') && fieldSchema instanceof z.ZodString) {
+        fieldSchema = fieldSchema.min(field.validators.minLength)
+      }
+      if (field.validators.maxLength && (field.type === 'text' || field.type === 'textarea') && fieldSchema instanceof z.ZodString) {
+        fieldSchema = fieldSchema.max(field.validators.maxLength)
+      }
+      if (field.validators.pattern && (field.type === 'text' || field.type === 'textarea') && fieldSchema instanceof z.ZodString) {
         fieldSchema = fieldSchema.regex(new RegExp(field.validators.pattern))
+      }
+      if (field.validators.minItems && field.type === 'multiselect' && fieldSchema instanceof z.ZodArray) {
+        fieldSchema = fieldSchema.min(field.validators.minItems)
+      }
+      if (field.validators.maxItems && field.type === 'multiselect' && fieldSchema instanceof z.ZodArray) {
+        fieldSchema = fieldSchema.max(field.validators.maxItems)
       }
     }
     
@@ -119,4 +173,31 @@ export function zodFromFieldsPartial(fields: FieldDef[]) {
   }
   
   return z.object(schema)
+}
+
+// 生成字段选项验证器
+export function zodFromFieldOptions(field: FieldDef) {
+  if (field.type === 'select' && field.schema?.options) {
+    return z.enum(field.schema.options as [string, ...string[]])
+  }
+  if (field.type === 'multiselect' && field.schema?.options) {
+    return z.array(z.enum(field.schema.options as [string, ...string[]]))
+  }
+  return null
+}
+
+// 生成记录创建校验器
+export function createRecordValidator(fields: FieldDef[]) {
+  return zodFromFields(fields)
+}
+
+// 生成记录更新校验器
+export function updateRecordValidator(fields: FieldDef[]) {
+  return zodFromFieldsPartial(fields)
+}
+
+// 生成字段值校验器
+export function fieldValueValidator(field: FieldDef) {
+  const baseSchema = zodFromFields([field])
+  return baseSchema.shape[field.key]
 }
