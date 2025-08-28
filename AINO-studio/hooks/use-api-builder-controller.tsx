@@ -330,9 +330,39 @@ export function useApiBuilderController({
     })
   }
 
+  // 保存记录到API
+  async function saveRecord(dirId: string, recordId: string, props: Record<string, any>) {
+    try {
+      console.log('🔍 保存记录:', { dirId, recordId, props })
+      
+      const response = await api.records.updateRecord(dirId, recordId, { props })
+      
+      if (response.success && response.data) {
+        // 重新获取记录列表以更新本地状态
+        await fetchRecords(dirId)
+        
+        toast({
+          description: locale === "zh" ? "记录保存成功" : "Record saved successfully",
+        })
+        
+        return response.data
+      } else {
+        throw new Error(response.error || "保存记录失败")
+      }
+    } catch (error) {
+      console.error("保存记录失败:", error)
+      toast({
+        description: locale === "zh" ? "保存记录失败" : "Failed to save record",
+        variant: "destructive",
+      })
+      throw error
+    }
+  }
+
   function persist(app: any) {
-    // 临时实现，后续可以连接到API
-    console.log("Persist app:", app)
+    // 临时实现，用于兼容旧的接口
+    // 新的实现应该使用 saveRecord 函数
+    console.log("Persist app (deprecated):", app)
   }
 
   async function addRecord() {
@@ -346,12 +376,108 @@ export function useApiBuilderController({
     }
 
     try {
-      // 打开记录抽屉进行创建
-      setDrawer({ open: true, dirId: currentDir.id, recordId: null, tab: "basic" })
+      // 检查是否有内容分类
+      const hasCategories = currentDir.categories && currentDir.categories.length > 0
+      
+      if (hasCategories) {
+        // 有分类时，先弹出分类选择对话框
+        setOpenCategorySelection(true)
+      } else {
+        // 没有分类时，直接创建记录
+        await createRecordWithCategory("")
+      }
     } catch (error) {
       console.error("添加记录失败:", error)
       toast({
         description: locale === "zh" ? "添加记录失败" : "Failed to add record",
+        variant: "destructive",
+      })
+    }
+  }
+
+  async function createRecordWithCategory(categoryPath: string) {
+    if (!currentDir) return
+
+    try {
+      // 构建默认记录数据
+      const defaultProps: Record<string, any> = {}
+      
+      // 根据字段定义设置默认值
+      currentDir.fields.forEach((field) => {
+        if (field.default !== undefined) {
+          defaultProps[field.key] = field.default
+          return
+        }
+        
+        // 根据字段类型设置默认值
+        switch (field.type) {
+          case "select":
+            // 如果是分类字段且有分类，设置分类路径
+            if (field.key === "category" && categoryPath) {
+              defaultProps[field.key] = categoryPath
+            } else {
+              defaultProps[field.key] = field.options?.[0] ?? ""
+            }
+            break
+          case "multiselect":
+          case "tags":
+            defaultProps[field.key] = []
+            break
+          case "boolean":
+          case "checkbox":
+            defaultProps[field.key] = false
+            break
+          case "number":
+          case "percent":
+            defaultProps[field.key] = 0
+            break
+          case "experience":
+            defaultProps[field.key] = []
+            break
+          case "relation_one":
+          case "relation_many":
+            defaultProps[field.key] = field.type === "relation_many" ? [] : ""
+            break
+          default:
+            defaultProps[field.key] = ""
+        }
+      })
+
+      // 设置默认名称
+      const nameField = currentDir.fields.find(f => f.key === "name" || f.key === "title")
+      if (nameField && !defaultProps[nameField.key]) {
+        const currentRecords = recordsData[currentDir.id] || []
+        const recordCount = currentRecords.length
+        defaultProps[nameField.key] = `${nameField.label || "新记录"}#${recordCount + 1}`
+      }
+
+      // 调用API创建记录
+      console.log('🔍 创建记录:', { dirId: currentDir.id, props: defaultProps })
+      const response = await api.records.createRecord(currentDir.id, { props: defaultProps })
+      
+      if (response.success && response.data) {
+        console.log('🔍 记录创建成功，返回数据:', response.data)
+        
+        // 重新获取记录列表
+        console.log('🔍 重新获取记录列表...')
+        await fetchRecords(currentDir.id)
+        
+        // 打开记录抽屉进行编辑
+        const recordId = response.data.id
+        console.log('🔍 准备打开抽屉:', { dirId: currentDir.id, recordId, tab: "basic" })
+        setDrawer({ open: true, dirId: currentDir.id, recordId: recordId, tab: "basic" })
+        
+        toast({
+          description: locale === "zh" ? "记录创建成功" : "Record created successfully",
+        })
+      } else {
+        console.error('🔍 记录创建失败:', response)
+        throw new Error(response.error || "创建记录失败")
+      }
+    } catch (error) {
+      console.error("创建记录失败:", error)
+      toast({
+        description: locale === "zh" ? "创建记录失败" : "Failed to create record",
         variant: "destructive",
       })
     }
@@ -577,12 +703,7 @@ export function useApiBuilderController({
     })
   }
 
-  function createRecordWithCategory(categoryPath: string[]) {
-    // 临时实现
-    toast({
-      description: locale === "zh" ? "创建分类记录功能正在开发中" : "Create category record feature is under development",
-    })
-  }
+
 
   return {
     // 数据状态
@@ -595,6 +716,7 @@ export function useApiBuilderController({
     modules: apiModules,
     currentModule,
     currentDir,
+    records: currentDir ? (recordsData[currentDir.id] || []) : [],
     
     // 选择状态
     moduleId,
@@ -645,6 +767,7 @@ export function useApiBuilderController({
 
     // 添加缺失的方法
     persist,
+    saveRecord,
     addRecord,
     openDrawer,
     closeDrawer,

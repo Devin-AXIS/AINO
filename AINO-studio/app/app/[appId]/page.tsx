@@ -17,7 +17,7 @@ import { BackgroundLights } from "@/components/background-lights"
 import { useApiBuilderController } from "@/hooks/use-api-builder-controller"
 import { DataTable } from "./data-table"
 import { FieldManager } from "./field-manager"
-import { RecordDrawer } from "./record-drawer"
+import { ApiRecordDrawer } from "./api-record-drawer"
 import { RenameDialog } from "@/components/dialogs/rename-dialog"
 import { CategoryDialog } from "@/components/dialogs/category-dialog"
 import { CategorySelectionDialog } from "@/components/dialogs/category-selection-dialog"
@@ -498,12 +498,14 @@ export default function BuilderPage() {
       </div>
 
       {!isSettingsMode && (
-        <RecordDrawer
+        <ApiRecordDrawer
+          currentDir={c.currentDir}
+          records={c.records}
           app={c.app}
           open={c.drawer.open}
           state={c.drawer}
           onClose={() => c.closeDrawer()}
-          onChange={c.persist}
+          onSave={c.saveRecord}
         />
       )}
 
