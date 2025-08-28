@@ -410,37 +410,49 @@ export function useApiBuilderController({
         }
         
         // 根据字段类型设置默认值
+        let defaultValue: any
         switch (field.type) {
           case "select":
             // 如果是分类字段且有分类，设置分类路径
             if (field.key === "category" && categoryPath) {
-              defaultProps[field.key] = categoryPath
+              defaultValue = categoryPath
             } else {
-              defaultProps[field.key] = field.options?.[0] ?? ""
+              defaultValue = field.options?.[0] ?? ""
             }
             break
           case "multiselect":
           case "tags":
-            defaultProps[field.key] = []
+            defaultValue = []
             break
           case "boolean":
           case "checkbox":
-            defaultProps[field.key] = false
+            defaultValue = false
             break
           case "number":
           case "percent":
-            defaultProps[field.key] = 0
+            defaultValue = 0
             break
           case "experience":
-            defaultProps[field.key] = []
+            defaultValue = []
             break
           case "relation_one":
           case "relation_many":
-            defaultProps[field.key] = field.type === "relation_many" ? [] : ""
+            defaultValue = field.type === "relation_many" ? [] : ""
+            break
+          case "email":
+            // 为必填的email字段设置一个示例值
+            defaultValue = field.required ? "example@example.com" : ""
             break
           default:
-            defaultProps[field.key] = ""
+            // 为必填的文本字段设置一个示例值
+            if (field.required) {
+              defaultValue = `${field.label || field.key}_示例值`
+            } else {
+              defaultValue = ""
+            }
         }
+        
+        defaultProps[field.key] = defaultValue
       })
 
       // 设置默认名称
@@ -452,7 +464,17 @@ export function useApiBuilderController({
       }
 
       // 调用API创建记录
-      console.log('🔍 创建记录:', { dirId: currentDir.id, props: defaultProps })
+      console.log('🔍 创建记录:', { 
+        dirId: currentDir.id, 
+        dirName: currentDir.name,
+        props: defaultProps,
+        fieldsInfo: currentDir.fields.map(f => ({ 
+          key: f.key, 
+          type: f.type, 
+          required: f.required,
+          label: f.label 
+        }))
+      })
       const response = await api.records.createRecord(currentDir.id, { props: defaultProps })
       
       if (response.success && response.data) {
