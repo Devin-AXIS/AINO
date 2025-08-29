@@ -25,6 +25,7 @@ import { TimeInput } from "@/components/form-inputs/time-input"
 import { MultiSelectInput } from "@/components/form-inputs/multi-select-input"
 import { TagInput } from "@/components/form-inputs/tag-input"
 import { RelationInput } from "@/components/form-inputs/relation-input"
+import { PhoneInput } from "@/components/form-inputs/phone-input"
 
 function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) => void, app: AppModel) {
   const value = (record as any)[field.key]
@@ -77,11 +78,9 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
         )
       case "phone":
         return (
-          <Input
-            type="tel"
-            className="bg-white"
+          <PhoneInput
             value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={onChange}
             placeholder="请输入手机号"
           />
         )
