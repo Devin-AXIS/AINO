@@ -32,6 +32,31 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
   // 文本字段
   text: {
     validate: (value, fieldDef) => {
+      // 检查是否是实名认证字段（通过preset判断）
+      if (fieldDef.schema?.preset === 'identity_verification') {
+        // 使用实名认证字段的验证逻辑
+        return baseFieldProcessors.identity_verification.validate(value, fieldDef)
+      }
+      
+      // 检查是否是其他认证字段（通过preset判断）
+      if (fieldDef.schema?.preset === 'other_verification') {
+        // 使用其他认证字段的验证逻辑
+        return baseFieldProcessors.other_verification.validate(value, fieldDef)
+      }
+      
+      // 检查是否是图片字段（通过preset判断）
+      if (fieldDef.schema?.preset === 'image' || fieldDef.schema?.imageConfig?.multiple) {
+        // 使用图片字段的验证逻辑
+        return baseFieldProcessors.image.validate(value, fieldDef)
+      }
+      
+      // 检查是否是视频字段（通过preset判断）
+      if (fieldDef.schema?.preset === 'video' || fieldDef.schema?.videoConfig?.multiple) {
+        // 使用视频字段的验证逻辑
+        return baseFieldProcessors.video.validate(value, fieldDef)
+      }
+      
+      // 默认文本字段验证
       if (fieldDef.required && (!value || value.trim() === '')) {
         return { valid: false, error: '此字段为必填项' }
       }
@@ -58,7 +83,34 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
       
       return { valid: true }
     },
-    transform: (value) => value ? String(value).trim() : value,
+    transform: (value, fieldDef) => {
+      // 检查是否是实名认证字段（通过preset判断）
+      if (fieldDef.schema?.preset === 'identity_verification') {
+        // 使用实名认证字段的转换逻辑
+        return baseFieldProcessors.identity_verification.transform(value, fieldDef)
+      }
+      
+      // 检查是否是其他认证字段（通过preset判断）
+      if (fieldDef.schema?.preset === 'other_verification') {
+        // 使用其他认证字段的转换逻辑
+        return baseFieldProcessors.other_verification.transform(value, fieldDef)
+      }
+      
+      // 检查是否是图片字段（通过preset判断）
+      if (fieldDef.schema?.preset === 'image' || fieldDef.schema?.imageConfig?.multiple) {
+        // 使用图片字段的转换逻辑
+        return baseFieldProcessors.image.transform(value, fieldDef)
+      }
+      
+      // 检查是否是视频字段（通过preset判断）
+      if (fieldDef.schema?.preset === 'video' || fieldDef.schema?.videoConfig?.multiple) {
+        // 使用视频字段的转换逻辑
+        return baseFieldProcessors.video.transform(value, fieldDef)
+      }
+      
+      // 默认文本字段转换
+      return value ? String(value).trim() : value
+    },
     format: (value) => value
   },
 
