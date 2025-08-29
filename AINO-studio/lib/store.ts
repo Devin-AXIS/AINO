@@ -18,6 +18,7 @@ export type FieldType =
   | "image"
   | "multiimage"
   | "video"
+  | "multivideo"
   | "file"
   | "richtext"
   | "percent"
@@ -28,6 +29,8 @@ export type FieldType =
   | "relation_one"
   | "relation_many"
   | "experience"
+  | "identity_verification"
+  | "other_verification"
 
 export type PresetKey =
   | "city"

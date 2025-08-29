@@ -18,6 +18,7 @@ export function getFieldTypeNames(t: (key: string) => string): Record<FieldType,
     image: t("ft_image"),
     multiimage: t("ft_multiimage"),
     video: t("ft_video"),
+    multivideo: t("ft_multivideo"),
     file: t("ft_file"),
     richtext: t("ft_richtext"),
     percent: t("ft_percent"),
@@ -28,6 +29,8 @@ export function getFieldTypeNames(t: (key: string) => string): Record<FieldType,
     relation_one: t("ft_relation_one"),
     relation_many: t("ft_relation_many"),
     experience: t("ft_experience"),
+    identity_verification: t("ft_identity_verification"),
+    other_verification: t("ft_other_verification"),
   }
 }
 
@@ -35,9 +38,10 @@ export function getFieldTypeNames(t: (key: string) => string): Record<FieldType,
 export const FIELD_TYPE_GROUPS = {
   basic: ['text', 'textarea', 'number', 'boolean', 'date', 'datetime', 'daterange', 'multidate', 'time'] as FieldType[],
   selection: ['select', 'multiselect', 'checkbox', 'cascader'] as FieldType[],
-  media: ['image', 'multiimage', 'video', 'file'] as FieldType[],
+  media: ['image', 'multiimage', 'video', 'multivideo', 'file'] as FieldType[],
   advanced: ['richtext', 'tags', 'percent', 'progress', 'barcode'] as FieldType[],
   relation: ['relation_one', 'relation_many', 'experience'] as FieldType[],
+  verification: ['identity_verification', 'other_verification'] as FieldType[],
 }
 
 // 字段类型默认配置
@@ -61,5 +65,17 @@ export const FIELD_TYPE_DEFAULTS: Partial<Record<FieldType, any>> = {
     maxValue: 100, 
     showPercentage: true, 
     showProgressBar: true 
+  },
+  video: { maxSizeMB: 50 },
+  multivideo: { maxSizeMB: 50, multiple: true },
+  identity_verification: {
+    requireName: true,
+    requireIdNumber: true,
+    requireFrontPhoto: true,
+    requireBackPhoto: true,
+  },
+  other_verification: {
+    textFields: [],
+    imageFields: [],
   },
 }

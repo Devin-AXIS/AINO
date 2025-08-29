@@ -77,6 +77,10 @@ const zh: Dict = {
   ft_relation_one: "关联",
   ft_relation_many: "多关联",
   ft_experience: "经历",
+  ft_multiimage: "多图片",
+  ft_multivideo: "多视频",
+  ft_identity_verification: "实名认证",
+  ft_other_verification: "其他认证",
   // 字段管理相关
   fieldManagement: "字段管理",
   categoryManagement: "分类管理",
@@ -227,6 +231,10 @@ const en: Dict = {
   ft_relation_one: "Relation",
   ft_relation_many: "Multi-relation",
   ft_experience: "Experience",
+  ft_multiimage: "Multi Image",
+  ft_multivideo: "Multi Video",
+  ft_identity_verification: "Identity Verification",
+  ft_other_verification: "Other Verification",
   // Field management related
   fieldManagement: "Field Management",
   categoryManagement: "Category Management",

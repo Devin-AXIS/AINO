@@ -273,6 +273,31 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
           defaultVideo={field.videoConfig?.defaultVideo || ""}
         />
       )
+    case "multivideo":
+      return (
+        <VideoInput
+          value={value}
+          onChange={onChange}
+          multiple={true}
+          defaultVideo={field.videoConfig?.defaultVideo || ""}
+        />
+      )
+    case "identity_verification":
+      return (
+        <IdentityVerificationInput
+          value={value || {}}
+          onChange={onChange}
+          config={field.identityVerificationConfig}
+        />
+      )
+    case "other_verification":
+      return (
+        <OtherVerificationInput
+          value={value || {}}
+          onChange={onChange}
+          config={field.otherVerificationConfig}
+        />
+      )
     case "barcode":
       return <Input className="bg-white" value={value || ""} onChange={(e) => onChange(e.target.value)} />
     case "cascader":
