@@ -308,8 +308,14 @@ export function RecordDrawerContent({ app, dir, rec, onClose, onChange }: Props)
                     organizationLabel = "公司"
                     break
                   case "project":
-                    titleLabel = "项目"
-                    organizationLabel = "机构"
+                    // 如果是自定义经历字段，使用配置的标签
+                    if (field?.preset === "custom_experience" && field?.customExperienceConfig) {
+                      titleLabel = field.customExperienceConfig.experienceName || "经历"
+                      organizationLabel = field.customExperienceConfig.eventName || "事件"
+                    } else {
+                      titleLabel = "项目"
+                      organizationLabel = "机构"
+                    }
                     break
                   case "certificate":
                     titleLabel = "证书"

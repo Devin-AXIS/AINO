@@ -200,18 +200,25 @@ records.post('/:dir', async (c) => {
   
   try {
     console.log('🔍 创建记录请求:', { dir, input })
+    console.log('🔍 POST路由开始执行 - 这是关键调试点')
     
     // 验证目录ID格式
+    console.log('🔍 验证目录ID格式:', dir)
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     if (!uuidRegex.test(dir)) {
+      console.log('❌ 目录ID格式无效')
       return c.json({ success: false, error: '目录ID格式无效' }, 400)
     }
+    console.log('✅ 目录ID格式验证通过')
     
     // 获取目录信息
+    console.log('🔍 获取目录信息:', dir)
     const directory = await getDirectoryById(dir)
     if (!directory) {
+      console.log('❌ 目录不存在')
       return c.json({ success: false, error: '目录不存在' }, 404)
     }
+    console.log('✅ 目录信息获取成功')
     
     const t = tableFor(dir)
     const user = c.get('user') as any
@@ -230,15 +237,51 @@ records.post('/:dir', async (c) => {
         kind: fd.kind,
         type: fd.type,
         schema: fd.schema,
+        relation: fd.relation,
+        lookup: fd.lookup,
+        computed: fd.computed,
         validators: fd.validators,
+        readRoles: fd.readRoles || [],
+        writeRoles: fd.writeRoles || [],
         required: fd.required
       }))
     }
     
     // 如果有字段定义，进行验证
     if (fieldDefinitions.length > 0) {
+      console.log('🔍 字段定义数量:', fieldDefinitions.length)
+      console.log('🔍 字段定义详情:', fieldDefinitions.map(fd => ({ key: fd.key, type: fd.type })))
+      
       const propsData = input.props || input
+      console.log('🔍 输入数据:', propsData)
+      
+      // 特别检查g_hcj1字段
+      const g_hcj1_field = fieldDefinitions.find(fd => fd.key === 'g_hcj1')
+      if (g_hcj1_field) {
+        console.log('🔍 g_hcj1字段详情:', { 
+          key: g_hcj1_field.key, 
+          type: g_hcj1_field.type, 
+          typeOf: typeof g_hcj1_field.type,
+          typeEquals: g_hcj1_field.type === 'experience'
+        })
+        
+        // 测试单个字段验证
+        const g_hcj1_value = propsData.g_hcj1
+        console.log('🔍 g_hcj1数据:', g_hcj1_value)
+        
+        const singleValidation = fieldProcessorManager.validateField(g_hcj1_value, g_hcj1_field)
+        console.log('🔍 g_hcj1单独验证结果:', singleValidation)
+        
+        // 测试处理器获取
+        const processor = fieldProcessorManager.getProcessor(g_hcj1_field.type)
+        console.log('🔍 g_hcj1处理器获取:', { 
+          exists: !!processor, 
+          validateType: typeof processor?.validate 
+        })
+      }
+      
       const validation = fieldProcessorManager.validateRecord(propsData, fieldDefinitions)
+      console.log('🔍 验证结果:', validation)
       
       if (!validation.valid) {
         return c.json({ 
@@ -320,7 +363,12 @@ records.patch('/:dir/:id', async (c) => {
         kind: fd.kind,
         type: fd.type,
         schema: fd.schema,
+        relation: fd.relation,
+        lookup: fd.lookup,
+        computed: fd.computed,
         validators: fd.validators,
+        readRoles: fd.readRoles || [],
+        writeRoles: fd.writeRoles || [],
         required: fd.required
       }))
     }

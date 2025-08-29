@@ -140,7 +140,21 @@ async function apiRequest<T>(
     } else {
       // 处理错误状态码
       console.error(`❌ HTTP Error: ${response.status}`, data)
-      throw new Error(data.error || data.message || `HTTP ${response.status}`)
+      
+      // 构造详细的错误信息
+      let errorMessage = data.error || data.message || `HTTP ${response.status}`
+      if (data.details && typeof data.details === 'object') {
+        const detailsStr = Object.entries(data.details)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(', ')
+        errorMessage += ` (${detailsStr})`
+      }
+      
+      const error = new Error(errorMessage)
+      // 将完整的错误数据附加到错误对象上，供上层处理
+      ;(error as any).details = data.details
+      ;(error as any).originalData = data
+      throw error
     }
   } catch (error) {
     console.error(`❌ API Error:`, error)

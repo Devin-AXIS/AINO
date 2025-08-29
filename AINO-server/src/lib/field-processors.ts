@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // 字段类型定义
 export type FieldKind = 'primitive' | 'composite' | 'relation' | 'lookup' | 'computed'
-export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table' | 'tags'
+export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table' | 'tags' | 'experience'
 
 // 字段定义接口
 export interface FieldDef {
@@ -326,9 +326,9 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
         
         // 验证文件类型（如果提供了接受的文件类型）
         if (fieldDef.validators?.accept && typeof value === 'object' && value.type) {
-          const acceptTypes = fieldDef.validators.accept.split(',').map(t => t.trim())
+          const acceptTypes = fieldDef.validators.accept.split(',').map((t: string) => t.trim())
           const fileType = value.type
-          const isAccepted = acceptTypes.some(acceptType => {
+          const isAccepted = acceptTypes.some((acceptType: string) => {
             if (acceptType.endsWith('/*')) {
               return fileType.startsWith(acceptType.slice(0, -1))
             }
@@ -454,6 +454,134 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
       if (!value) return []
       if (Array.isArray(value)) {
         return value.map(tag => tag.trim()).filter(tag => tag.length > 0)
+      }
+      return []
+    },
+    format: (value) => value
+  },
+
+  // 经历字段
+  experience: {
+    validate: (value, fieldDef) => {
+      // 经历字段可以为空
+      if (!value) {
+        return { valid: true }
+      }
+      
+      // 验证是否为数组
+      if (!Array.isArray(value)) {
+        return { valid: false, error: '经历必须是数组格式' }
+      }
+      
+      // 验证每个经历项
+      for (let i = 0; i < value.length; i++) {
+        const experience = value[i]
+        if (typeof experience !== 'object' || experience === null) {
+          return { valid: false, error: `经历${i + 1}必须是对象格式` }
+        }
+        
+        // 验证必需字段
+        if (!experience.id || typeof experience.id !== 'string') {
+          return { valid: false, error: `经历${i + 1}缺少有效的ID` }
+        }
+        
+        if (!experience.type || typeof experience.type !== 'string') {
+          return { valid: false, error: `经历${i + 1}缺少类型信息` }
+        }
+        
+        if (!experience.title || typeof experience.title !== 'string' || experience.title.trim() === '') {
+          return { valid: false, error: `经历${i + 1}缺少标题` }
+        }
+        
+        if (!experience.organization || typeof experience.organization !== 'string' || experience.organization.trim() === '') {
+          return { valid: false, error: `经历${i + 1}缺少组织信息` }
+        }
+        
+        if (!experience.startDate || typeof experience.startDate !== 'string' || experience.startDate.trim() === '') {
+          return { valid: false, error: `经历${i + 1}缺少开始日期` }
+        }
+        
+        // 验证日期格式
+        const startDate = new Date(experience.startDate)
+        if (isNaN(startDate.getTime())) {
+          return { valid: false, error: `经历${i + 1}的开始日期格式不正确` }
+        }
+        
+        // 如果有结束日期，验证格式
+        if (experience.endDate && experience.endDate.trim() !== '') {
+          const endDate = new Date(experience.endDate)
+          if (isNaN(endDate.getTime())) {
+            return { valid: false, error: `经历${i + 1}的结束日期格式不正确` }
+          }
+        }
+        
+        // 验证技能数组（如果存在）
+        if (experience.skills && !Array.isArray(experience.skills)) {
+          return { valid: false, error: `经历${i + 1}的技能必须是数组格式` }
+        }
+        
+        // 验证成就数组（如果存在）
+        if (experience.achievements && !Array.isArray(experience.achievements)) {
+          return { valid: false, error: `经历${i + 1}的成就必须是数组格式` }
+        }
+      }
+      
+      // 验证经历数量限制
+      if (fieldDef.validators) {
+        const validators = fieldDef.validators
+        if (validators.maxItems && value.length > validators.maxItems) {
+          return { valid: false, error: `经历数量不能超过${validators.maxItems}个` }
+        }
+        if (validators.minItems && value.length < validators.minItems) {
+          return { valid: false, error: `经历数量不能少于${validators.minItems}个` }
+        }
+      }
+      
+      return { valid: true }
+    },
+    transform: (value) => {
+      // 确保返回数组格式
+      if (!value) return []
+      if (Array.isArray(value)) {
+        return value.map(experience => {
+          // 清理和标准化经历数据
+          const cleaned = {
+            id: experience.id?.trim() || '',
+            type: experience.type?.trim() || '',
+            title: experience.title?.trim() || '',
+            organization: experience.organization?.trim() || '',
+            startDate: experience.startDate?.trim() || '',
+            endDate: experience.endDate?.trim() || null,
+            isCurrent: Boolean(experience.isCurrent),
+            description: experience.description?.trim() || null,
+            location: experience.location?.trim() || null,
+            skills: Array.isArray(experience.skills) ? experience.skills.filter((s: string) => s && s.trim()) : [],
+            achievements: Array.isArray(experience.achievements) ? experience.achievements.filter((a: string) => a && a.trim()) : [],
+            // 教育经历特有字段
+            degree: experience.degree?.trim() || null,
+            major: experience.major?.trim() || null,
+            gpa: experience.gpa?.trim() || null,
+            // 工作经历特有字段
+            department: experience.department?.trim() || null,
+            salary: experience.salary?.trim() || null,
+            // 项目经历特有字段
+            projectUrl: experience.projectUrl?.trim() || null,
+            teamSize: typeof experience.teamSize === 'number' ? experience.teamSize : null,
+            // 证书特有字段
+            issuer: experience.issuer?.trim() || null,
+            credentialId: experience.credentialId?.trim() || null,
+            expiryDate: experience.expiryDate?.trim() || null
+          }
+          
+          // 移除空值字段
+          Object.keys(cleaned).forEach(key => {
+            if ((cleaned as any)[key] === null || (cleaned as any)[key] === '') {
+              delete (cleaned as any)[key]
+            }
+          })
+          
+          return cleaned
+        })
       }
       return []
     },

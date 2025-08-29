@@ -70,6 +70,8 @@ records.post('/:dir', zValidator('json', createRecordSchema), async (c) => {
   const data = c.req.valid('json')
   const user = c.get('user') as any
   
+  console.log('🔍 modules/records 路由被调用:', { dir, data })
+  
   try {
     const service = new RecordsService()
     const record = await service.createRecord(dir, data.props, user?.id || 'system')

@@ -176,6 +176,19 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
             enabled: true, // API中没有enabled字段，默认为true
             locked: false, // API中没有locked字段，默认为false
             categoryId: categoryId, // 根据predefinedFields确定分类
+            // 提取字段配置信息
+            cascaderOptions: field.schema?.cascaderOptions || undefined,
+            customExperienceConfig: field.schema?.customExperienceConfig || undefined,
+            certificateConfig: field.schema?.certificateConfig || undefined,
+            skillsConfig: field.schema?.skillsConfig || undefined,
+            progressConfig: field.schema?.progressConfig || undefined,
+            identityVerificationConfig: field.schema?.identityVerificationConfig || undefined,
+            otherVerificationConfig: field.schema?.otherVerificationConfig || undefined,
+            imageConfig: field.schema?.imageConfig || undefined,
+            videoConfig: field.schema?.videoConfig || undefined,
+            booleanConfig: field.schema?.booleanConfig || undefined,
+            multiselectConfig: field.schema?.multiselectConfig || undefined,
+            preset: field.schema?.preset || undefined,
           }
         })
         
@@ -336,6 +349,17 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           showInForm: fieldData.showInForm || true,
           showInDetail: fieldData.showInDetail || true,
           preset: fieldData.preset || undefined,
+          cascaderOptions: fieldData.cascaderOptions || undefined,
+          customExperienceConfig: fieldData.customExperienceConfig || undefined,
+          certificateConfig: fieldData.certificateConfig || undefined,
+          skillsConfig: fieldData.skillsConfig || undefined,
+          progressConfig: fieldData.progressConfig || undefined,
+          identityVerificationConfig: fieldData.identityVerificationConfig || undefined,
+          otherVerificationConfig: fieldData.otherVerificationConfig || undefined,
+          imageConfig: fieldData.imageConfig || undefined,
+          videoConfig: fieldData.videoConfig || undefined,
+          booleanConfig: fieldData.booleanConfig || undefined,
+          multiselectConfig: fieldData.multiselectConfig || undefined,
         },
         validators: fieldData.validators || {},
         required: fieldData.required || false,
@@ -361,6 +385,19 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           enabled: true,
           locked: false,
           categoryId: fieldData.categoryId || null,
+          // 提取字段配置信息
+          cascaderOptions: response.data.schema?.cascaderOptions || undefined,
+          customExperienceConfig: response.data.schema?.customExperienceConfig || undefined,
+          certificateConfig: response.data.schema?.certificateConfig || undefined,
+          skillsConfig: response.data.schema?.skillsConfig || undefined,
+          progressConfig: response.data.schema?.progressConfig || undefined,
+          identityVerificationConfig: response.data.schema?.identityVerificationConfig || undefined,
+          otherVerificationConfig: response.data.schema?.otherVerificationConfig || undefined,
+          imageConfig: response.data.schema?.imageConfig || undefined,
+          videoConfig: response.data.schema?.videoConfig || undefined,
+          booleanConfig: response.data.schema?.booleanConfig || undefined,
+          multiselectConfig: response.data.schema?.multiselectConfig || undefined,
+          preset: response.data.schema?.preset || undefined,
         }
         
         setFieldDefs(prev => [...prev, newField])
@@ -435,6 +472,18 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           showInList: fieldData.showInList || true,
           showInForm: fieldData.showInForm || true,
           showInDetail: fieldData.showInDetail || true,
+          preset: fieldData.preset || undefined,
+          cascaderOptions: fieldData.cascaderOptions || undefined,
+          customExperienceConfig: fieldData.customExperienceConfig || undefined,
+          certificateConfig: fieldData.certificateConfig || undefined,
+          skillsConfig: fieldData.skillsConfig || undefined,
+          progressConfig: fieldData.progressConfig || undefined,
+          identityVerificationConfig: fieldData.identityVerificationConfig || undefined,
+          otherVerificationConfig: fieldData.otherVerificationConfig || undefined,
+          imageConfig: fieldData.imageConfig || undefined,
+          videoConfig: fieldData.videoConfig || undefined,
+          booleanConfig: fieldData.booleanConfig || undefined,
+          multiselectConfig: fieldData.multiselectConfig || undefined,
         },
         validators: fieldData.validators || {},
         required: fieldData.required || false,
@@ -459,6 +508,19 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
                 options: response.data.schema?.options || [],
                 config: response.data.schema || {},
                 validators: response.data.validators || {},
+                // 更新字段配置信息
+                cascaderOptions: response.data.schema?.cascaderOptions || undefined,
+                customExperienceConfig: response.data.schema?.customExperienceConfig || undefined,
+                certificateConfig: response.data.schema?.certificateConfig || undefined,
+                skillsConfig: response.data.schema?.skillsConfig || undefined,
+                progressConfig: response.data.schema?.progressConfig || undefined,
+                identityVerificationConfig: response.data.schema?.identityVerificationConfig || undefined,
+                otherVerificationConfig: response.data.schema?.otherVerificationConfig || undefined,
+                imageConfig: response.data.schema?.imageConfig || undefined,
+                videoConfig: response.data.schema?.videoConfig || undefined,
+                booleanConfig: response.data.schema?.booleanConfig || undefined,
+                multiselectConfig: response.data.schema?.multiselectConfig || undefined,
+                preset: response.data.schema?.preset || undefined,
               }
             : field
         ))

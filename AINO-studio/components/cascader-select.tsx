@@ -49,6 +49,10 @@ export function CascaderSelect({
   l2Label?: string
   l3Label?: string
 }) {
+  // 调试日志
+  console.log("🔍 CascaderSelect - Tree data:", tree);
+  console.log("🔍 CascaderSelect - Tree length:", tree.length);
+  console.log("🔍 CascaderSelect - Value:", value);
   const [open, setOpen] = useState(false)
   const [l1, setL1] = useState<string>("")
   const [l2, setL2] = useState<string>("")

@@ -121,7 +121,6 @@ export default function BuilderPage() {
       ...(draft.certificateConfig ? { certificateConfig: draft.certificateConfig } : {}),
       ...(draft.identityVerificationConfig ? { identityVerificationConfig: draft.identityVerificationConfig } : {}),
       ...(draft.otherVerificationConfig ? { otherVerificationConfig: draft.otherVerificationConfig } : {}),
-      ...(draft.cascaderOptions ? { cascaderOptions: draft.cascaderOptions } : {}),
       ...(draft.imageConfig ? { imageConfig: draft.imageConfig } : {}),
       ...(draft.videoConfig ? { videoConfig: draft.videoConfig } : {}),
       ...(draft.booleanConfig ? { booleanConfig: draft.booleanConfig } : {}),

@@ -295,6 +295,10 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
     case "barcode":
       return <Input className="bg-white" value={value || ""} onChange={(e) => onChange(e.target.value)} />
     case "cascader":
+      // 调试日志
+      console.log("🔍 FormField - Cascader field:", field);
+      console.log("🔍 FormField - CascaderOptions:", field.cascaderOptions);
+      console.log("🔍 FormField - CascaderOptions length:", field.cascaderOptions?.length || 0);
       return (
         <CascaderSelect
           tree={field.cascaderOptions || []}

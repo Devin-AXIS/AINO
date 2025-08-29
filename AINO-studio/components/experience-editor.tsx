@@ -51,14 +51,20 @@ export function ExperienceEditor({ value = [], onChange, className, field }: Exp
 
   // 根据字段配置决定显示哪些类型的经历
   const getExperienceTypes = () => {
+    // 调试日志
+    console.log("🔍 ExperienceEditor - Field config:", field);
+    console.log("🔍 ExperienceEditor - Field preset:", field?.preset);
+    console.log("🔍 ExperienceEditor - CustomExperienceConfig:", field?.customExperienceConfig);
+    
     if (!field) {
       // 默认只显示教育经历，避免重复标题
       return ["education"]
     }
     
-    // 如果是自定义经历字段，只显示一种通用类型
+    // 如果是自定义经历字段，使用通用类型但会通过配置自定义标签
     if (field.preset === "custom_experience") {
-      return ["project"] // 使用项目类型作为通用经历类型
+      console.log("🔍 ExperienceEditor - Using custom_experience type");
+      return ["project"] // 使用项目类型作为通用经历类型，但标签会被自定义
     }
     
     // 根据字段标签或配置来决定显示的类型

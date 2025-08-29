@@ -57,6 +57,12 @@ export function InlineExperienceEditor({
   if (!formData) return null
 
   const getFieldLabels = () => {
+    // 调试日志
+    console.log("🔍 InlineExperienceEditor - Field config:", field);
+    console.log("🔍 InlineExperienceEditor - FormData type:", formData.type);
+    console.log("🔍 InlineExperienceEditor - Field preset:", field?.preset);
+    console.log("🔍 InlineExperienceEditor - CustomExperienceConfig:", field?.customExperienceConfig);
+    
     // 如果是自定义经历字段，使用配置的标签
     if (field?.preset === "custom_experience" && field?.customExperienceConfig) {
       const experienceName = field.customExperienceConfig.experienceName || (locale === "zh" ? "经历" : "Experience")
@@ -104,6 +110,19 @@ export function InlineExperienceEditor({
           organizationPlaceholder: locale === "zh" ? "请输入职位名称" : "Enter position",
         }
       case "project":
+        // 如果是自定义经历字段，使用配置的标签
+        if (field?.preset === "custom_experience" && field?.customExperienceConfig) {
+          const experienceName = field.customExperienceConfig.experienceName || (locale === "zh" ? "经历" : "Experience")
+          const eventName = field.customExperienceConfig.eventName || (locale === "zh" ? "事件" : "Event")
+          
+          return {
+            title: experienceName,
+            organization: eventName,
+            titlePlaceholder: locale === "zh" ? `请输入${experienceName}` : `Enter ${experienceName}`,
+            organizationPlaceholder: locale === "zh" ? `请输入${eventName}` : `Enter ${eventName}`,
+          }
+        }
+        // 默认项目标签
         return {
           title: locale === "zh" ? "项目名称" : "Project Name",
           organization: locale === "zh" ? "所属机构" : "Organization",

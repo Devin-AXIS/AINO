@@ -135,15 +135,68 @@ export function useApiBuilderController({
       })
       
       if (response.success && response.data) {
-        // 将API数据转换为前端需要的格式
-        const directories = response.data.directories.map((dir: any) => ({
-          id: dir.id,
-          name: dir.name,
-          type: dir.type,
-          fields: dir.config?.fields || [],
-          categories: dir.config?.categories || [],
-          records: [],
-        }))
+        // 将API数据转换为前端需要的格式，并获取完整的字段定义
+        const directories = await Promise.all(
+          response.data.directories.map(async (dir: any) => {
+            // 获取目录定义ID
+            const dirDefResponse = await api.directoryDefs.getOrCreateDirectoryDefByDirectoryId(dir.id, appId)
+            
+            let fields = dir.config?.fields || []
+            
+            if (dirDefResponse.success && dirDefResponse.data?.id) {
+              // 获取完整的字段定义
+              const fieldsResponse = await api.fields.getFields({
+                directoryId: dirDefResponse.data.id,
+                page: 1,
+                limit: 100
+              })
+              
+              if (fieldsResponse.success && fieldsResponse.data) {
+                // 将API字段定义转换为前端格式
+                fields = fieldsResponse.data.map((field: any) => ({
+                  id: field.id,
+                  key: field.key,
+                  label: field.schema?.label || field.key,
+                  type: field.type,
+                  required: field.required || false,
+                  unique: false,
+                  showInList: field.schema?.showInList ?? true,
+                  showInForm: field.schema?.showInForm ?? true,
+                  showInDetail: field.schema?.showInDetail ?? true,
+                  placeholder: field.schema?.placeholder || '',
+                  desc: field.schema?.description || '',
+                  options: field.schema?.options || [],
+                  config: field.schema || {},
+                  validators: field.validators || {},
+                  enabled: true,
+                  locked: false,
+                  // 提取字段配置信息
+                  cascaderOptions: field.schema?.cascaderOptions || undefined,
+                  customExperienceConfig: field.schema?.customExperienceConfig || undefined,
+                  certificateConfig: field.schema?.certificateConfig || undefined,
+                  skillsConfig: field.schema?.skillsConfig || undefined,
+                  progressConfig: field.schema?.progressConfig || undefined,
+                  identityVerificationConfig: field.schema?.identityVerificationConfig || undefined,
+                  otherVerificationConfig: field.schema?.otherVerificationConfig || undefined,
+                  imageConfig: field.schema?.imageConfig || undefined,
+                  videoConfig: field.schema?.videoConfig || undefined,
+                  booleanConfig: field.schema?.booleanConfig || undefined,
+                  multiselectConfig: field.schema?.multiselectConfig || undefined,
+                  preset: field.schema?.preset || undefined,
+                }))
+              }
+            }
+            
+            return {
+              id: dir.id,
+              name: dir.name,
+              type: dir.type,
+              fields: fields,
+              categories: dir.config?.categories || [],
+              records: [],
+            }
+          })
+        )
         
         setDirectoriesData(prev => ({
           ...prev,

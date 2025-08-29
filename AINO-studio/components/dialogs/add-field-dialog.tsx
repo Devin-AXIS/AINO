@@ -2334,7 +2334,6 @@ export function AddFieldDialog({
                 ...(preset === "certificate_experience" ? { certificateConfig } : {}),
                 ...(preset === "identity_verification" ? { identityVerificationConfig } : {}),
                 ...(preset === "other_verification" ? { otherVerificationConfig } : {}),
-                ...(preset === "cascader" ? { cascaderOptions } : {}),
                 ...(type === "image" ? { imageConfig } : {}),
                 ...(type === "video" ? { videoConfig } : {}),
                 ...(type === "boolean" || type === "checkbox" ? { booleanConfig } : {}),
