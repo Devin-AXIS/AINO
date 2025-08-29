@@ -489,22 +489,26 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
           return { valid: false, error: `经历${i + 1}缺少类型信息` }
         }
         
-        if (!experience.title || typeof experience.title !== 'string' || experience.title.trim() === '') {
-          return { valid: false, error: `经历${i + 1}缺少标题` }
+        // 标题和组织信息可以为空（当经历还在编辑中时）
+        if (experience.title && typeof experience.title !== 'string') {
+          return { valid: false, error: `经历${i + 1}的标题格式不正确` }
         }
         
-        if (!experience.organization || typeof experience.organization !== 'string' || experience.organization.trim() === '') {
-          return { valid: false, error: `经历${i + 1}缺少组织信息` }
+        if (experience.organization && typeof experience.organization !== 'string') {
+          return { valid: false, error: `经历${i + 1}的组织信息格式不正确` }
         }
         
-        if (!experience.startDate || typeof experience.startDate !== 'string' || experience.startDate.trim() === '') {
-          return { valid: false, error: `经历${i + 1}缺少开始日期` }
-        }
-        
-        // 验证日期格式
-        const startDate = new Date(experience.startDate)
-        if (isNaN(startDate.getTime())) {
+        // 开始日期可以为空（当经历还在编辑中时）
+        if (experience.startDate && typeof experience.startDate !== 'string') {
           return { valid: false, error: `经历${i + 1}的开始日期格式不正确` }
+        }
+        
+        // 验证日期格式（只有当startDate不为空时才验证）
+        if (experience.startDate && experience.startDate.trim() !== '') {
+          const startDate = new Date(experience.startDate)
+          if (isNaN(startDate.getTime())) {
+            return { valid: false, error: `经历${i + 1}的开始日期格式不正确` }
+          }
         }
         
         // 如果有结束日期，验证格式

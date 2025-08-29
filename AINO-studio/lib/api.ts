@@ -158,12 +158,19 @@ async function apiRequest<T>(
     }
   } catch (error) {
     console.error(`❌ API Error:`, error)
-    console.error(`❌ Error Details:`, {
+    
+    // 构造更详细的错误信息
+    const errorDetails = {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
       endpoint,
-      options
-    })
+      method: options.method || 'GET',
+      status: error instanceof Error && (error as any).status ? (error as any).status : undefined,
+      details: error instanceof Error && (error as any).details ? (error as any).details : undefined,
+      originalData: error instanceof Error && (error as any).originalData ? (error as any).originalData : undefined
+    }
+    
+    console.error(`❌ Error Details:`, errorDetails)
     throw error
   }
 }
