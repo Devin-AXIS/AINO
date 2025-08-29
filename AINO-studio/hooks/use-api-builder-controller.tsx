@@ -496,6 +496,18 @@ export function useApiBuilderController({
             // 为必填的email字段设置一个示例值
             defaultValue = field.required ? "example@example.com" : ""
             break
+          case "image":
+            // 图片字段设置空值，让用户上传
+            defaultValue = ""
+            break
+          case "date":
+            // 日期字段设置今天的日期
+            defaultValue = field.required ? new Date().toISOString().split('T')[0] : ""
+            break
+          case "datetime":
+            // 日期时间字段设置当前时间
+            defaultValue = field.required ? new Date().toISOString() : ""
+            break
           default:
             // 为必填的文本字段设置一个示例值
             if (field.required) {
