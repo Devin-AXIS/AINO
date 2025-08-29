@@ -245,7 +245,7 @@ export function DataTable({
                       className="bg-white/60 backdrop-blur border border-white/60 py-2 px-4 first:rounded-l-xl last:rounded-r-xl cursor-pointer align-top text-sm whitespace-nowrap min-w-[120px]"
                       onClick={() => onOpen(row.id)}
                     >
-                      {renderCell(f.type, v, f)}
+                      {renderCell(f.type, v, f, locale)}
                     </td>
                   )
                 })}
@@ -304,7 +304,7 @@ export function DataTable({
   )
 }
 
-function renderCell(type: string, v: any, f?: any) {
+function renderCell(type: string, v: any, f?: any, locale?: string) {
   const valueStr = String(v ?? "")
 
   if (type === "tags" && Array.isArray(v) && v.length > 0) {
