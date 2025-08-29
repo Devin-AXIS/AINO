@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // 字段类型定义
 export type FieldKind = 'primitive' | 'composite' | 'relation' | 'lookup' | 'computed'
-export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table' | 'tags' | 'progress' | 'experience' | 'identity_verification' | 'other_verification' | 'video' | 'multivideo'
+export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table' | 'tags' | 'progress' | 'percent' | 'experience' | 'identity_verification' | 'other_verification' | 'video' | 'multivideo'
 
 // 字段定义接口
 export interface FieldDef {
@@ -181,6 +181,46 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
           }
           if (validators.max !== undefined && num > validators.max) {
             return { valid: false, error: `进度值不能大于${validators.max}` }
+          }
+        }
+      }
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (value === null || value === undefined || value === '') return null
+      return Number(value)
+    },
+    format: (value) => value
+  },
+
+  // 百分比字段
+  percent: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (value === null || value === undefined || value === '')) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      if (value !== null && value !== undefined && value !== '') {
+        const num = Number(value)
+        if (isNaN(num)) {
+          return { valid: false, error: '必须是数字类型' }
+        }
+        
+        // 百分比字段默认范围是0-100
+        if (num < 0) {
+          return { valid: false, error: '百分比值不能小于0' }
+        }
+        if (num > 100) {
+          return { valid: false, error: '百分比值不能大于100' }
+        }
+        
+        // 验证数值范围
+        if (fieldDef.validators) {
+          const validators = fieldDef.validators
+          if (validators.min !== undefined && num < validators.min) {
+            return { valid: false, error: `百分比值不能小于${validators.min}` }
+          }
+          if (validators.max !== undefined && num > validators.max) {
+            return { valid: false, error: `百分比值不能大于${validators.max}` }
           }
         }
       }
