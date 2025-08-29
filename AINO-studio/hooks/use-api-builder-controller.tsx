@@ -499,7 +499,7 @@ export function useApiBuilderController({
           case "image":
             // 图片字段：如果是必填的，设置一个默认图片URL；否则设置空值
             if (field.required) {
-              defaultValue = "/placeholder.jpg" // 使用默认占位图片
+              defaultValue = "https://via.placeholder.com/150x150?text=Image" // 使用完整的占位图片URL
             } else {
               defaultValue = ""
             }
