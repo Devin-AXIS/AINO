@@ -210,7 +210,11 @@ export function FieldEditor({
       onSubmit={(draft) => {
         const next = structuredClone(dir)
         applyDraftToFieldModel(next, field.id, draft, (msg) => window.confirm(msg))
-        onSubmit(next)
+        // 从更新后的目录中提取字段数据
+        const updatedField = next.fields.find(f => f.id === field.id)
+        if (updatedField) {
+          onSubmit(updatedField)
+        }
         onOpenChange(false)
       }}
     />
