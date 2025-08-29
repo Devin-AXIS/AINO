@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // 字段类型定义
 export type FieldKind = 'primitive' | 'composite' | 'relation' | 'lookup' | 'computed'
-export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table' | 'tags' | 'progress' | 'percent' | 'experience' | 'identity_verification' | 'other_verification' | 'video' | 'multivideo'
+export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'daterange' | 'multidate' | 'time' | 'boolean' | 'textarea' | 'image' | 'multiimage' | 'file' | 'json' | 'table' | 'tags' | 'progress' | 'percent' | 'experience' | 'identity_verification' | 'other_verification' | 'video' | 'multivideo' | 'richtext' | 'barcode' | 'checkbox' | 'cascader' | 'relation_one' | 'relation_many'
 
 // 字段定义接口
 export interface FieldDef {
@@ -885,6 +885,246 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
       if (!value) return []
       if (Array.isArray(value)) {
         return value.filter((item: string) => item && item.trim())
+      }
+      return []
+    },
+    format: (value) => value
+  },
+
+  // 日期范围字段
+  daterange: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (!value || !value.start || !value.end)) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      if (value && (value.start || value.end)) {
+        if (value.start) {
+          const startDate = new Date(value.start)
+          if (isNaN(startDate.getTime())) {
+            return { valid: false, error: '开始日期格式不正确' }
+          }
+        }
+        if (value.end) {
+          const endDate = new Date(value.end)
+          if (isNaN(endDate.getTime())) {
+            return { valid: false, error: '结束日期格式不正确' }
+          }
+        }
+        if (value.start && value.end) {
+          const startDate = new Date(value.start)
+          const endDate = new Date(value.end)
+          if (startDate > endDate) {
+            return { valid: false, error: '开始日期不能晚于结束日期' }
+          }
+        }
+      }
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (!value) return null
+      const transformed: any = {}
+      if (value.start) {
+        const startDate = new Date(value.start)
+        transformed.start = isNaN(startDate.getTime()) ? null : startDate.toISOString().split('T')[0]
+      }
+      if (value.end) {
+        const endDate = new Date(value.end)
+        transformed.end = isNaN(endDate.getTime()) ? null : endDate.toISOString().split('T')[0]
+      }
+      return transformed
+    },
+    format: (value) => value
+  },
+
+  // 多日期字段
+  multidate: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (!value || !Array.isArray(value) || value.length === 0)) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      if (value && Array.isArray(value)) {
+        for (const dateStr of value) {
+          if (typeof dateStr === 'string' && dateStr.trim() !== '') {
+            const date = new Date(dateStr)
+            if (isNaN(date.getTime())) {
+              return { valid: false, error: '日期格式不正确' }
+            }
+          }
+        }
+      }
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (!value) return []
+      if (Array.isArray(value)) {
+        return value.map(dateStr => {
+          if (typeof dateStr === 'string' && dateStr.trim() !== '') {
+            const date = new Date(dateStr)
+            return isNaN(date.getTime()) ? null : date.toISOString().split('T')[0]
+          }
+          return null
+        }).filter(date => date !== null)
+      }
+      return []
+    },
+    format: (value) => value
+  },
+
+  // 时间字段
+  time: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (!value || value.trim() === '')) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      if (value && value.trim() !== '') {
+        const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/
+        if (!timeRegex.test(value.trim())) {
+          return { valid: false, error: '时间格式不正确，应为HH:mm格式' }
+        }
+      }
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (!value || value.trim() === '') return null
+      return value.trim()
+    },
+    format: (value) => value
+  },
+
+  // 多图片字段
+  multiimage: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (!value || !Array.isArray(value) || value.length === 0)) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      if (value && Array.isArray(value)) {
+        for (const item of value) {
+          if (typeof item === 'string' && item.trim() !== '') {
+            try {
+              new URL(item)
+            } catch {
+              return { valid: false, error: '图片URL格式不正确' }
+            }
+          }
+        }
+      }
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (!value) return []
+      if (Array.isArray(value)) {
+        return value.filter(item => item && typeof item === 'string' && item.trim() !== '')
+      }
+      return []
+    },
+    format: (value) => value
+  },
+
+  // 富文本字段
+  richtext: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (!value || value.trim() === '')) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      return { valid: true }
+    },
+    transform: (value) => value ? String(value).trim() : value,
+    format: (value) => value
+  },
+
+  // 条形码字段
+  barcode: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (!value || value.trim() === '')) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      if (value && value.trim() !== '') {
+        // 简单的条形码格式验证（数字和字母）
+        const barcodeRegex = /^[A-Za-z0-9]+$/
+        if (!barcodeRegex.test(value.trim())) {
+          return { valid: false, error: '条形码格式不正确，只能包含字母和数字' }
+        }
+      }
+      return { valid: true }
+    },
+    transform: (value) => value ? String(value).trim().toUpperCase() : value,
+    format: (value) => value
+  },
+
+  // 复选框字段
+  checkbox: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (value === null || value === undefined)) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (value === null || value === undefined) return false
+      return Boolean(value)
+    },
+    format: (value) => value
+  },
+
+  // 级联选择字段
+  cascader: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (!value || (Array.isArray(value) && value.length === 0))) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (!value) return null
+      if (Array.isArray(value)) {
+        return value.filter(item => item !== null && item !== undefined)
+      }
+      return value
+    },
+    format: (value) => value
+  },
+
+  // 一对一关联字段
+  relation_one: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (!value || value.trim() === '')) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      if (value && value.trim() !== '') {
+        // 验证UUID格式
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+        if (!uuidRegex.test(value.trim())) {
+          return { valid: false, error: '关联ID格式不正确' }
+        }
+      }
+      return { valid: true }
+    },
+    transform: (value) => value ? String(value).trim() : value,
+    format: (value) => value
+  },
+
+  // 一对多关联字段
+  relation_many: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (!value || !Array.isArray(value) || value.length === 0)) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      if (value && Array.isArray(value)) {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+        for (const item of value) {
+          if (typeof item === 'string' && item.trim() !== '') {
+            if (!uuidRegex.test(item.trim())) {
+              return { valid: false, error: '关联ID格式不正确' }
+            }
+          }
+        }
+      }
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (!value) return []
+      if (Array.isArray(value)) {
+        return value.filter(item => item && typeof item === 'string' && item.trim() !== '')
       }
       return []
     },

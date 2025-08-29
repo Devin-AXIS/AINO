@@ -55,6 +55,58 @@ export function zodFromFields(fields: FieldDef[]) {
       case 'multivideo':
         fieldSchema = z.array(z.string())
         break
+      case 'daterange':
+        fieldSchema = z.object({
+          start: z.string().optional(),
+          end: z.string().optional()
+        }).optional()
+        break
+      case 'multidate':
+        fieldSchema = z.array(z.string())
+        break
+      case 'time':
+        fieldSchema = z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, '时间格式不正确')
+        break
+      case 'multiimage':
+        fieldSchema = z.array(z.string().url('图片URL格式不正确'))
+        break
+      case 'richtext':
+        fieldSchema = z.string()
+        break
+      case 'barcode':
+        fieldSchema = z.string().regex(/^[A-Za-z0-9]+$/, '条形码格式不正确')
+        break
+      case 'checkbox':
+        fieldSchema = z.boolean()
+        break
+      case 'cascader':
+        fieldSchema = z.array(z.any())
+        break
+      case 'relation_one':
+        fieldSchema = z.string().uuid('关联ID格式不正确')
+        break
+      case 'relation_many':
+        fieldSchema = z.array(z.string().uuid('关联ID格式不正确'))
+        break
+      case 'tags':
+        fieldSchema = z.array(z.string())
+        break
+      case 'experience':
+        fieldSchema = z.array(z.object({
+          id: z.string().optional(),
+          type: z.string().optional(),
+          title: z.string().optional(),
+          organization: z.string().optional(),
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+          description: z.string().optional(),
+          issuer: z.string().optional(),
+          credentialId: z.string().optional(),
+          credentialUrl: z.string().optional(),
+          skills: z.array(z.string()).optional(),
+          attachments: z.array(z.string()).optional()
+        })).optional()
+        break
       case 'identity_verification':
         fieldSchema = z.object({
           name: z.string().optional(),
@@ -167,6 +219,58 @@ export function zodFromFieldsPartial(fields: FieldDef[]) {
         break
       case 'multivideo':
         fieldSchema = z.array(z.string())
+        break
+      case 'daterange':
+        fieldSchema = z.object({
+          start: z.string().optional(),
+          end: z.string().optional()
+        }).optional()
+        break
+      case 'multidate':
+        fieldSchema = z.array(z.string())
+        break
+      case 'time':
+        fieldSchema = z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, '时间格式不正确')
+        break
+      case 'multiimage':
+        fieldSchema = z.array(z.string().url('图片URL格式不正确'))
+        break
+      case 'richtext':
+        fieldSchema = z.string()
+        break
+      case 'barcode':
+        fieldSchema = z.string().regex(/^[A-Za-z0-9]+$/, '条形码格式不正确')
+        break
+      case 'checkbox':
+        fieldSchema = z.boolean()
+        break
+      case 'cascader':
+        fieldSchema = z.array(z.any())
+        break
+      case 'relation_one':
+        fieldSchema = z.string().uuid('关联ID格式不正确')
+        break
+      case 'relation_many':
+        fieldSchema = z.array(z.string().uuid('关联ID格式不正确'))
+        break
+      case 'tags':
+        fieldSchema = z.array(z.string())
+        break
+      case 'experience':
+        fieldSchema = z.array(z.object({
+          id: z.string().optional(),
+          type: z.string().optional(),
+          title: z.string().optional(),
+          organization: z.string().optional(),
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+          description: z.string().optional(),
+          issuer: z.string().optional(),
+          credentialId: z.string().optional(),
+          credentialUrl: z.string().optional(),
+          skills: z.array(z.string()).optional(),
+          attachments: z.array(z.string()).optional()
+        })).optional()
         break
       case 'identity_verification':
         fieldSchema = z.object({
