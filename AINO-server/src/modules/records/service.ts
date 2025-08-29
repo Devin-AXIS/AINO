@@ -261,4 +261,40 @@ export class RecordsService {
     
     return !!record
   }
+
+  // 批量删除记录
+  async bulkDeleteRecords(dir: string, recordIds: string[], userId: string) {
+    const table = this.getTableByDir(dir)
+    const results = []
+    
+    for (const recordId of recordIds) {
+      try {
+        const [record] = await db.update(table)
+          .set({
+            deletedAt: new Date(),
+            updatedBy: userId,
+            updatedAt: new Date(),
+          })
+          .where(and(
+            eq(table.id, recordId),
+            eq(table.tenantId, 'f09ebe12-f517-42a2-b41a-7092438b79c3') // 临时租户ID
+          ))
+          .returning()
+        
+        results.push({ 
+          recordId, 
+          success: !!record,
+          error: record ? null : '记录不存在'
+        })
+      } catch (error) {
+        results.push({ 
+          recordId, 
+          success: false,
+          error: error instanceof Error ? error.message : '删除失败'
+        })
+      }
+    }
+    
+    return results
+  }
 }

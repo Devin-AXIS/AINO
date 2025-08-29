@@ -33,6 +33,11 @@ const listQuerySchema = z.object({
   filter: z.string().optional(),
 })
 
+// 批量删除记录验证
+const bulkDeleteSchema = z.object({
+  recordIds: z.array(z.string().uuid()),
+})
+
 // 获取表实例
 // 通过目录UUID获取目录信息
 async function getDirectoryById(dirId: string) {
@@ -454,6 +459,59 @@ records.patch('/:dir/:id', async (c) => {
   } catch (error) {
     console.error('更新记录失败:', error)
     return c.json({ success: false, error: '更新记录失败' }, 500)
+  }
+})
+
+// 批量删除记录
+records.delete('/:dir/batch', zValidator('json', bulkDeleteSchema), async (c) => {
+  const dir = c.req.param('dir')
+  const { recordIds } = c.req.valid('json')
+  const user = c.get('user') as any
+  
+  try {
+    const t = tableFor(dir)
+    const tenantId = user?.id || 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+    const results = []
+    
+    for (const recordId of recordIds) {
+      try {
+        const [record] = await db.update(t)
+          .set({ 
+            deletedAt: sql`now()`,
+            version: sql`${t.version} + 1`
+          })
+          .where(and(
+            eq(t.id, recordId),
+            eq(t.tenantId, tenantId),
+            sql`${t.deletedAt} is null`
+          ))
+          .returning()
+        
+        results.push({ 
+          recordId, 
+          success: !!record,
+          error: record ? null : '记录不存在'
+        })
+      } catch (error) {
+        results.push({ 
+          recordId, 
+          success: false,
+          error: error instanceof Error ? error.message : '删除失败'
+        })
+      }
+    }
+    
+    return c.json({ 
+      success: true, 
+      data: {
+        deletedCount: results.filter(r => r.success).length,
+        failedCount: results.filter(r => !r.success).length,
+        results
+      }
+    })
+  } catch (error) {
+    console.error('批量删除记录失败:', error)
+    return c.json({ success: false, error: '批量删除记录失败' }, 500)
   }
 })
 

@@ -30,6 +30,11 @@ const updateRecordSchema = z.object({
   version: z.number().optional(),
 })
 
+// 批量删除记录验证
+const bulkDeleteSchema = z.object({
+  recordIds: z.array(z.string().uuid()),
+})
+
 // 获取记录列表
 records.get('/:dir', zValidator('query', listQuerySchema), async (c) => {
   const dir = c.req.param('dir')
@@ -99,6 +104,30 @@ records.patch('/:dir/:id', zValidator('json', updateRecordSchema), async (c) => 
   } catch (error) {
     console.error('更新记录失败:', error)
     return c.json({ success: false, error: '更新记录失败' }, 500)
+  }
+})
+
+// 批量删除记录
+records.delete('/:dir/batch', zValidator('json', bulkDeleteSchema), async (c) => {
+  const dir = c.req.param('dir')
+  const { recordIds } = c.req.valid('json')
+  const user = c.get('user') as any
+  
+  try {
+    const service = new RecordsService()
+    const results = await service.bulkDeleteRecords(dir, recordIds, user?.id || 'system')
+    
+    return c.json({ 
+      success: true, 
+      data: {
+        deletedCount: results.filter(r => r.success).length,
+        failedCount: results.filter(r => !r.success).length,
+        results
+      }
+    })
+  } catch (error) {
+    console.error('批量删除记录失败:', error)
+    return c.json({ success: false, error: '批量删除记录失败' }, 500)
   }
 })
 

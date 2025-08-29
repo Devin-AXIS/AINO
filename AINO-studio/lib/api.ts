@@ -623,6 +623,22 @@ export const recordsApi = {
     return apiRequest<{ success: boolean }>(`/api/records/${dirId}/${recordId}`, {
       method: 'DELETE',
     })
+  },
+
+  // 批量删除记录
+  async bulkDeleteRecords(dirId: string, recordIds: string[]): Promise<ApiResponse<{
+    deletedCount: number
+    failedCount: number
+    results: Array<{
+      recordId: string
+      success: boolean
+      error?: string
+    }>
+  }>> {
+    return apiRequest(`/api/records/${dirId}/batch`, {
+      method: 'DELETE',
+      body: JSON.stringify({ recordIds }),
+    })
   }
 }
 

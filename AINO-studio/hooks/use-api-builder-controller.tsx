@@ -764,7 +764,8 @@ export function useApiBuilderController({
     }
   }
 
-  function handleBulkDelete() {
+  async function handleBulkDelete() {
+    if (!currentDir) return
     if (!can("bulkDelete")) {
       toast({ 
         description: locale === "zh" ? "当前角色无权批量删除" : "Current role has no permission to bulk delete", 
@@ -772,10 +773,50 @@ export function useApiBuilderController({
       })
       return
     }
-    // 临时实现
-    toast({
-      description: locale === "zh" ? "批量删除功能正在开发中" : "Bulk delete feature is under development",
-    })
+    if (selectedIds.length === 0) return
+
+    // 确认删除
+    const confirmMessage = locale === "zh" 
+      ? `确定要删除选中的 ${selectedIds.length} 条记录吗？此操作不可撤销。`
+      : `Are you sure you want to delete ${selectedIds.length} selected records? This action cannot be undone.`
+    
+    if (!confirm(confirmMessage)) return
+
+    try {
+      const response = await api.records.bulkDeleteRecords(currentDir.id, selectedIds)
+      
+      if (response.success) {
+        const { deletedCount, failedCount } = response.data
+        
+        // 重新获取记录数据
+        await fetchRecords(currentDir.id)
+        
+        // 清空选择
+        setSelectedIds([])
+        
+        // 显示结果消息
+        if (failedCount === 0) {
+          toast({
+            description: locale === "zh" 
+              ? `成功删除 ${deletedCount} 条记录` 
+              : `Successfully deleted ${deletedCount} records`,
+          })
+        } else {
+          toast({
+            description: locale === "zh" 
+              ? `删除了 ${deletedCount} 条记录，${failedCount} 条删除失败` 
+              : `Deleted ${deletedCount} records, ${failedCount} failed`,
+            variant: "destructive",
+          })
+        }
+      }
+    } catch (error) {
+      console.error("批量删除记录失败:", error)
+      toast({
+        description: locale === "zh" ? "批量删除记录失败" : "Failed to bulk delete records",
+        variant: "destructive",
+      })
+    }
   }
 
 
