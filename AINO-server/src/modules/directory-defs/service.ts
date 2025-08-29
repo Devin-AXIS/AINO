@@ -223,7 +223,16 @@ export class DirectoryDefsService {
     }
 
     // 生成唯一的slug
-    const baseSlug = directory.name.toLowerCase().replace(/[^a-z0-9]/g, '-')
+    let baseSlug = directory.name.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, '-')
+    
+    // 如果slug为空或全是连字符，使用目录ID的前8位
+    if (!baseSlug || baseSlug.replace(/-/g, '') === '') {
+      baseSlug = `dir-${directoryId.substring(0, 8)}`
+    }
+    
+    // 清理多余的连字符
+    baseSlug = baseSlug.replace(/-+/g, '-').replace(/^-|-$/g, '')
+    
     let slug = baseSlug
     let counter = 1
 
