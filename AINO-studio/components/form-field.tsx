@@ -26,6 +26,7 @@ import { MultiSelectInput } from "@/components/form-inputs/multi-select-input"
 import { TagInput } from "@/components/form-inputs/tag-input"
 import { RelationInput } from "@/components/form-inputs/relation-input"
 import { PhoneInput } from "@/components/form-inputs/phone-input"
+import { ProgressInput } from "@/components/form-inputs/progress-input"
 
 function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) => void, app: AppModel) {
   const value = (record as any)[field.key]
@@ -47,34 +48,14 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
         return <ConstellationSelect value={value || ""} onChange={onChange} />
       case "progress":
         return (
-          <div className="space-y-2">
-            <Input
-              type="number"
-              min={0}
-              max={field.progressConfig?.maxValue || 100}
-              value={value || ""}
-              onChange={(e) => onChange(Number(e.target.value) || 0)}
-              className="bg-white"
-              placeholder={`0-${field.progressConfig?.maxValue || 100}`}
-            />
-            {field.progressConfig?.showProgressBar && (
-              <div className="flex items-center gap-2">
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="h-2 rounded-full transition-all duration-300 bg-blue-500"
-                    style={{
-                      width: `${Math.min((value || 0) / (field.progressConfig?.maxValue || 100) * 100, 100)}%`
-                    }}
-                  />
-                </div>
-                {field.progressConfig?.showPercentage && (
-                  <span className="text-xs text-gray-600 w-12 text-right">
-                    {Math.round((value || 0) / (field.progressConfig?.maxValue || 100) * 100)}%
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
+          <ProgressInput
+            value={value || 0}
+            onChange={onChange}
+            maxValue={field.progressConfig?.maxValue || 100}
+            showProgressBar={field.progressConfig?.showProgressBar !== false}
+            showPercentage={field.progressConfig?.showPercentage !== false}
+            placeholder={field.placeholder}
+          />
         )
       case "phone":
         return (
