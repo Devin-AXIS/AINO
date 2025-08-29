@@ -497,8 +497,12 @@ export function useApiBuilderController({
             defaultValue = field.required ? "example@example.com" : ""
             break
           case "image":
-            // 图片字段设置空值，让用户上传
-            defaultValue = ""
+            // 图片字段：如果是必填的，设置一个默认图片URL；否则设置空值
+            if (field.required) {
+              defaultValue = "/placeholder.jpg" // 使用默认占位图片
+            } else {
+              defaultValue = ""
+            }
             break
           case "date":
             // 日期字段设置今天的日期
