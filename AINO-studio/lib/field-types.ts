@@ -21,6 +21,7 @@ export function getFieldTypeNames(t: (key: string) => string): Record<FieldType,
     file: t("ft_file"),
     richtext: t("ft_richtext"),
     percent: t("ft_percent"),
+    progress: t("ft_progress"),
     barcode: t("ft_barcode"),
     checkbox: t("ft_checkbox"),
     cascader: t("ft_cascader"),
@@ -35,7 +36,7 @@ export const FIELD_TYPE_GROUPS = {
   basic: ['text', 'textarea', 'number', 'boolean', 'date', 'datetime', 'daterange', 'multidate', 'time'] as FieldType[],
   selection: ['select', 'multiselect', 'checkbox', 'cascader'] as FieldType[],
   media: ['image', 'multiimage', 'video', 'file'] as FieldType[],
-  advanced: ['richtext', 'tags', 'percent', 'barcode'] as FieldType[],
+  advanced: ['richtext', 'tags', 'percent', 'progress', 'barcode'] as FieldType[],
   relation: ['relation_one', 'relation_many', 'experience'] as FieldType[],
 }
 
@@ -56,4 +57,9 @@ export const FIELD_TYPE_DEFAULTS: Partial<Record<FieldType, any>> = {
   image: { maxSizeMB: 5 },
   multiimage: { maxSizeMB: 5, multiple: true },
   percent: { min: 0, max: 100, precision: 2 },
+  progress: { 
+    maxValue: 100, 
+    showPercentage: true, 
+    showProgressBar: true 
+  },
 }

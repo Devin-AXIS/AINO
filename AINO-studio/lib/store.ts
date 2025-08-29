@@ -21,6 +21,7 @@ export type FieldType =
   | "file"
   | "richtext"
   | "percent"
+  | "progress"
   | "barcode"
   | "checkbox"
   | "cascader"
@@ -462,6 +463,7 @@ export function createDefaultRecord(dir: DirectoryModel): RecordRow {
         break
       case "number":
       case "percent":
+      case "progress":
         ;(rec as any)[f.key] = 0
         break
       case "image":
