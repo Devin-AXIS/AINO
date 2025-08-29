@@ -79,7 +79,8 @@ export class DirectoryService {
         options: field.schema?.options || [],
         validators: field.validators,
         description: field.schema?.description || "",
-        placeholder: field.schema?.placeholder || ""
+        placeholder: field.schema?.placeholder || "",
+        preset: field.schema?.preset || undefined
       }))
     } catch (error) {
       console.error("获取目录字段定义失败:", error)
