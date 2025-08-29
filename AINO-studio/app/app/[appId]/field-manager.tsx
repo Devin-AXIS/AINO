@@ -335,6 +335,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           showInList: fieldData.showInList || true,
           showInForm: fieldData.showInForm || true,
           showInDetail: fieldData.showInDetail || true,
+          preset: fieldData.preset || undefined,
         },
         validators: fieldData.validators || {},
         required: fieldData.required || false,
