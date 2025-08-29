@@ -18,6 +18,9 @@ export function zodFromFields(fields: FieldDef[]) {
       case 'number':
         fieldSchema = z.number()
         break
+      case 'progress':
+        fieldSchema = z.number()
+        break
       case 'email':
         fieldSchema = z.string().email()
         break
@@ -55,10 +58,10 @@ export function zodFromFields(fields: FieldDef[]) {
     
     // 添加验证规则
     if (field.validators) {
-      if (field.validators.min !== undefined && field.type === 'number' && fieldSchema instanceof z.ZodNumber) {
+      if (field.validators.min !== undefined && (field.type === 'number' || field.type === 'progress') && fieldSchema instanceof z.ZodNumber) {
         fieldSchema = fieldSchema.min(field.validators.min)
       }
-      if (field.validators.max !== undefined && field.type === 'number' && fieldSchema instanceof z.ZodNumber) {
+      if (field.validators.max !== undefined && (field.type === 'number' || field.type === 'progress') && fieldSchema instanceof z.ZodNumber) {
         fieldSchema = fieldSchema.max(field.validators.max)
       }
       if (field.validators.minLength && (field.type === 'text' || field.type === 'textarea') && fieldSchema instanceof z.ZodString) {
@@ -108,6 +111,9 @@ export function zodFromFieldsPartial(fields: FieldDef[]) {
       case 'number':
         fieldSchema = z.number()
         break
+      case 'progress':
+        fieldSchema = z.number()
+        break
       case 'email':
         fieldSchema = z.string().email()
         break
@@ -145,10 +151,10 @@ export function zodFromFieldsPartial(fields: FieldDef[]) {
     
     // 添加验证规则
     if (field.validators) {
-      if (field.validators.min !== undefined && field.type === 'number' && fieldSchema instanceof z.ZodNumber) {
+      if (field.validators.min !== undefined && (field.type === 'number' || field.type === 'progress') && fieldSchema instanceof z.ZodNumber) {
         fieldSchema = fieldSchema.min(field.validators.min)
       }
-      if (field.validators.max !== undefined && field.type === 'number' && fieldSchema instanceof z.ZodNumber) {
+      if (field.validators.max !== undefined && (field.type === 'number' || field.type === 'progress') && fieldSchema instanceof z.ZodNumber) {
         fieldSchema = fieldSchema.max(field.validators.max)
       }
       if (field.validators.minLength && (field.type === 'text' || field.type === 'textarea') && fieldSchema instanceof z.ZodString) {

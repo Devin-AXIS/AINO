@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // 字段类型定义
 export type FieldKind = 'primitive' | 'composite' | 'relation' | 'lookup' | 'computed'
-export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table' | 'tags' | 'experience'
+export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table' | 'tags' | 'progress' | 'experience'
 
 // 字段定义接口
 export interface FieldDef {
@@ -88,6 +88,47 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
             if (Math.abs(remainder) > 0.0001) {
               return { valid: false, error: `数值必须是${validators.step}的倍数` }
             }
+          }
+        }
+      }
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (value === null || value === undefined || value === '') return null
+      return Number(value)
+    },
+    format: (value) => value
+  },
+
+  // 进度字段
+  progress: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (value === null || value === undefined || value === '')) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      if (value !== null && value !== undefined && value !== '') {
+        const num = Number(value)
+        if (isNaN(num)) {
+          return { valid: false, error: '必须是数字类型' }
+        }
+        
+        // 进度字段默认范围是0-100，但可以通过配置修改
+        const maxValue = fieldDef.schema?.maxValue || 100
+        if (num < 0) {
+          return { valid: false, error: '进度值不能小于0' }
+        }
+        if (num > maxValue) {
+          return { valid: false, error: `进度值不能大于${maxValue}` }
+        }
+        
+        // 验证数值范围
+        if (fieldDef.validators) {
+          const validators = fieldDef.validators
+          if (validators.min !== undefined && num < validators.min) {
+            return { valid: false, error: `进度值不能小于${validators.min}` }
+          }
+          if (validators.max !== undefined && num > validators.max) {
+            return { valid: false, error: `进度值不能大于${validators.max}` }
           }
         }
       }
