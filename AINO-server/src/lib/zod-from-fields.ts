@@ -46,6 +46,23 @@ export function zodFromFields(fields: FieldDef[]) {
       case 'file':
         fieldSchema = z.string().url('URL格式不正确')
         break
+      case 'video':
+        fieldSchema = z.string().optional()
+        break
+      case 'multivideo':
+        fieldSchema = z.array(z.string())
+        break
+      case 'identity_verification':
+        fieldSchema = z.object({
+          name: z.string().optional(),
+          idNumber: z.string().optional(),
+          frontPhoto: z.string().optional(),
+          backPhoto: z.string().optional()
+        }).optional()
+        break
+      case 'other_verification':
+        fieldSchema = z.record(z.union([z.string(), z.array(z.string())])).optional()
+        break
       case 'json':
         fieldSchema = z.any()
         break
@@ -138,6 +155,23 @@ export function zodFromFieldsPartial(fields: FieldDef[]) {
       case 'image':
       case 'file':
         fieldSchema = z.string().url('URL格式不正确')
+        break
+      case 'video':
+        fieldSchema = z.string().optional()
+        break
+      case 'multivideo':
+        fieldSchema = z.array(z.string())
+        break
+      case 'identity_verification':
+        fieldSchema = z.object({
+          name: z.string().optional(),
+          idNumber: z.string().optional(),
+          frontPhoto: z.string().optional(),
+          backPhoto: z.string().optional()
+        }).optional()
+        break
+      case 'other_verification':
+        fieldSchema = z.record(z.union([z.string(), z.array(z.string())])).optional()
         break
       case 'json':
         fieldSchema = z.any()

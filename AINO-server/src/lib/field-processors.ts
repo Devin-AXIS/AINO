@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // 字段类型定义
 export type FieldKind = 'primitive' | 'composite' | 'relation' | 'lookup' | 'computed'
-export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table' | 'tags' | 'progress' | 'experience'
+export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'boolean' | 'textarea' | 'image' | 'file' | 'json' | 'table' | 'tags' | 'progress' | 'experience' | 'identity_verification' | 'other_verification' | 'video' | 'multivideo'
 
 // 字段定义接口
 export interface FieldDef {
@@ -627,6 +627,172 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
           
           return cleaned
         })
+      }
+      return []
+    },
+    format: (value) => value
+  },
+
+  // 实名认证字段
+  identity_verification: {
+    validate: (value, fieldDef) => {
+      // 实名认证字段可以为空
+      if (!value) {
+        return { valid: true }
+      }
+      
+      // 验证是否为对象
+      if (typeof value !== 'object' || value === null) {
+        return { valid: false, error: '实名认证必须是对象格式' }
+      }
+      
+      // 验证各个字段
+      if (value.name && typeof value.name !== 'string') {
+        return { valid: false, error: '姓名必须是文本类型' }
+      }
+      
+      if (value.idNumber && typeof value.idNumber !== 'string') {
+        return { valid: false, error: '身份证号必须是文本类型' }
+      }
+      
+      if (value.frontPhoto && typeof value.frontPhoto !== 'string') {
+        return { valid: false, error: '正面照片必须是文本类型' }
+      }
+      
+      if (value.backPhoto && typeof value.backPhoto !== 'string') {
+        return { valid: false, error: '反面照片必须是文本类型' }
+      }
+      
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (!value) return null
+      return {
+        name: value.name?.trim() || null,
+        idNumber: value.idNumber?.trim() || null,
+        frontPhoto: value.frontPhoto?.trim() || null,
+        backPhoto: value.backPhoto?.trim() || null
+      }
+    },
+    format: (value) => value
+  },
+
+  // 其他认证字段
+  other_verification: {
+    validate: (value, fieldDef) => {
+      // 其他认证字段可以为空
+      if (!value) {
+        return { valid: true }
+      }
+      
+      // 验证是否为对象
+      if (typeof value !== 'object' || value === null) {
+        return { valid: false, error: '其他认证必须是对象格式' }
+      }
+      
+      // 验证各个字段
+      for (const [key, val] of Object.entries(value)) {
+        if (typeof val === 'string') {
+          // 文字字段
+          if (val.trim() === '') {
+            continue // 空字符串是允许的
+          }
+        } else if (Array.isArray(val)) {
+          // 图片字段
+          for (let i = 0; i < val.length; i++) {
+            if (typeof val[i] !== 'string') {
+              return { valid: false, error: `图片${i + 1}必须是文本类型` }
+            }
+          }
+        } else {
+          return { valid: false, error: `字段${key}格式不正确` }
+        }
+      }
+      
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (!value) return null
+      const transformed: any = {}
+      
+      for (const [key, val] of Object.entries(value)) {
+        if (typeof val === 'string') {
+          transformed[key] = val.trim() || null
+        } else if (Array.isArray(val)) {
+          transformed[key] = val.filter((item: string) => item && item.trim())
+        } else {
+          transformed[key] = val
+        }
+      }
+      
+      return transformed
+    },
+    format: (value) => value
+  },
+
+  // 视频字段
+  video: {
+    validate: (value, fieldDef) => {
+      // 视频字段可以为空
+      if (!value) {
+        return { valid: true }
+      }
+      
+      // 验证是否为字符串或字符串数组
+      if (typeof value === 'string') {
+        if (value.trim() === '') {
+          return { valid: true }
+        }
+      } else if (Array.isArray(value)) {
+        for (let i = 0; i < value.length; i++) {
+          if (typeof value[i] !== 'string') {
+            return { valid: false, error: `视频${i + 1}必须是文本类型` }
+          }
+        }
+      } else {
+        return { valid: false, error: '视频必须是文本类型或文本数组' }
+      }
+      
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (!value) return null
+      if (typeof value === 'string') {
+        return value.trim() || null
+      }
+      if (Array.isArray(value)) {
+        return value.filter((item: string) => item && item.trim())
+      }
+      return value
+    },
+    format: (value) => value
+  },
+
+  // 多视频字段
+  multivideo: {
+    validate: (value, fieldDef) => {
+      // 多视频字段可以为空
+      if (!value) {
+        return { valid: true }
+      }
+      
+      // 验证是否为字符串数组
+      if (!Array.isArray(value)) {
+        return { valid: false, error: '多视频必须是数组格式' }
+      }
+      
+      for (let i = 0; i < value.length; i++) {
+        if (typeof value[i] !== 'string') {
+          return { valid: false, error: `视频${i + 1}必须是文本类型` }
+        }
+      }
+      
+      return { valid: true }
+    },
+    transform: (value) => {
+      if (!value) return []
+      if (Array.isArray(value)) {
+        return value.filter((item: string) => item && item.trim())
       }
       return []
     },
