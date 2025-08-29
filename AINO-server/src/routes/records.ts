@@ -402,7 +402,7 @@ records.patch('/:dir/:id', async (c) => {
 
       const [row] = await db.update(t)
         .set({ 
-          props: sql`${t.props} || ${JSON.stringify(transformedData)}`,
+          props: transformedData,
           version: sql`${t.version} + 1`,
           updatedAt: sql`now()`
         })
@@ -432,7 +432,7 @@ records.patch('/:dir/:id', async (c) => {
 
       const [row] = await db.update(t)
         .set({ 
-          props: sql`${t.props} || ${JSON.stringify(propsData)}`,
+          props: propsData,
           version: sql`${t.version} + 1`,
           updatedAt: sql`now()`
         })
