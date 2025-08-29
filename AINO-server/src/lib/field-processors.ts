@@ -142,7 +142,8 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
       if (fieldDef.required && (!value || value.trim() === '')) {
         return { valid: false, error: '此字段为必填项' }
       }
-      if (value && fieldDef.schema?.options && !fieldDef.schema.options.includes(value)) {
+      // 对于preset字段，跳过options验证，因为选项由前端组件提供
+      if (value && fieldDef.schema?.options && fieldDef.schema.options.length > 0 && !fieldDef.schema.preset && !fieldDef.schema.options.includes(value)) {
         return { valid: false, error: '选择的值不在允许的选项中' }
       }
       return { valid: true }

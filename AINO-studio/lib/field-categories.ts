@@ -82,6 +82,7 @@ export const BASIC_FIELDS_CATEGORY: FieldCategoryModel = {
       label: "国籍/地区",
       key: "nationality",
       type: "text",
+      preset: "country",
       description: "用户国籍或地区",
       visibility: "visible",
       sensitive: true,

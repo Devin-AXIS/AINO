@@ -106,7 +106,6 @@ export const countryData: CountryNode[] = [
   { value: "BI", label: "布隆迪", code: "BI" },
   { value: "MW", label: "马拉维", code: "MW" },
   { value: "MZ", label: "莫桑比克", code: "MZ" },
-  { value: "MG", label: "马达加斯加", code: "MG" },
   { value: "RE", label: "留尼汪", code: "RE" },
   { value: "YT", label: "马约特", code: "YT" },
   { value: "SH", label: "圣赫勒拿", code: "SH" },
