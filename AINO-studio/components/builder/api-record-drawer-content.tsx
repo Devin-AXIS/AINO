@@ -428,7 +428,23 @@ function renderDisplayValue(field: any, value: any) {
         if (field.preset === "skills") {
           // Handle skills display - convert IDs to names
           if (value.length > 0) {
-            const skillNames = value.map((skillId: string) => getSkillNameById(skillId))
+            const skillNames = value.map((skillId: string) => {
+              // First try to get from predefined skills
+              const predefinedSkill = getSkillNameById(skillId)
+              if (predefinedSkill !== skillId) {
+                return predefinedSkill
+              }
+              
+              // Then try to get from custom skills
+              const customSkill = field.skillsConfig?.customSkills?.find((s: any) => s.id === skillId)
+              if (customSkill) {
+                return customSkill.name
+              }
+              
+              // If not found, return the ID
+              return skillId
+            })
+            
             return (
               <div className="flex flex-wrap gap-1">
                 {skillNames.map((skillName: string, index: number) => (
@@ -646,39 +662,53 @@ function renderDisplayValue(field: any, value: any) {
         )
       }
       return "未填写"
-    case "identity_verification":
-      if (value && typeof value === "object") {
-        return (
-          <div className="flex items-center gap-2">
-            <span className="text-green-600 font-medium">✓ 已认证</span>
-          </div>
-        )
-      }
-      return <span className="text-gray-400">未认证</span>
-    
-    case "other_verification":
-      if (value && typeof value === "object") {
-        // Get the first text field value
-        const firstTextValue = value.textFields && value.textFields.length > 0 
-          ? value.textFields[0] 
-          : null
-        
-        if (firstTextValue) {
-          return (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-700">{firstTextValue}</span>
-              <span className="text-green-600 font-medium">✓ 已认证</span>
-            </div>
-          )
-        } else {
-          return (
-            <div className="flex items-center gap-2">
-              <span className="text-green-600 font-medium">✓ 已认证</span>
-            </div>
-          )
+    case "text":
+      // Handle preset-based text fields
+      if (field.preset === "identity_verification") {
+        if (value && typeof value === "object") {
+          const hasData = value.name || value.idNumber || value.frontPhoto || value.backPhoto
+          if (hasData) {
+            return (
+              <div className="flex items-center gap-2">
+                <span className="text-green-600 font-medium">✓ 已认证</span>
+              </div>
+            )
+          }
         }
+        return <span className="text-gray-400">未认证</span>
       }
-      return <span className="text-gray-400">未认证</span>
+      
+      if (field.preset === "other_verification") {
+        if (value && typeof value === "object") {
+          const hasData = Object.keys(value).length > 0
+          if (hasData) {
+            // Get the first text field value
+            const textFields = Object.entries(value).filter(([key, val]) => 
+              typeof val === "string" && val.trim() !== ""
+            )
+            
+            if (textFields.length > 0) {
+              const firstTextValue = textFields[0][1]
+              return (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-700">{firstTextValue}</span>
+                  <span className="text-green-600 font-medium">✓ 已认证</span>
+                </div>
+              )
+            } else {
+              return (
+                <div className="flex items-center gap-2">
+                  <span className="text-green-600 font-medium">✓ 已认证</span>
+                </div>
+              )
+            }
+          }
+        }
+        return <span className="text-gray-400">未认证</span>
+      }
+      
+      // Default text field
+      return String(value)
     default:
       return String(value)
   }
