@@ -27,14 +27,27 @@ export function RelationManyTab({
   const selectedIds = Array.isArray(rawValue) ? rawValue : []
   const selectedRecords = selectedIds.map((id: string) => targetDir?.records.find((r) => r.id === id)).filter(Boolean)
 
+  // Debug logging
+  console.log("RelationManyTab Debug:", {
+    fieldKey: field.key,
+    fieldType: field.type,
+    targetDirId,
+    targetDir: targetDir ? { id: targetDir.id, name: targetDir.name, recordsCount: targetDir.records?.length } : null,
+    app: app ? { id: app.id, modulesCount: app.modules?.length } : null
+  })
+
   const [dialogOpen, setDialogOpen] = useState(false)
   const [targetDirRecords, setTargetDirRecords] = useState<RecordRow[]>([])
   const [recordsLoading, setRecordsLoading] = useState(false)
 
   // Load target directory records
   const loadTargetDirRecords = async () => {
-    if (!targetDirId || recordsLoading) return
+    if (!targetDirId || recordsLoading) {
+      console.log("RelationManyTab: Skipping record load", { targetDirId, recordsLoading })
+      return
+    }
     
+    console.log("RelationManyTab: Loading records for targetDirId:", targetDirId)
     setRecordsLoading(true)
     try {
       const response = await api.records.listRecords(targetDirId, {
@@ -42,8 +55,11 @@ export function RelationManyTab({
         pageSize: 100
       })
       
+      console.log("RelationManyTab: API response:", response)
+      
       if (response.success && response.data?.records) {
         setTargetDirRecords(response.data.records)
+        console.log("RelationManyTab: Loaded records:", response.data.records.length)
       } else {
         console.error("Failed to load target directory records:", response.error)
         setTargetDirRecords([])
@@ -221,7 +237,22 @@ export function RelationManyTab({
           {locale === "zh" ? "暂无关联记录" : "No related records"}
         </div>
       )}
-      <Button variant="outline" className="w-full bg-white" onClick={() => setDialogOpen(true)}>
+      <Button 
+        variant="outline" 
+        className="w-full bg-white" 
+        onClick={() => {
+          console.log("RelationManyTab: Add button clicked", {
+            targetDirId,
+            targetDirWithRecords: targetDirWithRecords ? { 
+              id: targetDirWithRecords.id, 
+              name: targetDirWithRecords.name, 
+              recordsCount: targetDirWithRecords.records?.length 
+            } : null,
+            dialogOpen
+          })
+          setDialogOpen(true)
+        }}
+      >
         <Plus className="mr-2 size-4" />
         {locale === "zh" ? "添加表" : "Add Record"}
       </Button>

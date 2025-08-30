@@ -7,80 +7,17 @@
    - Network:      http://192.168.28.72:3000
 
  ✓ Starting...
- ✓ Ready in 2.3s
+ ✓ Ready in 2.6s
  ○ Compiling / ...
- ✓ Compiled / in 1306ms (1081 modules)
- GET / 200 in 1506ms
- GET / 200 in 23ms
+ ✓ Compiled / in 1170ms (1081 modules)
+ GET / 200 in 1597ms
+ GET / 200 in 20ms
  ○ Compiling /app/[appId] ...
- ✓ Compiled /app/[appId] in 1624ms (2343 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 2221ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 101ms
- ✓ Compiled in 1167ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 85ms
- ✓ Compiled in 363ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 59ms
- ✓ Compiled in 300ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 54ms
- ✓ Compiled in 262ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 46ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 223ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 83ms
- ✓ Compiled in 599ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 73ms
- ✓ Compiled in 252ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 57ms
- ✓ Compiled in 303ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 48ms
- ✓ Compiled in 236ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 41ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 331ms
+ ✓ Compiled /app/[appId] in 1530ms (2343 modules)
+ GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 2323ms
+ ✓ Compiled in 1141ms (2296 modules)
  GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 80ms
- ○ Compiling / ...
- ✓ Compiled / in 589ms (1247 modules)
- GET / 200 in 688ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 37ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 194ms
- GET / 200 in 24ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 8ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 8ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 8ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 121ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 99ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 65ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 71ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 65ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 86ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 60ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 61ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 67ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 73ms
- ✓ Compiled in 625ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 277ms
- ✓ Compiled in 297ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 57ms
- ✓ Compiled in 353ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 103ms
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
- ✓ Compiled in 658ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 562ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 752ms
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 95ms
- ✓ Compiled in 1011ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 85ms
- ✓ Compiled in 273ms (2296 modules)
+ ✓ Compiled in 450ms (2296 modules)
+ GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 87ms
+ ✓ Compiled in 333ms (2296 modules)
  GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 47ms
- ✓ Compiled in 560ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 48ms
- ✓ Compiled in 401ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 49ms
- ✓ Compiled in 244ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 47ms
- ✓ Compiled in 288ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 70ms
- ✓ Compiled in 601ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 51ms
- ✓ Compiled in 309ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 45ms
- ✓ Compiled in 436ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 85ms
