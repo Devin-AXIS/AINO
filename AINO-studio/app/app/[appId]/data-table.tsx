@@ -527,6 +527,72 @@ function renderCell(type: string, v: any, f?: any, locale?: string) {
     )
   }
 
+  // Handle experience fields
+  if (type === "experience" && Array.isArray(v) && v.length > 0) {
+    const experiences = v.slice(0, 2) // Show max 2 experiences
+    const hiddenCount = v.length - experiences.length
+    
+    return (
+      <div className="space-y-1">
+        {experiences.map((exp: any, index: number) => {
+          // Get experience type label
+          const getTypeLabel = () => {
+            switch (exp.type) {
+              case "work": return "工作"
+              case "education": return "教育"
+              case "project": return "项目"
+              case "certificate": return "证书"
+              default: return "经历"
+            }
+          }
+
+          // Get key information based on type
+          const getKeyInfo = () => {
+            if (exp.type === "work") {
+              return `${exp.organization || ""} ${exp.title || ""}`.trim()
+            } else if (exp.type === "education") {
+              return `${exp.organization || ""} ${exp.major || ""}`.trim()
+            } else if (exp.type === "project") {
+              return `${exp.title || ""} ${exp.organization || ""}`.trim()
+            } else if (exp.type === "certificate") {
+              return `${exp.title || ""} ${exp.issuer || ""}`.trim()
+            }
+            return exp.title || exp.organization || `经历 ${index + 1}`
+          }
+
+          return (
+            <div key={index} className="text-xs">
+              <div className="flex items-center gap-1">
+                <span className="text-blue-600 font-medium">{getTypeLabel()}</span>
+                <span className="text-gray-600 truncate" title={getKeyInfo()}>
+                  {getKeyInfo()}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+        {hiddenCount > 0 && (
+          <div className="text-xs text-gray-500">+{hiddenCount} 更多</div>
+        )}
+      </div>
+    )
+  }
+
+  // Handle constellation field
+  if ((type === "select" && f?.preset === "constellation") || type === "constellation") {
+    if (!v) return <span className="text-gray-400">-</span>
+    
+    // Import constellation data
+    const { constellationData } = require('@/lib/data/constellation-data')
+    const constellation = constellationData.find((item: any) => item.id === v)
+    
+    return (
+      <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700">
+        {constellation ? constellation.name : v}
+      </span>
+    )
+  }
+
   // Default text-like fields
   return (
     <div className="truncate" title={valueStr}>
