@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { applications, applicationMembers, modules, directories, fields, users } from "@/db/schema";
+import { applications, applicationMembers, modules, directories, users } from "@/db/schema";
 import { eq, and, like, desc, asc, count, sql } from "drizzle-orm";
 export class ApplicationRepository {
     async create(data) {
@@ -153,7 +153,7 @@ export class ApplicationRepository {
                 createdAt: directories.createdAt,
                 updatedAt: directories.updatedAt,
                 _count: {
-                    fields: sql `(SELECT COUNT(*) FROM ${fields} WHERE ${fields.directoryId} = ${directories.id})`,
+                    fields: sql `0`,
                 },
             })
                 .from(directories)

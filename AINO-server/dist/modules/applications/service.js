@@ -1,5 +1,5 @@
 import { db } from "../../db";
-import { applications, modules } from "../../db/schema";
+import { applications, modules, directories } from "../../db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { getAllSystemModules } from "../../lib/system-modules";
 function generateSlug(name) {
@@ -24,14 +24,16 @@ export class ApplicationService {
             version: "1.0.0",
         };
         const [result] = await db.insert(applications).values(newApp).returning();
-        await this.createSystemModules(result.id);
+        const createdModules = await this.createSystemModules(result.id);
+        await this.createDefaultDirectories(result.id, createdModules);
         return result;
     }
     async createSystemModules(applicationId) {
         const systemModules = getAllSystemModules();
+        const createdModules = [];
         for (let i = 0; i < systemModules.length; i++) {
             const module = systemModules[i];
-            await db.insert(modules).values({
+            const [createdModule] = await db.insert(modules).values({
                 applicationId,
                 name: module.name,
                 type: module.type,
@@ -39,7 +41,62 @@ export class ApplicationService {
                 config: module.config,
                 order: i,
                 isEnabled: true,
-            });
+            }).returning();
+            createdModules.push(createdModule);
+        }
+        return createdModules;
+    }
+    async createDefaultDirectories(applicationId, modules) {
+        const defaultDirectories = [
+            {
+                name: '用户列表',
+                type: 'table',
+                supportsCategory: false,
+                config: {
+                    description: '系统用户管理列表',
+                    fields: [
+                        { key: 'name', label: '姓名', type: 'text', required: true, showInList: true, showInForm: true },
+                        { key: 'email', label: '邮箱', type: 'email', required: true, showInList: true, showInForm: true },
+                        { key: 'roles', label: '角色', type: 'multiselect', required: true, showInList: true, showInForm: true, options: ['admin', 'user', 'editor', 'viewer'] },
+                        { key: 'status', label: '状态', type: 'select', required: true, showInList: true, showInForm: true, options: ['active', 'inactive', 'pending'] },
+                        { key: 'avatar', label: '头像', type: 'image', required: false, showInList: true, showInForm: true },
+                        { key: 'lastLoginAt', label: '最后登录', type: 'datetime', required: false, showInList: true, showInForm: false },
+                        { key: 'createdAt', label: '创建时间', type: 'datetime', required: false, showInList: true, showInForm: false },
+                    ]
+                },
+                order: 0,
+            },
+            {
+                name: '用户注册',
+                type: 'form',
+                supportsCategory: false,
+                config: {
+                    description: '系统用户注册表单',
+                    fields: [
+                        { key: 'name', label: '姓名', type: 'text', required: true, showInList: false, showInForm: true },
+                        { key: 'email', label: '邮箱', type: 'email', required: true, showInList: false, showInForm: true },
+                        { key: 'password', label: '密码', type: 'password', required: true, showInList: false, showInForm: true },
+                        { key: 'confirmPassword', label: '确认密码', type: 'password', required: true, showInList: false, showInForm: true },
+                        { key: 'roles', label: '角色', type: 'multiselect', required: true, showInList: false, showInForm: true, options: ['user', 'editor', 'viewer'] },
+                    ]
+                },
+                order: 1,
+            },
+        ];
+        const userModule = modules.find(m => m.name === '用户管理');
+        if (userModule) {
+            for (const directory of defaultDirectories) {
+                await db.insert(directories).values({
+                    applicationId,
+                    moduleId: userModule.id,
+                    name: directory.name,
+                    type: directory.type,
+                    supportsCategory: directory.supportsCategory,
+                    config: directory.config,
+                    order: directory.order,
+                    isEnabled: true,
+                });
+            }
         }
     }
     async getApplications(query, userId) {

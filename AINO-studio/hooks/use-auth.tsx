@@ -9,7 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   register: (data: any) => Promise<void>
   logout: () => void
-  updateUser: (data: Partial<User>) => void
+  updateUser: (data: Partial<User>) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -52,28 +52,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const checkAuth = async () => {
     console.log("🔍 开始认证检查...")
     try {
-      let token = getStoredToken()
+      const token = getStoredToken()
       console.log("🔑 Token 状态:", token ? "存在" : "不存在")
-      
-      // ✅ 必须：确保API调用能正常工作 - 如果没有token，设置默认token
-      if (!token) {
-        console.log("🔧 设置默认认证token")
-        token = 'test-token'
-        setStoredToken(token)
-      }
-      
       if (token) {
         console.log("🔄 尝试获取用户信息...")
         // 使用新的 API 服务获取用户信息，添加超时处理
-        const timeoutPromise = new Promise((_, reject) => 
+        const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('API timeout')), 5000)
         )
-        
+
         const authPromise = api.auth.getCurrentUser()
         const response = await Promise.race([authPromise, timeoutPromise])
-        
+
         console.log("📡 认证响应:", response)
-        
+
         if (response.success && response.data) {
           console.log("✅ 用户认证成功:", response.data)
           setUser(response.data)
@@ -105,10 +97,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsLoading(true)
     try {
       console.log("🔐 开始登录...")
-      
+
       // 使用新的 API 服务进行登录
       const response = await api.auth.login({ email, password })
-      
+
       console.log("📡 登录响应:", response)
 
       if (response.success && response.data) {
@@ -133,7 +125,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       // 暂时保持原有的注册逻辑，等后端实现
       console.log("📝 注册功能暂时使用原有逻辑")
-      
+
       // 这里可以后续替换为 api.auth.register(data)
       const response = await fetch('/api/users/register', {
         method: 'POST',
@@ -164,11 +156,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     console.log("👋 用户已登出")
   }
 
-  const updateUser = (data: Partial<User>) => {
-    if (user) {
-      const updatedUser = { ...user, ...data }
-      setUser(updatedUser)
-      localStorage.setItem('user', JSON.stringify(updatedUser))
+  const updateUser = async (data: Partial<User>) => {
+    try {
+      // 优先调用后端更新，保持与登录账户一致
+      const res = await api.auth.updateCurrentUser({ name: data.name, avatar: data.avatar })
+      if (res.success && res.data) {
+        setUser(res.data)
+        localStorage.setItem('user', JSON.stringify(res.data))
+      } else if (user) {
+        // 后端不可用时，至少本地更新以不阻断 UI
+        const updatedUser = { ...user, ...data }
+        setUser(updatedUser)
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+      }
+    } catch {
+      if (user) {
+        const updatedUser = { ...user, ...data }
+        setUser(updatedUser)
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+      }
     }
   }
 

@@ -2444,4 +2444,5 @@ export declare const fieldCategories: import("drizzle-orm/pg-core").PgTableWithC
     };
     dialect: "pg";
 }>;
+export declare const recordCategories: any;
 //# sourceMappingURL=schema.d.ts.map

@@ -17,7 +17,7 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
 export async function findUserByEmail(email: string): Promise<TUser | null> {
   const result = await db.select().from(users).where(eq(users.email, email)).limit(1)
   if (result.length === 0) return null
-  
+
   const user = result[0]
   return {
     id: user.id,
@@ -32,7 +32,7 @@ export async function findUserByEmail(email: string): Promise<TUser | null> {
 export async function findUserById(id: string): Promise<TUser | null> {
   const result = await db.select().from(users).where(eq(users.id, id)).limit(1)
   if (result.length === 0) return null
-  
+
   const user = result[0]
   return {
     id: user.id,
@@ -46,17 +46,16 @@ export async function findUserById(id: string): Promise<TUser | null> {
 
 export async function createUser(data: TRegisterRequest): Promise<TUser> {
   const hashedPassword = await hashPassword(data.password)
-  const userId = Math.random().toString(36).slice(2, 10)
-  
+
   const [newUser] = await db.insert(users).values({
-    id: userId,
+    // let database generate uuid by default
     name: data.name,
     email: data.email,
     password: hashedPassword,
     avatar: '/generic-user-avatar.png',
     roles: ['user'],
   }).returning()
-  
+
   return {
     id: newUser.id,
     name: newUser.name,
@@ -70,7 +69,7 @@ export async function createUser(data: TRegisterRequest): Promise<TUser> {
 export async function validatePassword(email: string, password: string): Promise<boolean> {
   const result = await db.select({ password: users.password }).from(users).where(eq(users.email, email)).limit(1)
   if (result.length === 0) return false
-  
+
   return await verifyPassword(password, result[0].password)
 }
 
@@ -84,4 +83,32 @@ export async function getAllUsers(): Promise<TUser[]> {
     roles: user.roles || ['user'],
     createdAt: user.createdAt.toISOString(),
   }))
+}
+
+export async function updateUserById(id: string, data: Partial<Pick<TUser, 'name' | 'avatar'>>): Promise<TUser | null> {
+  const updateFields: Record<string, any> = {}
+  if (typeof data.name === 'string' && data.name.length > 0) updateFields.name = data.name
+  if (typeof data.avatar === 'string' && data.avatar.length > 0) updateFields.avatar = data.avatar
+
+  if (Object.keys(updateFields).length === 0) {
+    // nothing to update, return current user
+    return await findUserById(id)
+  }
+
+  const [updated] = await db
+    .update(users)
+    .set(updateFields)
+    .where(eq(users.id, id))
+    .returning()
+
+  if (!updated) return null
+
+  return {
+    id: updated.id,
+    name: updated.name,
+    email: updated.email,
+    avatar: updated.avatar || undefined,
+    roles: updated.roles || ['user'],
+    createdAt: updated.createdAt.toISOString(),
+  }
 }

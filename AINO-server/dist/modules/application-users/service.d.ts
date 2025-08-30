@@ -1,21 +1,21 @@
 import type { TCreateApplicationUserRequest, TUpdateApplicationUserRequest, TGetApplicationUsersQuery } from './dto';
 export declare class ApplicationUserService {
     createApplicationUser(applicationId: string, data: TCreateApplicationUserRequest): Promise<{
-        email: string;
         id: string;
+        email: string;
+        phone: string | null;
         name: string;
         status: string;
         createdAt: Date;
         updatedAt: Date;
-        avatar: string | null;
-        lastLoginAt: Date | null;
         applicationId: string;
+        metadata: unknown;
+        avatar: string | null;
         role: string;
-        phone: string | null;
         department: string | null;
         position: string | null;
         tags: string[] | null;
-        metadata: unknown;
+        lastLoginAt: Date | null;
     }>;
     getApplicationUsers(applicationId: string, query: TGetApplicationUsersQuery): Promise<{
         users: {
@@ -77,21 +77,21 @@ export declare class ApplicationUserService {
         updatedAt: Date;
     }>;
     deleteApplicationUser(applicationId: string, userId: string): Promise<{
-        email: string;
         id: string;
+        email: string;
+        phone: string | null;
         name: string;
         status: string;
         createdAt: Date;
         updatedAt: Date;
-        avatar: string | null;
-        lastLoginAt: Date | null;
         applicationId: string;
+        metadata: unknown;
+        avatar: string | null;
         role: string;
-        phone: string | null;
         department: string | null;
         position: string | null;
         tags: string[] | null;
-        metadata: unknown;
+        lastLoginAt: Date | null;
     }>;
     updateLastLoginTime(applicationId: string, userId: string): Promise<{
         id: string;
@@ -142,21 +142,21 @@ export declare class ApplicationUserService {
         userId: string;
         success: boolean;
         data: {
-            email: string;
             id: string;
+            email: string;
+            phone: string | null;
             name: string;
             status: string;
             createdAt: Date;
             updatedAt: Date;
-            avatar: string | null;
-            lastLoginAt: Date | null;
             applicationId: string;
+            metadata: unknown;
+            avatar: string | null;
             role: string;
-            phone: string | null;
             department: string | null;
             position: string | null;
             tags: string[] | null;
-            metadata: unknown;
+            lastLoginAt: Date | null;
         };
         error?: undefined;
     } | {

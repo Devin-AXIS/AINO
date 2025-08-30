@@ -239,4 +239,17 @@ export const fieldCategories = pgTable("field_categories", {
     createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
 });
+export const recordCategories = pgTable("record_categories", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    applicationId: uuid("application_id").notNull().references(() => applications.id, { onDelete: "cascade" }),
+    directoryId: uuid("directory_id").notNull().references(() => directories.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    path: text("path").notNull(),
+    level: integer("level").notNull(),
+    parentId: uuid("parent_id").references(() => recordCategories.id, { onDelete: "cascade" }),
+    order: integer("order").default(0),
+    enabled: boolean("enabled").default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
 //# sourceMappingURL=schema.js.map

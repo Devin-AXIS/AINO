@@ -3,19 +3,20 @@ export declare class ApplicationService {
     createApplication(data: CreateApplicationRequest, userId: string): Promise<{
         id: string;
         name: string;
-        description: string | null;
         slug: string;
-        ownerId: string;
+        version: string | null;
         status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        ownerId: string;
         template: string | null;
         config: unknown;
         databaseConfig: unknown;
         isPublic: boolean | null;
-        version: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     private createSystemModules;
+    private createDefaultDirectories;
     getApplications(query: GetApplicationsQuery, userId: string): Promise<{
         applications: {
             id: string;
@@ -75,17 +76,17 @@ export declare class ApplicationService {
     createApplicationFromTemplate(data: CreateApplicationRequest, userId: string): Promise<{
         id: string;
         name: string;
-        description: string | null;
         slug: string;
-        ownerId: string;
+        version: string | null;
         status: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        ownerId: string;
         template: string | null;
         config: unknown;
         databaseConfig: unknown;
         isPublic: boolean | null;
-        version: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     getApplicationModules(applicationId: string, userId: string): Promise<{
         application: {

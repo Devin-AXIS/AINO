@@ -12,8 +12,8 @@ export declare const ApplicationUser: z.ZodObject<{
         pending: "pending";
     }>>;
     role: z.ZodDefault<z.ZodEnum<{
-        user: "user";
         admin: "admin";
+        user: "user";
         guest: "guest";
     }>>;
     department: z.ZodOptional<z.ZodString>;
@@ -31,8 +31,8 @@ export declare const CreateApplicationUserRequest: z.ZodObject<{
     phone: z.ZodOptional<z.ZodString>;
     avatar: z.ZodOptional<z.ZodString>;
     role: z.ZodDefault<z.ZodEnum<{
-        user: "user";
         admin: "admin";
+        user: "user";
         guest: "guest";
     }>>;
     department: z.ZodOptional<z.ZodString>;
@@ -52,8 +52,8 @@ export declare const UpdateApplicationUserRequest: z.ZodObject<{
         pending: "pending";
     }>>;
     role: z.ZodOptional<z.ZodEnum<{
-        user: "user";
         admin: "admin";
+        user: "user";
         guest: "guest";
     }>>;
     department: z.ZodOptional<z.ZodString>;
@@ -72,8 +72,8 @@ export declare const GetApplicationUsersQuery: z.ZodObject<{
         pending: "pending";
     }>>;
     role: z.ZodOptional<z.ZodEnum<{
-        user: "user";
         admin: "admin";
+        user: "user";
         guest: "guest";
     }>>;
     department: z.ZodOptional<z.ZodString>;
@@ -105,8 +105,8 @@ export declare const ApplicationUserListResponse: z.ZodObject<{
                 pending: "pending";
             }>>;
             role: z.ZodDefault<z.ZodEnum<{
-                user: "user";
                 admin: "admin";
+                user: "user";
                 guest: "guest";
             }>>;
             department: z.ZodOptional<z.ZodString>;
@@ -141,8 +141,8 @@ export declare const ApplicationUserResponse: z.ZodObject<{
             pending: "pending";
         }>>;
         role: z.ZodDefault<z.ZodEnum<{
-            user: "user";
             admin: "admin";
+            user: "user";
             guest: "guest";
         }>>;
         department: z.ZodOptional<z.ZodString>;

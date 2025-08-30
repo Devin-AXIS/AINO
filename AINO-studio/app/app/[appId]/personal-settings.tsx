@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FrostPanel } from "@/components/frost"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,19 +13,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Eye, EyeOff, Upload, Shield } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLocale } from "@/hooks/use-locale"
+import { useAuth } from "@/hooks/use-auth"
 
 export function PersonalSettings() {
   const { toast } = useToast()
   const { locale } = useLocale()
+  const { user, updateUser } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [avatarImage, setAvatarImage] = useState<string>("/generic-user-avatar.png")
+  const [avatarImage, setAvatarImage] = useState<string>(user?.avatar || "/generic-user-avatar.png")
+  const [name, setName] = useState<string>(user?.name || "")
+  const [email, setEmail] = useState<string>(user?.email || "")
 
   const departments = [
     { id: "1", name: locale === "zh" ? "技术部" : "Technology" },
     { id: "2", name: locale === "zh" ? "产品部" : "Product" },
     { id: "3", name: locale === "zh" ? "设计部" : "Design" },
   ]
+
+  useEffect(() => {
+    setAvatarImage(user?.avatar || "/generic-user-avatar.png")
+    setName(user?.name || "")
+    setEmail(user?.email || "")
+  }, [user])
 
   const handleAvatarUpload = () => {
     const input = document.createElement("input")
@@ -68,7 +78,7 @@ export function PersonalSettings() {
           <CardContent className="flex flex-col items-center space-y-3 pt-0">
             <Avatar className="size-20">
               <AvatarImage src={avatarImage} />
-              <AvatarFallback>JD</AvatarFallback>
+              <AvatarFallback>{name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
             {isEditing && (
               <Button size="sm" variant="outline" className="h-8 bg-transparent" onClick={handleAvatarUpload}>
@@ -90,13 +100,13 @@ export function PersonalSettings() {
                 <Label htmlFor="username" className="text-xs">
                   {locale === "zh" ? "用户名" : "Username"}
                 </Label>
-                <Input id="username" defaultValue="john_doe" disabled={!isEditing} className="h-8" />
+                <Input id="username" value={name} onChange={(e) => setName(e.target.value)} disabled={!isEditing} className="h-8" />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="email" className="text-xs">
                   {locale === "zh" ? "邮箱" : "Email"}
                 </Label>
-                <Input id="email" type="email" defaultValue="john@example.com" disabled={!isEditing} className="h-8" />
+                <Input id="email" type="email" value={email} disabled className="h-8" />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="phone" className="text-xs">
@@ -137,7 +147,8 @@ export function PersonalSettings() {
             {isEditing && (
               <Button
                 size="sm"
-                onClick={() => {
+                onClick={async () => {
+                  await updateUser({ name, avatar: avatarImage })
                   setIsEditing(false)
                   toast({ description: locale === "zh" ? "个人信息已更新" : "Personal information updated" })
                 }}
@@ -173,32 +184,32 @@ export function PersonalSettings() {
                 <DialogHeader>
                   <DialogTitle>{locale === "zh" ? "修改密码" : "Change Password"}</DialogTitle>
                 </DialogHeader>
-                                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm">{locale === "zh" ? "当前密码" : "Current Password"}</Label>
-                      <div className="relative">
-                        <Input type={showPassword ? "text" : "password"} className="h-9" />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                        </Button>
-                      </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm">{locale === "zh" ? "当前密码" : "Current Password"}</Label>
+                    <div className="relative">
+                      <Input type={showPassword ? "text" : "password"} className="h-9" />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                      </Button>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm">{locale === "zh" ? "新密码" : "New Password"}</Label>
-                      <Input type="password" className="h-9" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm">{locale === "zh" ? "确认新密码" : "Confirm New Password"}</Label>
-                      <Input type="password" className="h-9" />
-                    </div>
-                    <Button className="w-full">{locale === "zh" ? "更新密码" : "Update Password"}</Button>
                   </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm">{locale === "zh" ? "新密码" : "New Password"}</Label>
+                    <Input type="password" className="h-9" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm">{locale === "zh" ? "确认新密码" : "Confirm New Password"}</Label>
+                    <Input type="password" className="h-9" />
+                  </div>
+                  <Button className="w-full">{locale === "zh" ? "更新密码" : "Update Password"}</Button>
+                </div>
               </DialogContent>
             </Dialog>
           </div>

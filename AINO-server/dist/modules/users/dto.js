@@ -14,4 +14,14 @@ export const LoginResp = z.object({
         })
     })
 });
+export const GetCurrentUserResp = z.object({
+    success: z.literal(true),
+    data: z.object({
+        id: z.string(),
+        email: z.string().email(),
+        name: z.string(),
+        role: z.enum(["admin", "operator", "viewer"]),
+        permissions: z.array(z.string())
+    })
+});
 //# sourceMappingURL=dto.js.map

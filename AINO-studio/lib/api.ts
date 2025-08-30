@@ -14,6 +14,8 @@ export interface User {
   id: string
   email: string
   name: string
+  avatar?: string
+  roles?: string[]
 }
 
 export interface LoginRequest {
@@ -85,13 +87,7 @@ async function apiRequest<T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   let token = typeof window !== 'undefined' ? localStorage.getItem('aino_token') : null
-  
-  // 如果没有token，设置默认的test-token（用于开发环境）
-  if (!token && typeof window !== 'undefined') {
-    token = 'test-token'
-    localStorage.setItem('aino_token', token)
-  }
-  
+
   const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -109,16 +105,16 @@ async function apiRequest<T>(
       headers: config.headers,
       body: options.body ? JSON.parse(options.body as string) : undefined
     })
-    
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config)
-    
+
     console.log(`📡 Response Status:`, response.status)
     console.log(`📡 Response Headers:`, Object.fromEntries(response.headers.entries()))
-    
+
     // 检查响应内容类型
     const contentType = response.headers.get('content-type')
     console.log(`📡 Content-Type:`, contentType)
-    
+
     let data
     if (contentType && contentType.includes('application/json')) {
       data = await response.json()
@@ -131,16 +127,16 @@ async function apiRequest<T>(
         data = { error: text }
       }
     }
-    
+
     console.log(`📡 Response Data:`, data)
-    
+
     // 处理成功状态码 (200, 201, 204 等)
     if (response.ok) {
       return data
     } else {
       // 处理错误状态码
       console.error(`❌ HTTP Error: ${response.status}`, data)
-      
+
       // 构造详细的错误信息
       let errorMessage = data.error || data.message || `HTTP ${response.status}`
       if (data.details && typeof data.details === 'object') {
@@ -149,16 +145,16 @@ async function apiRequest<T>(
           .join(', ')
         errorMessage += ` (${detailsStr})`
       }
-      
+
       const error = new Error(errorMessage)
-      // 将完整的错误数据附加到错误对象上，供上层处理
-      ;(error as any).details = data.details
-      ;(error as any).originalData = data
+        // 将完整的错误数据附加到错误对象上，供上层处理
+        ; (error as any).details = data.details
+        ; (error as any).originalData = data
       throw error
     }
   } catch (error) {
     console.error(`❌ API Error:`, error)
-    
+
     // 构造更详细的错误信息
     const errorDetails = {
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -169,7 +165,7 @@ async function apiRequest<T>(
       details: error instanceof Error && (error as any).details ? (error as any).details : undefined,
       originalData: error instanceof Error && (error as any).originalData ? (error as any).originalData : undefined
     }
-    
+
     console.error(`❌ Error Details:`, errorDetails)
     throw error
   }
@@ -185,16 +181,15 @@ export const authApi = {
     })
   },
 
-  // 获取当前用户信息（暂时使用 mock）
+  // 获取当前用户信息（从后端读取）
   async getCurrentUser(): Promise<ApiResponse<User>> {
-    // 暂时返回 mock 数据，等后端实现
-    return Promise.resolve({
-      success: true,
-      data: {
-        id: 'u-1',
-        email: 'admin@aino.com',
-        name: 'Admin'
-      }
+    return apiRequest<User>('/api/users/me')
+  },
+  // 更新当前用户信息
+  async updateCurrentUser(data: Partial<Pick<User, 'name' | 'avatar'>>): Promise<ApiResponse<User>> {
+    return apiRequest<User>('/api/users/me', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
     })
   }
 }
@@ -217,10 +212,10 @@ export const applicationsApi = {
         }
       })
     }
-    
+
     const queryString = searchParams.toString()
     const endpoint = `/api/applications${queryString ? `?${queryString}` : ''}`
-    
+
     return apiRequest<ApplicationsListResponse>(endpoint)
   },
 
@@ -275,10 +270,10 @@ export const directoriesApi = {
         searchParams.append(key, value.toString())
       }
     })
-    
+
     const queryString = searchParams.toString()
     const endpoint = `/api/directories${queryString ? `?${queryString}` : ''}`
-    
+
     return apiRequest<any>(endpoint)
   },
 
@@ -299,10 +294,10 @@ export const directoriesApi = {
         searchParams.append(key, value.toString())
       }
     })
-    
+
     const queryString = searchParams.toString()
     const endpoint = `/api/directories${queryString ? `?${queryString}` : ''}`
-    
+
     return apiRequest<any>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -354,10 +349,10 @@ export const fieldCategoriesApi = {
         searchParams.append(key, value.toString())
       }
     })
-    
+
     const queryString = searchParams.toString()
     const endpoint = `/api/field-categories${queryString ? `?${queryString}` : ''}`
-    
+
     return apiRequest<any>(endpoint)
   },
 
@@ -379,10 +374,10 @@ export const fieldCategoriesApi = {
         searchParams.append(key, value.toString())
       }
     })
-    
+
     const queryString = searchParams.toString()
     const endpoint = `/api/field-categories${queryString ? `?${queryString}` : ''}`
-    
+
     return apiRequest<any>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -433,10 +428,10 @@ export const directoryDefsApi = {
         searchParams.append(key, value.toString())
       }
     })
-    
+
     const queryString = searchParams.toString()
     const endpoint = `/api/directory-defs${queryString ? `?${queryString}` : ''}`
-    
+
     return apiRequest<any>(endpoint)
   },
 
@@ -508,10 +503,10 @@ export const fieldsApi = {
         searchParams.append(key, value.toString())
       }
     })
-    
+
     const queryString = searchParams.toString()
     const endpoint = `/api/field-defs${queryString ? `?${queryString}` : ''}`
-    
+
     return apiRequest<any>(endpoint)
   },
 
@@ -585,10 +580,10 @@ export const recordsApi = {
         searchParams.append(key, value.toString())
       }
     })
-    
+
     const queryString = searchParams.toString()
     const endpoint = `/api/records/${dirId}${queryString ? `?${queryString}` : ''}`
-    
+
     return apiRequest<any>(endpoint)
   },
 
@@ -657,10 +652,10 @@ export const recordCategoriesApi = {
         searchParams.append(key, value.toString())
       }
     })
-    
+
     const queryString = searchParams.toString()
     const endpoint = `/api/record-categories${queryString ? `?${queryString}` : ''}`
-    
+
     return apiRequest<any>(endpoint)
   },
 
@@ -680,10 +675,10 @@ export const recordCategoriesApi = {
         searchParams.append(key, value.toString())
       }
     })
-    
+
     const queryString = searchParams.toString()
     const endpoint = `/api/record-categories${queryString ? `?${queryString}` : ''}`
-    
+
     return apiRequest<any>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),

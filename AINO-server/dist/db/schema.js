@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, boolean, integer, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, boolean, integer, jsonb, index } from "drizzle-orm/pg-core";
 export const applications = pgTable("applications", {
     id: uuid("id").primaryKey().defaultRandom(),
     name: text("name").notNull(),
@@ -13,7 +13,10 @@ export const applications = pgTable("applications", {
     version: text("version").default("1.0.0"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+    createdAtIdx: index("applications_created_at_idx").on(table.createdAt),
+    ownerStatusIdx: index("applications_owner_status_idx").on(table.ownerId, table.status),
+}));
 export const users = pgTable("users", {
     id: uuid("id").primaryKey().defaultRandom(),
     name: text("name").notNull(),
@@ -25,17 +28,10 @@ export const users = pgTable("users", {
     lastLoginAt: timestamp("last_login_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-export const applicationMembers = pgTable("application_members", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    applicationId: uuid("application_id").notNull().references(() => applications.id, { onDelete: "cascade" }),
-    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-    role: text("role").default("member").notNull(),
-    permissions: jsonb("permissions").default({}),
-    joinedAt: timestamp("joined_at").defaultNow().notNull(),
-    invitedBy: uuid("invited_by").references(() => users.id),
-    status: text("status").default("active").notNull(),
-});
+}, (table) => ({
+    createdAtIdx: index("users_created_at_idx").on(table.createdAt),
+    statusIdx: index("users_status_idx").on(table.status),
+}));
 export const modules = pgTable("modules", {
     id: uuid("id").primaryKey().defaultRandom(),
     applicationId: uuid("application_id").notNull().references(() => applications.id, { onDelete: "cascade" }),
@@ -47,7 +43,10 @@ export const modules = pgTable("modules", {
     isEnabled: boolean("is_enabled").default(true),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+    createdAtIdx: index("modules_created_at_idx").on(table.createdAt),
+    appEnabledIdx: index("modules_app_enabled_idx").on(table.applicationId, table.isEnabled),
+}));
 export const directories = pgTable("directories", {
     id: uuid("id").primaryKey().defaultRandom(),
     applicationId: uuid("application_id").notNull().references(() => applications.id, { onDelete: "cascade" }),
@@ -60,25 +59,43 @@ export const directories = pgTable("directories", {
     isEnabled: boolean("is_enabled").default(true),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-export const fields = pgTable("fields", {
+}, (table) => ({
+    createdAtIdx: index("directories_created_at_idx").on(table.createdAt),
+    appModuleIdx: index("directories_app_module_idx").on(table.applicationId, table.moduleId),
+}));
+export const fieldCategories = pgTable("field_categories", {
     id: uuid("id").primaryKey().defaultRandom(),
     applicationId: uuid("application_id").notNull().references(() => applications.id, { onDelete: "cascade" }),
     directoryId: uuid("directory_id").notNull().references(() => directories.id, { onDelete: "cascade" }),
-    key: text("key").notNull(),
-    label: text("label").notNull(),
-    type: text("type").notNull(),
-    required: boolean("required").default(false),
-    locked: boolean("locked").default(false),
-    enabled: boolean("enabled").default(true),
-    showInList: boolean("show_in_list").default(true),
-    showInForm: boolean("show_in_form").default(true),
-    showInDetail: boolean("show_in_detail").default(true),
-    config: jsonb("config").default({}),
+    name: text("name").notNull(),
+    description: text("description"),
     order: integer("order").default(0),
+    enabled: boolean("enabled").default(true),
+    system: boolean("system").default(false),
+    predefinedFields: jsonb("predefined_fields").default([]),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+    createdAtIdx: index("field_categories_created_at_idx").on(table.createdAt),
+    appDirIdx: index("field_categories_app_dir_idx").on(table.applicationId, table.directoryId),
+}));
+export const recordCategories = pgTable("record_categories", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    applicationId: uuid("application_id").notNull().references(() => applications.id, { onDelete: "cascade" }),
+    directoryId: uuid("directory_id").notNull().references(() => directories.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    path: text("path").notNull(),
+    level: integer("level").notNull(),
+    parentId: uuid("parent_id").references(() => recordCategories.id, { onDelete: "cascade" }),
+    order: integer("order").default(0),
+    enabled: boolean("enabled").default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+    createdAtIdx: index("record_categories_created_at_idx").on(table.createdAt),
+    appDirIdx: index("record_categories_app_dir_idx").on(table.applicationId, table.directoryId),
+    parentIdx: index("record_categories_parent_idx").on(table.parentId),
+}));
 export const applicationUsers = pgTable("application_users", {
     id: uuid("id").primaryKey().defaultRandom(),
     applicationId: uuid("application_id").notNull().references(() => applications.id, { onDelete: "cascade" }),
@@ -95,7 +112,10 @@ export const applicationUsers = pgTable("application_users", {
     lastLoginAt: timestamp("last_login_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+    createdAtIdx: index("application_users_created_at_idx").on(table.createdAt),
+    appStatusIdx: index("application_users_app_status_idx").on(table.applicationId, table.status),
+}));
 export const auditLogs = pgTable("audit_logs", {
     id: uuid("id").primaryKey().defaultRandom(),
     applicationId: uuid("application_id").references(() => applications.id, { onDelete: "cascade" }),
@@ -107,5 +127,81 @@ export const auditLogs = pgTable("audit_logs", {
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+    createdAtIdx: index("audit_logs_created_at_idx").on(table.createdAt),
+    appUserIdx: index("audit_logs_app_user_idx").on(table.applicationId, table.userId),
+}));
+export const directoryDefs = pgTable('directory_defs', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    slug: text('slug').notNull().unique(),
+    title: text('title').notNull(),
+    version: integer('version').notNull().default(1),
+    status: text('status').notNull().default('active'),
+    applicationId: uuid('application_id').references(() => applications.id, { onDelete: 'cascade' }),
+    directoryId: uuid('directory_id').references(() => directories.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+}, (table) => ({
+    createdAtIdx: index("directory_defs_created_at_idx").on(table.createdAt),
+    appStatusIdx: index("directory_defs_app_status_idx").on(table.applicationId, table.status),
+}));
+export const fieldDefs = pgTable('field_defs', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    directoryId: uuid('directory_id').notNull().references(() => directoryDefs.id, { onDelete: 'cascade' }),
+    key: text('key').notNull(),
+    kind: text('kind').notNull(),
+    type: text('type').notNull(),
+    schema: jsonb('schema'),
+    relation: jsonb('relation'),
+    lookup: jsonb('lookup'),
+    computed: jsonb('computed'),
+    validators: jsonb('validators'),
+    readRoles: jsonb('read_roles').$type().default(['admin', 'member']),
+    writeRoles: jsonb('write_roles').$type().default(['admin']),
+    required: boolean('required').default(false),
+}, (table) => ({
+    directoryIdx: index("field_defs_directory_idx").on(table.directoryId),
+    keyIdx: index("field_defs_key_idx").on(table.key),
+}));
+export const dirUsers = pgTable('dir_users', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tenantId: uuid('tenant_id').notNull(),
+    version: integer('version').notNull().default(1),
+    props: jsonb('props').notNull().$type().default({}),
+    createdBy: uuid('created_by'),
+    updatedBy: uuid('updated_by'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+}, (table) => ({
+    createdAtIdx: index("dir_users_created_at_idx").on(table.createdAt),
+    tenantIdx: index("dir_users_tenant_idx").on(table.tenantId),
+}));
+export const dirJobs = pgTable('dir_jobs', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tenantId: uuid('tenant_id').notNull(),
+    version: integer('version').notNull().default(1),
+    props: jsonb('props').notNull().$type().default({}),
+    createdBy: uuid('created_by'),
+    updatedBy: uuid('updated_by'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+}, (table) => ({
+    createdAtIdx: index("dir_jobs_created_at_idx").on(table.createdAt),
+    tenantIdx: index("dir_jobs_tenant_idx").on(table.tenantId),
+}));
+export const fieldIndexes = pgTable('field_indexes', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    dirSlug: text('dir_slug').notNull(),
+    recordId: uuid('record_id').notNull(),
+    fieldKey: text('field_key').notNull(),
+    searchValue: text('search_value'),
+    numericValue: integer('numeric_value'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+}, (table) => ({
+    createdAtIdx: index("field_indexes_created_at_idx").on(table.createdAt),
+    dirSlugIdx: index("field_indexes_dir_slug_idx").on(table.dirSlug),
+    recordFieldIdx: index("field_indexes_record_field_idx").on(table.recordId, table.fieldKey),
+}));
 //# sourceMappingURL=schema.js.map
