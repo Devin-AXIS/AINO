@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { RelationChooserDialog } from "@/components/dialogs/relation-chooser-dialog"
 import type { AppModel, FieldModel, RecordRow } from "@/lib/store"
 import { findDirByIdAcrossModules, getRecordName } from "@/lib/store"
 import { useLocale } from "@/hooks/use-locale"
+import { api } from "@/lib/api"
 
 export function RelationManyTab({
   app,
@@ -27,6 +28,40 @@ export function RelationManyTab({
   const selectedRecords = selectedIds.map((id: string) => targetDir?.records.find((r) => r.id === id)).filter(Boolean)
 
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [targetDirRecords, setTargetDirRecords] = useState<RecordRow[]>([])
+  const [recordsLoading, setRecordsLoading] = useState(false)
+
+  // Load target directory records
+  const loadTargetDirRecords = async () => {
+    if (!targetDirId || recordsLoading) return
+    
+    setRecordsLoading(true)
+    try {
+      const response = await api.records.listRecords(targetDirId, {
+        page: 1,
+        pageSize: 100
+      })
+      
+      if (response.success && response.data?.records) {
+        setTargetDirRecords(response.data.records)
+      } else {
+        console.error("Failed to load target directory records:", response.error)
+        setTargetDirRecords([])
+      }
+    } catch (error) {
+      console.error("Error loading target directory records:", error)
+      setTargetDirRecords([])
+    } finally {
+      setRecordsLoading(false)
+    }
+  }
+
+  // Load records when target directory changes
+  useEffect(() => {
+    if (targetDirId) {
+      loadTargetDirRecords()
+    }
+  }, [targetDirId])
 
   const handleRemove = (idToRemove: string) => {
     onChange(selectedIds.filter((id: string) => id !== idToRemove))
@@ -43,6 +78,12 @@ export function RelationManyTab({
   }
 
   const coreFields = getCoreFields()
+
+  // Create target directory with loaded records
+  const targetDirWithRecords = targetDir ? {
+    ...targetDir,
+    records: targetDirRecords
+  } : null
 
   const renderCell = (type: string, v: any, f?: any) => {
     const valueStr = String(v ?? "")
@@ -184,11 +225,11 @@ export function RelationManyTab({
         <Plus className="mr-2 size-4" />
         {locale === "zh" ? "添加表" : "Add Record"}
       </Button>
-      {targetDir && (
+      {targetDirWithRecords && (
         <RelationChooserDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          targetDir={targetDir}
+          targetDir={targetDirWithRecords}
           isMulti={true}
           selectedIds={new Set(selectedIds)}
           onSave={handleSaveFromDialog}

@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { RelationChooserDialog } from "@/components/dialogs/relation-chooser-dialog"
 import type { AppModel, FieldModel, RecordRow } from "@/lib/store"
 import { findDirByIdAcrossModules, getRecordName } from "@/lib/store"
+import { api } from "@/lib/api"
 
 export function RelationOneTab({
   app,
@@ -24,11 +25,51 @@ export function RelationOneTab({
   const selectedRecord = selectedId && targetDir ? targetDir.records.find((r) => r.id === selectedId) : null
 
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [targetDirRecords, setTargetDirRecords] = useState<RecordRow[]>([])
+  const [recordsLoading, setRecordsLoading] = useState(false)
+
+  // Load target directory records
+  const loadTargetDirRecords = async () => {
+    if (!targetDirId || recordsLoading) return
+    
+    setRecordsLoading(true)
+    try {
+      const response = await api.records.listRecords(targetDirId, {
+        page: 1,
+        pageSize: 100
+      })
+      
+      if (response.success && response.data?.records) {
+        setTargetDirRecords(response.data.records)
+      } else {
+        console.error("Failed to load target directory records:", response.error)
+        setTargetDirRecords([])
+      }
+    } catch (error) {
+      console.error("Error loading target directory records:", error)
+      setTargetDirRecords([])
+    } finally {
+      setRecordsLoading(false)
+    }
+  }
+
+  // Load records when target directory changes
+  useEffect(() => {
+    if (targetDirId) {
+      loadTargetDirRecords()
+    }
+  }, [targetDirId])
 
   const handleSaveFromDialog = (newIdSet: Set<string>) => {
     onChange(Array.from(newIdSet)[0] || null)
     setDialogOpen(false)
   }
+
+  // Create target directory with loaded records
+  const targetDirWithRecords = targetDir ? {
+    ...targetDir,
+    records: targetDirRecords
+  } : null
 
   return (
     <div className="space-y-4">
@@ -58,11 +99,11 @@ export function RelationOneTab({
         <Plus className="mr-2 size-4" />
         {selectedRecord ? "更换" : "选择"}表
       </Button>
-      {targetDir && (
+      {targetDirWithRecords && (
         <RelationChooserDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          targetDir={targetDir}
+          targetDir={targetDirWithRecords}
           isMulti={false}
           selectedIds={selectedId ? new Set([selectedId]) : new Set()}
           onSave={handleSaveFromDialog}
