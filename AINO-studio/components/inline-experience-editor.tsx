@@ -98,9 +98,9 @@ export function InlineExperienceEditor({
       case "education":
         return {
           title: locale === "zh" ? "学校名称" : "School Name",
-          organization: locale === "zh" ? "专业" : "Major",
+          organization: locale === "zh" ? "学校" : "School",
           titlePlaceholder: locale === "zh" ? "请输入学校名称" : "Enter school name",
-          organizationPlaceholder: locale === "zh" ? "请输入专业名称" : "Enter major",
+          organizationPlaceholder: locale === "zh" ? "请输入学校名称" : "Enter school name",
         }
       case "work":
         return {
