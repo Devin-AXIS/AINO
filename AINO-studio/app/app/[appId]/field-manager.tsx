@@ -259,18 +259,60 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   function handleDragStart(i: number) {
     setDragIndex(i)
   }
+  
   function handleDragEnter(i: number) {
     setDragIndex((from) => {
       if (from === null || from === i) return from
-      commit((d) => {
-        const [moved] = d.fields.splice(from, 1)
-        d.fields.splice(i, 0, moved)
+      
+      // Update fieldDefs order by moving the field
+      setFieldDefs((prevFieldDefs) => {
+        const newFieldDefs = [...prevFieldDefs]
+        const [moved] = newFieldDefs.splice(from, 1)
+        newFieldDefs.splice(i, 0, moved)
+        
+        // Update order property for each field
+        return newFieldDefs.map((field, index) => ({
+          ...field,
+          order: index
+        }))
       })
+      
       return i
     })
   }
+  
   function handleDragEnd() {
     setDragIndex(null)
+    // Save field order to backend
+    saveFieldOrder()
+  }
+  
+  // Save field order to backend
+  const saveFieldOrder = async () => {
+    try {
+      if (!app?.id || !dir?.id) return
+      
+      // Get directory definition ID
+      const dirDefResponse = await api.directoryDefs.getOrCreateDirectoryDefByDirectoryId(dir.id, app.id)
+      if (!dirDefResponse.success || !dirDefResponse.data?.id) return
+      
+      const directoryDefId = dirDefResponse.data.id
+      
+      // Update each field's order
+      for (let i = 0; i < fieldDefs.length; i++) {
+        const field = fieldDefs[i]
+        if (field.id) {
+          await api.fields.updateField(field.id, {
+            ...field,
+            order: i
+          })
+        }
+      }
+      
+      console.log("✅ Field order saved successfully")
+    } catch (error) {
+      console.error("❌ Failed to save field order:", error)
+    }
   }
 
   const typeNames = useMemo(() => getFieldTypeNames(t), [t])
@@ -745,6 +787,9 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
                   setEditOpen(true)
                 }}
                 onRemove={() => removeField(f.id)}
+                onDragStart={() => handleDragStart(idx)}
+                onDragEnter={() => handleDragEnter(idx)}
+                onDragEnd={handleDragEnd}
               />
             </div>
           )

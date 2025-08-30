@@ -21,6 +21,9 @@ type FieldRowProps = {
   onToggleList: (v: boolean) => void
   onEdit: () => void
   onRemove: () => void
+  onDragStart?: () => void
+  onDragEnter?: () => void
+  onDragEnd?: () => void
 }
 
 export function FieldRow({
@@ -34,6 +37,9 @@ export function FieldRow({
   onToggleList,
   onEdit,
   onRemove,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
 }: FieldRowProps) {
   const { t, locale } = useLocale()
   const f = field
@@ -90,6 +96,10 @@ export function FieldRow({
               title={t("dragToSort")}
               aria-label={t("dragToSort")}
               draggable
+              onDragStart={onDragStart}
+              onDragEnter={onDragEnter}
+              onDragOver={(e) => e.preventDefault()}
+              onDragEnd={onDragEnd}
             >
               <GripVertical className="h-4 w-4" />
             </button>
