@@ -17,7 +17,7 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
 export async function findUserByEmail(email: string): Promise<TUser | null> {
   const result = await db.select().from(users).where(eq(users.email, email)).limit(1)
   if (result.length === 0) return null
-  
+
   const user = result[0]
   return {
     id: user.id,
@@ -32,7 +32,7 @@ export async function findUserByEmail(email: string): Promise<TUser | null> {
 export async function findUserById(id: string): Promise<TUser | null> {
   const result = await db.select().from(users).where(eq(users.id, id)).limit(1)
   if (result.length === 0) return null
-  
+
   const user = result[0]
   return {
     id: user.id,
@@ -46,7 +46,7 @@ export async function findUserById(id: string): Promise<TUser | null> {
 
 export async function createUser(data: TRegisterRequest): Promise<TUser> {
   const hashedPassword = await hashPassword(data.password)
-  
+
   const [newUser] = await db.insert(users).values({
     // let database generate uuid by default
     name: data.name,
@@ -55,7 +55,7 @@ export async function createUser(data: TRegisterRequest): Promise<TUser> {
     avatar: '/generic-user-avatar.png',
     roles: ['user'],
   }).returning()
-  
+
   return {
     id: newUser.id,
     name: newUser.name,
@@ -69,7 +69,7 @@ export async function createUser(data: TRegisterRequest): Promise<TUser> {
 export async function validatePassword(email: string, password: string): Promise<boolean> {
   const result = await db.select({ password: users.password }).from(users).where(eq(users.email, email)).limit(1)
   if (result.length === 0) return false
-  
+
   return await verifyPassword(password, result[0].password)
 }
 

@@ -184,32 +184,32 @@ export function PersonalSettings() {
                 <DialogHeader>
                   <DialogTitle>{locale === "zh" ? "修改密码" : "Change Password"}</DialogTitle>
                 </DialogHeader>
-                                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm">{locale === "zh" ? "当前密码" : "Current Password"}</Label>
-                      <div className="relative">
-                        <Input type={showPassword ? "text" : "password"} className="h-9" />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                        </Button>
-                      </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm">{locale === "zh" ? "当前密码" : "Current Password"}</Label>
+                    <div className="relative">
+                      <Input type={showPassword ? "text" : "password"} className="h-9" />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                      </Button>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm">{locale === "zh" ? "新密码" : "New Password"}</Label>
-                      <Input type="password" className="h-9" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm">{locale === "zh" ? "确认新密码" : "Confirm New Password"}</Label>
-                      <Input type="password" className="h-9" />
-                    </div>
-                    <Button className="w-full">{locale === "zh" ? "更新密码" : "Update Password"}</Button>
                   </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm">{locale === "zh" ? "新密码" : "New Password"}</Label>
+                    <Input type="password" className="h-9" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm">{locale === "zh" ? "确认新密码" : "Confirm New Password"}</Label>
+                    <Input type="password" className="h-9" />
+                  </div>
+                  <Button className="w-full">{locale === "zh" ? "更新密码" : "Update Password"}</Button>
+                </div>
               </DialogContent>
             </Dialog>
           </div>

@@ -6,3 +6,241 @@
 📋 最终原始请求体: { email: 'admin@aino.com', password: 'admin123' }
 📋 归一化后: { email: 'admin@aino.com', password: 'admin123' }
 📋 密码校验失败: { email: 'admin@aino.com' }
+权限检查: {
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+  userId: '6eb09d53-597e-410f-ba3b-0167edc86cbd'
+}
+获取目录列表: {
+  query: {
+    applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+    moduleId: '91e0a5a1-895e-4464-8f25-fa43ce2fcbac',
+    page: 1,
+    limit: 20
+  },
+  userId: '6eb09d53-597e-410f-ba3b-0167edc86cbd'
+}
+查询目录列表成功，共 2 个目录
+🔍 查找目录定义，参数: {
+  directoryId: '610a45ca-752a-4135-9b2c-ee9942fa0cae',
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '62ff3d09-2d98-488c-90c0-52ebf818a7a4',
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d'
+}
+✅ 找到现有目录定义: {
+  id: 'f1e97e57-77e2-4e7e-9d5c-e8a8d703694c',
+  slug: 'a-1',
+  title: 'a',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-30 08:10:50.67197+00',
+  updatedAt: '2025-08-30 08:10:50.67197+00',
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+  directoryId: '610a45ca-752a-4135-9b2c-ee9942fa0cae'
+}
+✅ 找到现有目录定义: {
+  id: '3412e775-a039-49c9-ad90-c128d8c481f6',
+  slug: 'b',
+  title: 'B',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-30 08:29:26.340235+00',
+  updatedAt: '2025-08-30 08:29:26.340235+00',
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+  directoryId: '62ff3d09-2d98-488c-90c0-52ebf818a7a4'
+}
+🔍 获取记录列表: {
+  dirId: '62ff3d09-2d98-488c-90c0-52ebf818a7a4',
+  query: { page: 1, pageSize: 20 }
+}
+权限检查: {
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+  userId: '6eb09d53-597e-410f-ba3b-0167edc86cbd'
+}
+获取目录列表: {
+  query: {
+    applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+    moduleId: 'settings',
+    page: 1,
+    limit: 20
+  },
+  userId: '6eb09d53-597e-410f-ba3b-0167edc86cbd'
+}
+获取目录列表失败: DrizzleQueryError: Failed query: select count(*) from "directories" where ("directories"."application_id" = $1 and "directories"."module_id" = $2)
+params: 49eb8554-c5e5-49ee-b58b-a1f50e0b908d,settings
+    at NodePgPreparedQuery.queryWithCache (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:73:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+    ... 4 lines matching cause stack trace ...
+    at async /Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/validator/validator.js:103:5
+    at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+  query: 'select count(*) from "directories" where ("directories"."application_id" = $1 and "directories"."module_id" = $2)',
+  params: [ '49eb8554-c5e5-49ee-b58b-a1f50e0b908d', 'settings' ],
+  cause: error: invalid input syntax for type uuid: "settings"
+      at /Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at <anonymous> (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:161:13)
+      at NodePgPreparedQuery.queryWithCache (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:71:12)
+      at <anonymous> (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+      at DirectoryRepository.findMany (/Users/wemo/new-flow/AINO/AINO-server/src/modules/directories/repo.ts:49:32)
+      at DirectoryService.findMany (/Users/wemo/new-flow/AINO/AINO-server/src/modules/directories/service.ts:123:22)
+      at <anonymous> (/Users/wemo/new-flow/AINO/AINO-server/src/modules/directories/routes.ts:35:22)
+      at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+      at async /Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/validator/validator.js:103:5 {
+    length: 140,
+    severity: 'ERROR',
+    code: '22P02',
+    detail: undefined,
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: "unnamed portal parameter $2 = '...'",
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'uuid.c',
+    line: '133',
+    routine: 'string_to_uuid'
+  }
+}
+🔍 查找目录定义，参数: {
+  directoryId: 'c9f11a42-19fc-4e3f-a9d3-0e6ffa695b1b',
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d'
+}
+🔍 未找到目录定义，查找目录信息...
+🔍 目录查询结果: undefined
+获取或创建目录定义失败: Error: 目录不存在
+    at DirectoryDefsService.getOrCreateDirectoryDefByDirectoryId (/Users/wemo/new-flow/AINO/AINO-server/src/modules/directory-defs/service.ts:222:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/Users/wemo/new-flow/AINO/AINO-server/src/modules/directory-defs/routes.ts:130:20)
+    at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async cors2 (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/middleware/cors/index.js:106:5)
+    at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async /Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/hono-base.js:223:25
+    at async responseViaResponseObject (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:439:13)
+    at async Server.<anonymous> (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:578:14)
+权限检查: {
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+  userId: '6eb09d53-597e-410f-ba3b-0167edc86cbd'
+}
+获取目录列表: {
+  query: {
+    applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+    moduleId: '91e0a5a1-895e-4464-8f25-fa43ce2fcbac',
+    page: 1,
+    limit: 20
+  },
+  userId: '6eb09d53-597e-410f-ba3b-0167edc86cbd'
+}
+查询目录列表成功，共 2 个目录
+🔍 查找目录定义，参数: {
+  directoryId: '62ff3d09-2d98-488c-90c0-52ebf818a7a4',
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '610a45ca-752a-4135-9b2c-ee9942fa0cae',
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d'
+}
+✅ 找到现有目录定义: {
+  id: '3412e775-a039-49c9-ad90-c128d8c481f6',
+  slug: 'b',
+  title: 'B',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-30 08:29:26.340235+00',
+  updatedAt: '2025-08-30 08:29:26.340235+00',
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+  directoryId: '62ff3d09-2d98-488c-90c0-52ebf818a7a4'
+}
+✅ 找到现有目录定义: {
+  id: 'f1e97e57-77e2-4e7e-9d5c-e8a8d703694c',
+  slug: 'a-1',
+  title: 'a',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-30 08:10:50.67197+00',
+  updatedAt: '2025-08-30 08:10:50.67197+00',
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+  directoryId: '610a45ca-752a-4135-9b2c-ee9942fa0cae'
+}
+🔍 获取记录列表: {
+  dirId: '62ff3d09-2d98-488c-90c0-52ebf818a7a4',
+  query: { page: 1, pageSize: 20 }
+}
+权限检查: {
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+  userId: '6eb09d53-597e-410f-ba3b-0167edc86cbd'
+}
+获取目录列表: {
+  query: {
+    applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d',
+    moduleId: 'settings',
+    page: 1,
+    limit: 20
+  },
+  userId: '6eb09d53-597e-410f-ba3b-0167edc86cbd'
+}
+获取目录列表失败: DrizzleQueryError: Failed query: select count(*) from "directories" where ("directories"."application_id" = $1 and "directories"."module_id" = $2)
+params: 49eb8554-c5e5-49ee-b58b-a1f50e0b908d,settings
+    at NodePgPreparedQuery.queryWithCache (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:73:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+    ... 4 lines matching cause stack trace ...
+    at async /Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/validator/validator.js:103:5
+    at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17) {
+  query: 'select count(*) from "directories" where ("directories"."application_id" = $1 and "directories"."module_id" = $2)',
+  params: [ '49eb8554-c5e5-49ee-b58b-a1f50e0b908d', 'settings' ],
+  cause: error: invalid input syntax for type uuid: "settings"
+      at /Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at <anonymous> (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:161:13)
+      at NodePgPreparedQuery.queryWithCache (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/pg-core/session.ts:71:12)
+      at <anonymous> (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/drizzle-orm@0.44.4_@types+pg@8.15.5_pg@8.16.3/node_modules/src/node-postgres/session.ts:154:19)
+      at DirectoryRepository.findMany (/Users/wemo/new-flow/AINO/AINO-server/src/modules/directories/repo.ts:49:32)
+      at DirectoryService.findMany (/Users/wemo/new-flow/AINO/AINO-server/src/modules/directories/service.ts:123:22)
+      at <anonymous> (/Users/wemo/new-flow/AINO/AINO-server/src/modules/directories/routes.ts:35:22)
+      at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+      at async /Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/validator/validator.js:103:5 {
+    length: 140,
+    severity: 'ERROR',
+    code: '22P02',
+    detail: undefined,
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: "unnamed portal parameter $2 = '...'",
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'uuid.c',
+    line: '133',
+    routine: 'string_to_uuid'
+  }
+}
+🔍 查找目录定义，参数: {
+  directoryId: 'c9f11a42-19fc-4e3f-a9d3-0e6ffa695b1b',
+  applicationId: '49eb8554-c5e5-49ee-b58b-a1f50e0b908d'
+}
+🔍 未找到目录定义，查找目录信息...
+🔍 目录查询结果: undefined
+获取或创建目录定义失败: Error: 目录不存在
+    at DirectoryDefsService.getOrCreateDirectoryDefByDirectoryId (/Users/wemo/new-flow/AINO/AINO-server/src/modules/directory-defs/service.ts:222:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/Users/wemo/new-flow/AINO/AINO-server/src/modules/directory-defs/routes.ts:130:20)
+    at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async cors2 (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/middleware/cors/index.js:106:5)
+    at async dispatch (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/compose.js:44:17)
+    at async /Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/hono@4.9.4/node_modules/hono/dist/cjs/hono-base.js:223:25
+    at async responseViaResponseObject (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:439:13)
+    at async Server.<anonymous> (/Users/wemo/new-flow/AINO/AINO-server/node_modules/.pnpm/@hono+node-server@1.19.0_hono@4.9.4/node_modules/@hono/node-server/dist/index.js:578:14)
