@@ -189,6 +189,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
             booleanConfig: field.schema?.booleanConfig || undefined,
             multiselectConfig: field.schema?.multiselectConfig || undefined,
             preset: field.schema?.preset || undefined,
+            // 添加关联字段配置
+            relation: field.relation ? {
+              targetDirId: field.relation.targetDirId || null,
+              mode: field.relation.mode || (field.type === 'relation_one' ? 'one' : 'many'),
+              displayFieldKey: field.relation.displayFieldKey || null,
+            } : undefined,
           }
         })
         
@@ -379,7 +385,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
       const response = await api.fields.createField({
         directoryId: directoryDefId,
         key: fieldData.key,
-        kind: 'primitive', // 默认为primitive类型
+        kind: fieldData.type === 'relation_one' || fieldData.type === 'relation_many' ? 'relation' : 'primitive',
         type: fieldData.type,
         schema: {
           label: fieldData.label,
@@ -403,6 +409,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           booleanConfig: fieldData.booleanConfig || undefined,
           multiselectConfig: fieldData.multiselectConfig || undefined,
         },
+        // 添加关联字段配置
+        relation: (fieldData.type === 'relation_one' || fieldData.type === 'relation_many') ? {
+          targetDirId: fieldData.relationTargetId || null,
+          mode: fieldData.type === 'relation_one' ? 'one' : 'many',
+          displayFieldKey: fieldData.relationDisplayFieldKey || null,
+        } : undefined,
         validators: fieldData.validators || {},
         required: fieldData.required || false,
       })
@@ -505,6 +517,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
       const response = await api.fields.updateField(id, {
         key: fieldData.key,
         type: fieldData.type,
+        kind: fieldData.type === 'relation_one' || fieldData.type === 'relation_many' ? 'relation' : 'primitive',
         schema: {
           label: fieldData.label,
           placeholder: fieldData.placeholder || '',
@@ -527,6 +540,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           booleanConfig: fieldData.booleanConfig || undefined,
           multiselectConfig: fieldData.multiselectConfig || undefined,
         },
+        // 添加关联字段配置
+        relation: (fieldData.type === 'relation_one' || fieldData.type === 'relation_many') ? {
+          targetDirId: fieldData.relationTargetId || null,
+          mode: fieldData.type === 'relation_one' ? 'one' : 'many',
+          displayFieldKey: fieldData.relationDisplayFieldKey || null,
+        } : undefined,
         validators: fieldData.validators || {},
         required: fieldData.required || false,
       })

@@ -7,6 +7,7 @@ import { RelationChooserDialog } from "@/components/dialogs/relation-chooser-dia
 import type { AppModel, FieldModel, RecordRow } from "@/lib/store"
 import { findDirByIdAcrossModules, getRecordName } from "@/lib/store"
 import { api } from "@/lib/api"
+import { useLocale } from "@/hooks/use-locale"
 
 export function RelationOneTab({
   app,
@@ -19,6 +20,7 @@ export function RelationOneTab({
   rec: RecordRow
   onChange: (newId: string | null) => void
 }) {
+  const { locale } = useLocale()
   const targetDirId = field.relation?.targetDirId
   const targetDir = findDirByIdAcrossModules(app, targetDirId)
   const selectedId = (rec as any)[field.key] || null
@@ -95,11 +97,30 @@ export function RelationOneTab({
           </div>
         )}
       </div>
-      <Button variant="outline" className="w-full bg-white" onClick={() => setDialogOpen(true)}>
+      <Button 
+        variant="outline" 
+        className="w-full bg-white" 
+        onClick={() => {
+          console.log("🔍 RelationOneTab: Select button clicked", {
+            fieldKey: field.key,
+            targetDirId,
+            targetDir: targetDir ? { id: targetDir.id, name: targetDir.name } : null,
+            targetDirRecords: targetDirRecords.length,
+            targetDirWithRecords: targetDirWithRecords ? { 
+              id: targetDirWithRecords.id, 
+              name: targetDirWithRecords.name, 
+              recordsCount: targetDirWithRecords.records?.length 
+            } : null,
+            dialogOpen,
+            recordsLoading
+          })
+          setDialogOpen(true)
+        }}
+      >
         <Plus className="mr-2 size-4" />
         {selectedRecord ? "更换" : "选择"}表
       </Button>
-      {targetDirWithRecords && (
+      {targetDirWithRecords ? (
         <RelationChooserDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
@@ -108,6 +129,16 @@ export function RelationOneTab({
           selectedIds={selectedId ? new Set([selectedId]) : new Set()}
           onSave={handleSaveFromDialog}
         />
+      ) : (
+        <div className="text-center text-sm text-red-500 py-2">
+          {locale === "zh" ? "无法加载目标目录数据" : "Cannot load target directory data"}
+          <br />
+          <span className="text-xs">
+            targetDirId: {targetDirId || "null"}, 
+            targetDir: {targetDir ? "exists" : "null"}, 
+            records: {targetDirRecords.length}
+          </span>
+        </div>
       )}
     </div>
   )

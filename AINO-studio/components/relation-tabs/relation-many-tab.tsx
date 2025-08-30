@@ -241,14 +241,18 @@ export function RelationManyTab({
         variant="outline" 
         className="w-full bg-white" 
         onClick={() => {
-          console.log("RelationManyTab: Add button clicked", {
+          console.log("🔍 RelationManyTab: Add button clicked", {
+            fieldKey: field.key,
             targetDirId,
+            targetDir: targetDir ? { id: targetDir.id, name: targetDir.name } : null,
+            targetDirRecords: targetDirRecords.length,
             targetDirWithRecords: targetDirWithRecords ? { 
               id: targetDirWithRecords.id, 
               name: targetDirWithRecords.name, 
               recordsCount: targetDirWithRecords.records?.length 
             } : null,
-            dialogOpen
+            dialogOpen,
+            recordsLoading
           })
           setDialogOpen(true)
         }}
@@ -256,7 +260,7 @@ export function RelationManyTab({
         <Plus className="mr-2 size-4" />
         {locale === "zh" ? "添加表" : "Add Record"}
       </Button>
-      {targetDirWithRecords && (
+      {targetDirWithRecords ? (
         <RelationChooserDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
@@ -265,6 +269,16 @@ export function RelationManyTab({
           selectedIds={new Set(selectedIds)}
           onSave={handleSaveFromDialog}
         />
+      ) : (
+        <div className="text-center text-sm text-red-500 py-2">
+          {locale === "zh" ? "无法加载目标目录数据" : "Cannot load target directory data"}
+          <br />
+          <span className="text-xs">
+            targetDirId: {targetDirId || "null"}, 
+            targetDir: {targetDir ? "exists" : "null"}, 
+            records: {targetDirRecords.length}
+          </span>
+        </div>
       )}
     </div>
   )
