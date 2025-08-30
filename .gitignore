@@ -63,3 +63,7 @@ coverage/
 # 其他
 *.tgz
 *.tar.gz
+
+node_modules
+AINO-server/node_modules
+AINO-studio/node_modules

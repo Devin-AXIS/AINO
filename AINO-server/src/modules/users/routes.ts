@@ -1,6 +1,6 @@
 import { Hono } from "hono"
 import { z } from "zod"
-import { getCurrentUserSvc } from "./service"
+import { extractTokenFromHeader } from "../../platform/auth"
 
 // 兼容：邮箱/用户名字段名 & 任意内容类型
 const LoginBody = z.object({
@@ -8,6 +8,13 @@ const LoginBody = z.object({
   username: z.string().optional(),
   account: z.string().optional(),
   password: z.string().min(1),
+})
+
+// 统一注册请求体验证
+const RegisterBody = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(6),
 })
 
 // 支持多个测试账号
@@ -25,14 +32,14 @@ usersRoute.options("/login", (c) => c.text("ok"))
 async function readLoginBody(c: any) {
   const ct = c.req.header("content-type") || ""
   console.log("📋 Content-Type:", ct)
-  
+
   try {
     if (ct.includes("application/json")) {
       const jsonData = await c.req.json()
       console.log("📋 JSON 数据:", jsonData)
       return jsonData
     }
-    
+
     // 对于表单数据，先尝试 parseBody
     if (ct.includes("application/x-www-form-urlencoded") || ct.includes("multipart/form-data")) {
       try {
@@ -52,7 +59,7 @@ async function readLoginBody(c: any) {
         }
       }
     }
-    
+
     // 默认尝试 JSON
     const jsonData = await c.req.json()
     console.log("📋 默认 JSON:", jsonData)
@@ -81,17 +88,22 @@ usersRoute.post("/login", async (c) => {
     return c.json({ success: false, code: "BAD_REQUEST", message: "参数错误", detail: parsed.error.flatten() }, 400)
   }
 
-  const { email, password } = parsed.data
-  const user = users.find(u => (u.email === email) && (u.pass === password))
-
+  const { findUserByEmail, validatePassword } = await import('./repo')
+  const user = await findUserByEmail(normalized.email);
   if (!user) {
-    console.log("📋 用户验证失败:", { email, password })
+    console.log("📋 用户验证失败:", { email: normalized.email })
     // 某些前端把非 200 直接当异常，这里返回 200 但 success=false，便于 UI 提示
     return c.json({ success: false, code: "INVALID_CREDENTIALS", message: "登录失败" }, 200)
   }
 
-  console.log("📋 用户验证成功:", user.email)
-  const token = "test-token" // 先用固定串；接库后换成 JWT
+  const isValid = await validatePassword(normalized.email, normalized.password)
+  if (!isValid) {
+    console.log("📋 密码校验失败:", { email: normalized.email })
+    return c.json({ success: false, code: "INVALID_CREDENTIALS", message: "登录失败" }, 200)
+  }
+
+  const { generateToken } = await import('../../platform/auth')
+  const token = generateToken(user.id, user.email, user.roles || ['user'])
 
   // 兼容多种前端期望：同时返回 success/data/token/user/code/message
   return c.json({
@@ -108,27 +120,56 @@ usersRoute.post("/login", async (c) => {
   }, 200)
 })
 
-// 获取当前用户信息（包含权限）
+// 获取当前用户信息
 usersRoute.get("/me", async (c) => {
+  const authHeader = c.req.header('Authorization')
+  const token = extractTokenFromHeader(authHeader)
+  if (!token) {
+    return c.json({ success: false, code: "UNAUTHORIZED", message: "未登录" }, 401)
+  }
+  // JWT 校验
+  const { getUserFromToken } = await import('../../platform/auth')
+  const identity = await getUserFromToken(token)
+  if (identity) {
+    return c.json({ success: true, data: { id: identity.id, email: identity.email, name: identity.name } }, 200)
+  }
+  return c.json({ success: false, code: "UNAUTHORIZED", message: "令牌无效或已过期" }, 401)
+})
+
+// 新增：用户注册
+usersRoute.post("/register", async (c) => {
   try {
-    // 从Authorization header获取token
-    const authHeader = c.req.header("Authorization")
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return c.json({ success: false, error: "Missing or invalid authorization header" }, 401)
+    const bodyRaw = await c.req.json()
+    const parsed = RegisterBody.safeParse(bodyRaw)
+    if (!parsed.success) {
+      return c.json({ success: false, code: "BAD_REQUEST", message: "参数错误", detail: parsed.error.flatten() }, 400)
     }
-    
-    const token = authHeader.substring(7) // 移除 "Bearer " 前缀
-    const user = await getCurrentUserSvc(token)
-    
+
+    const { createUser, findUserByEmail } = await import('./repo')
+    const { generateToken } = await import('../../platform/auth')
+
+    const exists = await findUserByEmail(parsed.data.email)
+    if (exists) {
+      return c.json({ success: false, code: "EMAIL_EXISTS", message: "邮箱已被注册" }, 409)
+    }
+
+    const user = await createUser(parsed.data)
+    const token = generateToken(user.id, user.email, user.roles || ['user'])
+
     return c.json({
       success: true,
-      data: user
-    })
-  } catch (error) {
-    console.error("获取用户信息失败:", error)
-    return c.json({ 
-      success: false, 
-      error: error instanceof Error ? error.message : "获取用户信息失败" 
-    }, 401)
+      code: 0,
+      message: 'OK',
+      data: {
+        token,
+        user: { id: user.id, email: user.email, name: user.name },
+      },
+      token,
+      user: { id: user.id, email: user.email, name: user.name },
+    }, 200)
+  } catch (err: any) {
+    console.error('注册失败:', err)
+    const detail = { message: String(err?.message || err), stack: err?.stack, cause: err?.cause }
+    return c.json({ success: false, code: "INTERNAL_ERROR", message: "注册失败", detail }, 500)
   }
 })

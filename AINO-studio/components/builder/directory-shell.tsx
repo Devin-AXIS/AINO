@@ -38,12 +38,12 @@ export function DirectoryShell({
   className?: string
 }) {
   const { t, locale } = useLocale()
-  
+
   return (
     <FrostPanel className={cn("p-4", className)}>
       <div className="flex items-center justify-between gap-3">
         <div className="text-sm text-slate-700">{breadcrumb}</div>
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <Button
             variant="secondary"
             size="sm"
@@ -60,7 +60,7 @@ export function DirectoryShell({
             {locale === "zh" ? "字段增加" : "Add Field"}
           </Button>
           {actionsExtra}
-        </div>
+        </div> */}
       </div>
 
       {filtersSlot}
