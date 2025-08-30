@@ -489,12 +489,9 @@ function renderCell(type: string, v: any, f?: any, locale?: string) {
     return (
       <div className="text-sm">
         {v.name && <div className="font-medium">{v.name}</div>}
-        {v.idNumber && <div className="text-gray-600 text-xs">{v.idNumber}</div>}
-        {(v.frontPhoto || v.backPhoto) && (
-          <div className="text-blue-600 text-xs mt-1">
-            {locale === "zh" ? "已上传照片" : "Photos uploaded"}
-          </div>
-        )}
+        <div className="text-green-600 text-xs">
+          {locale === "zh" ? "✓ 已认证" : "✓ Verified"}
+        </div>
       </div>
     )
   }
