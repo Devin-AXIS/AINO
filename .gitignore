@@ -63,3 +63,5 @@ coverage/
 # 其他
 *.tgz
 *.tar.gz
+
+node_modules
