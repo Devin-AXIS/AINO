@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // 字段类型定义
 export type FieldKind = 'primitive' | 'composite' | 'relation' | 'lookup' | 'computed'
-export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'daterange' | 'multidate' | 'time' | 'boolean' | 'textarea' | 'image' | 'multiimage' | 'file' | 'json' | 'table' | 'tags' | 'progress' | 'percent' | 'experience' | 'identity_verification' | 'other_verification' | 'video' | 'multivideo' | 'richtext' | 'barcode' | 'checkbox' | 'cascader' | 'relation_one' | 'relation_many'
+export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'daterange' | 'multidate' | 'time' | 'boolean' | 'textarea' | 'image' | 'avatar' | 'multiimage' | 'file' | 'json' | 'table' | 'tags' | 'progress' | 'percent' | 'experience' | 'identity_verification' | 'other_verification' | 'video' | 'multivideo' | 'richtext' | 'barcode' | 'checkbox' | 'cascader' | 'relation_one' | 'relation_many'
 
 // 字段定义接口
 export interface FieldDef {
@@ -432,6 +432,36 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
 
   // 图片字段
   image: {
+    validate: (value, fieldDef) => {
+      if (fieldDef.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
+        return { valid: false, error: '此字段为必填项' }
+      }
+      if (value) {
+        // 如果是字符串，进行URL验证
+        if (typeof value === 'string' && value.trim() !== '') {
+          try {
+            new URL(value)
+          } catch {
+            return { valid: false, error: '图片URL格式不正确' }
+          }
+        }
+        
+        // 验证文件大小（如果提供了文件大小信息）
+        if (fieldDef.validators?.maxSizeMB && typeof value === 'object' && value.size) {
+          const maxSizeBytes = fieldDef.validators.maxSizeMB * 1024 * 1024
+          if (value.size > maxSizeBytes) {
+            return { valid: false, error: `图片大小不能超过${fieldDef.validators.maxSizeMB}MB` }
+          }
+        }
+      }
+      return { valid: true }
+    },
+    transform: (value) => value ? String(value).trim() : value,
+    format: (value) => value
+  },
+
+  // 标识字段（圆形头像/logo）
+  avatar: {
     validate: (value, fieldDef) => {
       if (fieldDef.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
         return { valid: false, error: '此字段为必填项' }

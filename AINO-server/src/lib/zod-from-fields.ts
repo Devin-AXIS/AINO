@@ -46,6 +46,7 @@ export function zodFromFields(fields: FieldDef[]) {
         fieldSchema = z.array(z.string())
         break
       case 'image':
+      case 'avatar':
       case 'file':
         fieldSchema = z.string().url('URL格式不正确')
         break
@@ -211,6 +212,7 @@ export function zodFromFieldsPartial(fields: FieldDef[]) {
         fieldSchema = z.array(z.string())
         break
       case 'image':
+      case 'avatar':
       case 'file':
         fieldSchema = z.string().url('URL格式不正确')
         break

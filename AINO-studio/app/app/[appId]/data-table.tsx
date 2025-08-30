@@ -370,6 +370,20 @@ function renderCell(type: string, v: any, f?: any, locale?: string) {
       </div>
     )
   }
+
+  if (type === "avatar" && v) {
+    // 处理头像字段 - 圆形显示
+    return (
+      <div className="flex items-center">
+        <img
+          src={v}
+          alt="头像"
+          className="h-8 w-8 object-cover rounded-full border border-gray-200"
+          crossOrigin="anonymous"
+        />
+      </div>
+    )
+  }
   if (type === "video" && v) {
     // 处理单视频/多视频模式
     const videos = Array.isArray(v) ? v : [v]

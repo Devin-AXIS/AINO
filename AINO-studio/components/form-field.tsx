@@ -18,6 +18,7 @@ import { SkillsSelect } from "@/components/skills-select"
 import { IdentityVerificationInput } from "@/components/form-inputs/identity-verification-input"
 import { OtherVerificationInput } from "@/components/form-inputs/other-verification-input"
 import { ImageInput } from "@/components/form-inputs/image-input"
+import { AvatarInput } from "@/components/form-inputs/avatar-input"
 import { VideoInput } from "@/components/form-inputs/video-input"
 
 import { ModernDateInput } from "@/components/form-inputs/modern-date-input"
@@ -255,6 +256,15 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
           onChange={onChange}
           multiple={field.imageConfig?.multiple || false}
           defaultImage={field.imageConfig?.defaultImage || ""}
+        />
+      )
+    case "avatar":
+      return (
+        <AvatarInput
+          value={value}
+          onChange={onChange}
+          defaultImage={field.imageConfig?.defaultImage || ""}
+          size="md"
         />
       )
     case "multiimage":
