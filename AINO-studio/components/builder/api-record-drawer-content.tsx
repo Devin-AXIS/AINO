@@ -487,10 +487,20 @@ function renderDisplayValue(field: any, value: any) {
       return "未上传"
     case "profile":
       if (value) {
+        const images = Array.isArray(value) ? value : [value]
+        const validImages = images.filter(Boolean)
+        
+        if (validImages.length === 0) return "未上传"
+        
         return (
           <div className="flex items-center gap-2">
-            <img src={value} alt="Profile" className="w-12 h-12 rounded-full object-cover border border-gray-200" />
-            <span className="text-xs text-gray-500">头像</span>
+            <img src={validImages[0]} alt="Profile" className="w-12 h-12 rounded-full object-cover border border-gray-200" />
+            <div className="flex flex-col">
+              <span className="text-xs text-gray-500">标识</span>
+              {validImages.length > 1 && (
+                <span className="text-xs text-gray-400">+{validImages.length - 1} 更多</span>
+              )}
+            </div>
           </div>
         )
       }

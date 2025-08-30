@@ -263,6 +263,7 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
         <AvatarInput
           value={value}
           onChange={onChange}
+          multiple={field.imageConfig?.multiple || false}
           defaultImage={field.imageConfig?.defaultImage || ""}
           size="md"
         />

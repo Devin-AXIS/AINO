@@ -372,15 +372,25 @@ function renderCell(type: string, v: any, f?: any, locale?: string) {
   }
 
   if (type === "profile" && v) {
-    // 处理头像字段 - 圆形显示
+    // 处理标识字段 - 圆形显示
+    const images = Array.isArray(v) ? v : [v]
+    const validImages = images.filter(Boolean)
+    
+    if (validImages.length === 0) return null
+    
     return (
-      <div className="flex items-center">
+      <div className="flex items-center gap-1">
         <img
-          src={v}
-          alt="头像"
+          src={validImages[0]}
+          alt="标识"
           className="h-8 w-8 object-cover rounded-full border border-gray-200"
           crossOrigin="anonymous"
         />
+        {validImages.length > 1 && (
+          <span className="text-xs text-gray-500 bg-gray-100 px-1 rounded">
+            +{validImages.length - 1}
+          </span>
+        )}
       </div>
     )
   }

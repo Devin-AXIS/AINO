@@ -66,7 +66,7 @@ const zh: Dict = {
   ft_time: "时间",
   ft_tags: "标签",
   ft_image: "图片",
-  ft_profile: "头像",
+  ft_profile: "标识",
   ft_video: "视频",
   ft_file: "文件",
   ft_richtext: "富文本",

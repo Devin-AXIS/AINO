@@ -874,10 +874,13 @@ export function AddFieldDialog({
     "time",
     "tags",
     "image",
-    "profile",
     "video",
     "file",
     "richtext",
+  ]
+
+  const BUSINESS_TYPES: FieldType[] = [
+    "profile",
   ]
 
   const asideWrapCls =
@@ -1009,6 +1012,26 @@ export function AddFieldDialog({
               <div className="pt-2">
                 <div className="px-2 pb-1 text-xs text-slate-500">{locale === "zh" ? "业务字段" : "Business Fields"}</div>
                 <div className="space-y-2">
+                  {BUSINESS_TYPES.map((tp) => (
+                    <button
+                      key={tp}
+                      type="button"
+                      onClick={() => {
+                        setType(tp)
+                        setPreset(null)
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-2 rounded-lg border px-3 py-2 text-left bg-white/70 hover:bg-white/90 transition",
+                        type === tp && !preset
+                          ? "outline outline-2 outline-blue-200 border-blue-200"
+                          : "border-white/60",
+                      )}
+                      title={typeNames[tp] || tp}
+                    >
+                      {TYPE_ICON[tp]}
+                      <span className="text-sm">{typeNames[tp] || tp}</span>
+                    </button>
+                  ))}
                   {getLocalizedPresets(locale).map((p) => (
                     <button
                       key={p.key}
@@ -1257,18 +1280,30 @@ export function AddFieldDialog({
             {/* 标识字段配置 */}
             {type === "profile" && (
               <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-4">
-                <div className="text-sm font-medium text-gray-800">{locale === "zh" ? "标识字段配置" : "Avatar Field Configuration"}</div>
+                <div className="text-sm font-medium text-gray-800">{locale === "zh" ? "标识字段配置" : "Profile Field Configuration"}</div>
+                
+                {/* 单图/多图选项 */}
+                <div className="flex items-center justify-between rounded-lg border border-white/60 bg-white/70 px-3 py-2">
+                  <div className="space-y-0.5">
+                    <div className="text-sm">{locale === "zh" ? "多图上传" : "Multiple Images"}</div>
+                    <div className="text-xs text-muted-foreground">{locale === "zh" ? "开启后支持上传多张标识图片" : "Enable to allow multiple profile image uploads"}</div>
+                  </div>
+                  <Switch 
+                    checked={imageConfig.multiple} 
+                    onCheckedChange={(v) => setImageConfig(prev => ({ ...prev, multiple: v }))} 
+                  />
+                </div>
                 
                 {/* 默认图片 */}
                 <div className="space-y-2">
-                  <div className="text-sm text-gray-700">{locale === "zh" ? "默认头像" : "Default Avatar"}</div>
-                  <div className="text-xs text-gray-500 mb-2">{locale === "zh" ? "可选：为字段设置一个默认头像" : "Optional: Set a default avatar for this field"}</div>
+                  <div className="text-sm text-gray-700">{locale === "zh" ? "默认标识" : "Default Profile"}</div>
+                  <div className="text-xs text-gray-500 mb-2">{locale === "zh" ? "可选：为字段设置一个默认标识图片" : "Optional: Set a default profile image for this field"}</div>
                   
                   {imageConfig.defaultImage ? (
                     <div className="relative inline-block">
                       <img
                         src={imageConfig.defaultImage}
-                        alt={locale === "zh" ? "默认头像" : "Default avatar"}
+                        alt={locale === "zh" ? "默认标识" : "Default profile"}
                         className="w-16 h-16 object-cover rounded-full border"
                       />
                       <Button
@@ -1303,13 +1338,22 @@ export function AddFieldDialog({
                   <div className="text-xs text-gray-700 mb-2">{locale === "zh" ? "预览" : "Preview"}</div>
                   <div className="text-xs text-gray-600 space-y-1">
                     <div>
-                      {locale === "zh" ? "显示样式：" : "Display Style: "}
-                      <span className="text-blue-600">
-                        {locale === "zh" ? "圆形头像" : "Circular Avatar"}
+                      {locale === "zh" ? "上传模式：" : "Upload Mode: "}
+                      <span className={imageConfig.multiple ? "text-blue-600" : "text-green-600"}>
+                        {imageConfig.multiple 
+                          ? (locale === "zh" ? "多图" : "Multiple") 
+                          : (locale === "zh" ? "单图" : "Single")
+                        }
                       </span>
                     </div>
                     <div>
-                      {locale === "zh" ? "默认头像：" : "Default Avatar: "}
+                      {locale === "zh" ? "显示样式：" : "Display Style: "}
+                      <span className="text-blue-600">
+                        {locale === "zh" ? "圆形标识" : "Circular Profile"}
+                      </span>
+                    </div>
+                    <div>
+                      {locale === "zh" ? "默认标识：" : "Default Profile: "}
                       <span className={imageConfig.defaultImage ? "text-green-600" : "text-gray-400"}>
                         {imageConfig.defaultImage 
                           ? (locale === "zh" ? "已设置" : "Set") 
