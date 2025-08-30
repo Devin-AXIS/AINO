@@ -25,14 +25,14 @@ usersRoute.options("/login", (c) => c.text("ok"))
 async function readLoginBody(c: any) {
   const ct = c.req.header("content-type") || ""
   console.log("📋 Content-Type:", ct)
-  
+
   try {
     if (ct.includes("application/json")) {
       const jsonData = await c.req.json()
       console.log("📋 JSON 数据:", jsonData)
       return jsonData
     }
-    
+
     // 对于表单数据，先尝试 parseBody
     if (ct.includes("application/x-www-form-urlencoded") || ct.includes("multipart/form-data")) {
       try {
@@ -52,7 +52,7 @@ async function readLoginBody(c: any) {
         }
       }
     }
-    
+
     // 默认尝试 JSON
     const jsonData = await c.req.json()
     console.log("📋 默认 JSON:", jsonData)
@@ -116,19 +116,19 @@ usersRoute.get("/me", async (c) => {
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return c.json({ success: false, error: "Missing or invalid authorization header" }, 401)
     }
-    
+
     const token = authHeader.substring(7) // 移除 "Bearer " 前缀
     const user = await getCurrentUserSvc(token)
-    
+
     return c.json({
       success: true,
       data: user
     })
   } catch (error) {
     console.error("获取用户信息失败:", error)
-    return c.json({ 
-      success: false, 
-      error: error instanceof Error ? error.message : "获取用户信息失败" 
+    return c.json({
+      success: false,
+      error: error instanceof Error ? error.message : "获取用户信息失败"
     }, 401)
   }
 })
