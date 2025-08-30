@@ -7,6 +7,7 @@ import { RelationChooserDialog } from "@/components/dialogs/relation-chooser-dia
 import type { AppModel, FieldModel, RecordRow } from "@/lib/store"
 import { findDirByIdAcrossModules, getRecordName } from "@/lib/store"
 import { api } from "@/lib/api"
+import { useLocale } from "@/hooks/use-locale"
 
 export function RelationOneTab({
   app,
@@ -19,6 +20,7 @@ export function RelationOneTab({
   rec: RecordRow
   onChange: (newId: string | null) => void
 }) {
+  const { locale } = useLocale()
   const targetDirId = field.relation?.targetDirId
   const targetDir = findDirByIdAcrossModules(app, targetDirId)
   const selectedId = (rec as any)[field.key] || null
