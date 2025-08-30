@@ -378,6 +378,36 @@ export function ApiRecordDrawerContent({ dir, rec, app, onClose, onSave }: Props
   )
 }
 
+// Helper function to get skill name by ID
+function getSkillNameById(skillId: string): string {
+  // Import skills data
+  const { skillsData } = require('@/lib/data/skills-data')
+  
+  // Find skill in predefined skills
+  const predefinedSkill = skillsData.find((skill: any) => skill.id === skillId)
+  if (predefinedSkill) {
+    return predefinedSkill.name
+  }
+  
+  // If not found in predefined skills, return the ID as fallback
+  return skillId
+}
+
+// Helper function to get constellation name by ID
+function getConstellationNameById(constellationId: string): string {
+  // Import constellation data
+  const { constellationData } = require('@/lib/data/constellation-data')
+  
+  // Find constellation in data
+  const constellation = constellationData.find((item: any) => item.id === constellationId)
+  if (constellation) {
+    return constellation.name
+  }
+  
+  // If not found, return the ID as fallback
+  return constellationId
+}
+
 // Helper function to render display values for read-only mode
 function renderDisplayValue(field: any, value: any) {
   if (value === null || value === undefined || value === "") {
@@ -396,13 +426,32 @@ function renderDisplayValue(field: any, value: any) {
     case "multiselect":
       if (Array.isArray(value)) {
         if (field.preset === "skills") {
-          // Handle skills display
-          return value.length > 0 ? value.join(", ") : "未填写"
+          // Handle skills display - convert IDs to names
+          if (value.length > 0) {
+            const skillNames = value.map((skillId: string) => getSkillNameById(skillId))
+            return (
+              <div className="flex flex-wrap gap-1">
+                {skillNames.map((skillName: string, index: number) => (
+                  <span 
+                    key={index}
+                    className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
+                  >
+                    {skillName}
+                  </span>
+                ))}
+              </div>
+            )
+          }
+          return "未填写"
         }
         return value.length > 0 ? value.join(", ") : "未填写"
       }
       return "未填写"
     case "select":
+      if (field.preset === "constellation") {
+        // Handle constellation display - convert ID to name
+        return value ? getConstellationNameById(value) : "未选择"
+      }
       return value || "未选择"
     case "number":
     case "percent":
@@ -598,11 +647,38 @@ function renderDisplayValue(field: any, value: any) {
       }
       return "未填写"
     case "identity_verification":
+      if (value && typeof value === "object") {
+        return (
+          <div className="flex items-center gap-2">
+            <span className="text-green-600 font-medium">✓ 已认证</span>
+          </div>
+        )
+      }
+      return <span className="text-gray-400">未认证</span>
+    
     case "other_verification":
       if (value && typeof value === "object") {
-        return "已认证"
+        // Get the first text field value
+        const firstTextValue = value.textFields && value.textFields.length > 0 
+          ? value.textFields[0] 
+          : null
+        
+        if (firstTextValue) {
+          return (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700">{firstTextValue}</span>
+              <span className="text-green-600 font-medium">✓ 已认证</span>
+            </div>
+          )
+        } else {
+          return (
+            <div className="flex items-center gap-2">
+              <span className="text-green-600 font-medium">✓ 已认证</span>
+            </div>
+          )
+        }
       }
-      return "未认证"
+      return <span className="text-gray-400">未认证</span>
     default:
       return String(value)
   }
