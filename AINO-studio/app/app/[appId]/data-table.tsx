@@ -544,7 +544,9 @@ function renderCell(type: string, v: any, f?: any, locale?: string) {
             } else if (exp.type === "education") {
               // For education: show school, major, and degree
               const parts = []
-              if (exp.organization) parts.push(exp.organization) // 学校
+              // Try different possible field names for school
+              const school = exp.organization || exp.school || exp.title
+              if (school) parts.push(school) // 学校
               if (exp.major) parts.push(exp.major) // 专业
               if (exp.degree) parts.push(exp.degree) // 学历
               return parts.join(" ")
