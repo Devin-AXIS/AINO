@@ -432,7 +432,61 @@ function renderDisplayValue(field: any, value: any) {
       return "未上传"
     case "experience":
       if (Array.isArray(value) && value.length > 0) {
-        return `${value.length} 条记录`
+        return (
+          <div className="space-y-3">
+            {value.map((exp: any, index: number) => (
+              <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-medium text-gray-900 text-sm">
+                    {exp.title || exp.name || `经历 ${index + 1}`}
+                  </h4>
+                  {exp.duration && (
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      {exp.duration}
+                    </span>
+                  )}
+                </div>
+                {exp.company && (
+                  <div className="text-sm text-gray-600 mb-1">
+                    <span className="font-medium">公司/机构:</span> {exp.company}
+                  </div>
+                )}
+                {exp.position && (
+                  <div className="text-sm text-gray-600 mb-1">
+                    <span className="font-medium">职位:</span> {exp.position}
+                  </div>
+                )}
+                {exp.description && (
+                  <div className="text-sm text-gray-700 mt-2">
+                    {exp.description.length > 100 
+                      ? `${exp.description.substring(0, 100)}...` 
+                      : exp.description
+                    }
+                  </div>
+                )}
+                {exp.skills && Array.isArray(exp.skills) && exp.skills.length > 0 && (
+                  <div className="mt-2">
+                    <div className="flex flex-wrap gap-1">
+                      {exp.skills.slice(0, 5).map((skill: string, skillIndex: number) => (
+                        <span 
+                          key={skillIndex}
+                          className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                      {exp.skills.length > 5 && (
+                        <span className="text-xs text-gray-500">
+                          +{exp.skills.length - 5} 更多
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )
       }
       return "未填写"
     case "identity_verification":
