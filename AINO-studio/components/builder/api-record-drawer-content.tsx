@@ -355,14 +355,14 @@ export function ApiRecordDrawerContent({ dir, rec, app, onClose, onSave }: Props
             <TabsContent key={field.id} value={field.id} className="p-6 mt-0 flex-none">
               {field.type === "relation_many" ? (
                 <RelationManyTab
-                  app={null} // TODO: 需要适配API版本
+                  app={app}
                   field={field}
                   rec={rec}
                   onChange={(newIds) => updateField(field.key, newIds)}
                 />
               ) : (
                 <RelationOneTab
-                  app={null} // TODO: 需要适配API版本
+                  app={app}
                   field={field}
                   rec={rec}
                   onChange={(newId) => updateField(field.key, newId)}

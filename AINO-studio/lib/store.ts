@@ -501,7 +501,11 @@ export function isRelationType(t: FieldType) {
   return t === "relation_one" || t === "relation_many"
 }
 
-export function findDirByIdAcrossModules(app: AppModel, id: string) {
+export function findDirByIdAcrossModules(app: AppModel | null, id: string) {
+  if (!app || !app.modules) {
+    return null
+  }
+  
   for (const m of app.modules) {
     const d = m.directories.find((x) => x.id === id)
     if (d) return d
