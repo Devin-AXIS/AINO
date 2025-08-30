@@ -434,57 +434,165 @@ function renderDisplayValue(field: any, value: any) {
       if (Array.isArray(value) && value.length > 0) {
         return (
           <div className="space-y-3">
-            {value.map((exp: any, index: number) => (
-              <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-gray-900 text-sm">
-                    {exp.title || exp.name || `经历 ${index + 1}`}
-                  </h4>
-                  {exp.duration && (
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                      {exp.duration}
-                    </span>
-                  )}
-                </div>
-                {exp.company && (
-                  <div className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium">公司/机构:</span> {exp.company}
-                  </div>
-                )}
-                {exp.position && (
-                  <div className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium">职位:</span> {exp.position}
-                  </div>
-                )}
-                {exp.description && (
-                  <div className="text-sm text-gray-700 mt-2">
-                    {exp.description.length > 100 
-                      ? `${exp.description.substring(0, 100)}...` 
-                      : exp.description
-                    }
-                  </div>
-                )}
-                {exp.skills && Array.isArray(exp.skills) && exp.skills.length > 0 && (
-                  <div className="mt-2">
-                    <div className="flex flex-wrap gap-1">
-                      {exp.skills.slice(0, 5).map((skill: string, skillIndex: number) => (
-                        <span 
-                          key={skillIndex}
-                          className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                      {exp.skills.length > 5 && (
-                        <span className="text-xs text-gray-500">
-                          +{exp.skills.length - 5} 更多
+            {value.map((exp: any, index: number) => {
+              // Format date range
+              const formatDateRange = () => {
+                if (!exp.startDate) return ""
+                const startDate = new Date(exp.startDate).toLocaleDateString('zh-CN')
+                if (exp.isCurrent || !exp.endDate) {
+                  return `${startDate} - 至今`
+                }
+                const endDate = new Date(exp.endDate).toLocaleDateString('zh-CN')
+                return `${startDate} - ${endDate}`
+              }
+
+              // Get experience type label
+              const getTypeLabel = () => {
+                switch (exp.type) {
+                  case "work": return "工作经历"
+                  case "education": return "教育经历"
+                  case "project": return "项目经历"
+                  case "certificate": return "证书经历"
+                  default: return "经历"
+                }
+              }
+
+              return (
+                <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  {/* Header with type and date range */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium">
+                        {getTypeLabel()}
+                      </span>
+                      {exp.isCurrent && (
+                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                          进行中
                         </span>
                       )}
                     </div>
+                    <span className="text-xs text-gray-500 font-medium">
+                      {formatDateRange()}
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {/* Core information */}
+                  <div className="space-y-2">
+                    {/* Title/Position */}
+                    <div className="text-base font-semibold text-gray-900">
+                      {exp.title || exp.name || `经历 ${index + 1}`}
+                    </div>
+                    
+                    {/* Organization/Company */}
+                    {exp.organization && (
+                      <div className="text-sm text-gray-700">
+                        <span className="font-medium">机构:</span> {exp.organization}
+                      </div>
+                    )}
+
+                    {/* Additional fields based on type */}
+                    {exp.type === "work" && exp.department && (
+                      <div className="text-sm text-gray-600">
+                        <span className="font-medium">部门:</span> {exp.department}
+                      </div>
+                    )}
+
+                    {exp.type === "education" && (
+                      <>
+                        {exp.degree && (
+                          <div className="text-sm text-gray-600">
+                            <span className="font-medium">学历:</span> {exp.degree}
+                          </div>
+                        )}
+                        {exp.major && (
+                          <div className="text-sm text-gray-600">
+                            <span className="font-medium">专业:</span> {exp.major}
+                          </div>
+                        )}
+                        {exp.gpa && (
+                          <div className="text-sm text-gray-600">
+                            <span className="font-medium">GPA:</span> {exp.gpa}
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {exp.type === "project" && exp.teamSize && (
+                      <div className="text-sm text-gray-600">
+                        <span className="font-medium">团队规模:</span> {exp.teamSize}人
+                      </div>
+                    )}
+
+                    {exp.type === "certificate" && exp.issuer && (
+                      <div className="text-sm text-gray-600">
+                        <span className="font-medium">颁发机构:</span> {exp.issuer}
+                      </div>
+                    )}
+
+                    {/* Location */}
+                    {exp.location && (
+                      <div className="text-sm text-gray-600">
+                        <span className="font-medium">地点:</span> {exp.location}
+                      </div>
+                    )}
+
+                    {/* Description */}
+                    {exp.description && (
+                      <div className="text-sm text-gray-700 mt-2 p-2 bg-gray-50 rounded">
+                        {exp.description.length > 150 
+                          ? `${exp.description.substring(0, 150)}...` 
+                          : exp.description
+                        }
+                      </div>
+                    )}
+
+                    {/* Skills */}
+                    {exp.skills && Array.isArray(exp.skills) && exp.skills.length > 0 && (
+                      <div className="mt-2">
+                        <div className="text-xs text-gray-500 mb-1">相关技能:</div>
+                        <div className="flex flex-wrap gap-1">
+                          {exp.skills.slice(0, 6).map((skill: string, skillIndex: number) => (
+                            <span 
+                              key={skillIndex}
+                              className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                          {exp.skills.length > 6 && (
+                            <span className="text-xs text-gray-500">
+                              +{exp.skills.length - 6} 更多
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Achievements */}
+                    {exp.achievements && Array.isArray(exp.achievements) && exp.achievements.length > 0 && (
+                      <div className="mt-2">
+                        <div className="text-xs text-gray-500 mb-1">成就/荣誉:</div>
+                        <div className="flex flex-wrap gap-1">
+                          {exp.achievements.slice(0, 3).map((achievement: string, achievementIndex: number) => (
+                            <span 
+                              key={achievementIndex}
+                              className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded"
+                            >
+                              {achievement}
+                            </span>
+                          ))}
+                          {exp.achievements.length > 3 && (
+                            <span className="text-xs text-gray-500">
+                              +{exp.achievements.length - 3} 更多
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )
       }
