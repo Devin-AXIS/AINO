@@ -23,6 +23,7 @@ type FieldRowProps = {
   onRemove: () => void
   onDragStart?: () => void
   onDragEnter?: () => void
+  onDragOver?: (e: React.DragEvent) => void
   onDragEnd?: () => void
 }
 
@@ -39,6 +40,7 @@ export function FieldRow({
   onRemove,
   onDragStart,
   onDragEnter,
+  onDragOver,
   onDragEnd,
 }: FieldRowProps) {
   const { t, locale } = useLocale()
@@ -98,7 +100,7 @@ export function FieldRow({
               draggable
               onDragStart={onDragStart}
               onDragEnter={onDragEnter}
-              onDragOver={(e) => e.preventDefault()}
+              onDragOver={onDragOver}
               onDragEnd={onDragEnd}
             >
               <GripVertical className="h-4 w-4" />
