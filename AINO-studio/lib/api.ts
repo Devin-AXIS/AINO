@@ -716,6 +716,104 @@ export const recordCategoriesApi = {
   }
 }
 
+// 关联表相关类型
+export interface Relation {
+  id: string
+  tenantId: string
+  fromUrn: string
+  toUrn: string
+  type: 'one_to_one' | 'one_to_many' | 'many_to_many'
+  metadata?: Record<string, any>
+  createdAt: string
+  createdBy?: string
+  deletedAt?: string
+}
+
+export interface CreateRelationRequest {
+  tenantId?: string
+  fromUrn: string
+  toUrn: string
+  type: 'one_to_one' | 'one_to_many' | 'many_to_many'
+  metadata?: Record<string, any>
+  createdBy?: string
+}
+
+export interface UpdateRelationRequest {
+  fromUrn?: string
+  toUrn?: string
+  type?: 'one_to_one' | 'one_to_many' | 'many_to_many'
+  metadata?: Record<string, any>
+  createdBy?: string
+}
+
+export interface QueryRelationsRequest {
+  tenantId?: string
+  fromUrn?: string
+  toUrn?: string
+  type?: 'one_to_one' | 'one_to_many' | 'many_to_many'
+  page?: number
+  limit?: number
+}
+
+// 关联表 API
+const relationsApi = {
+  // 创建关联
+  async createRelation(data: CreateRelationRequest): Promise<ApiResponse<Relation>> {
+    return apiRequest<Relation>('/api/relations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 获取关联详情
+  async getRelation(id: string): Promise<ApiResponse<Relation>> {
+    return apiRequest<Relation>(`/api/relations/${id}`)
+  },
+
+  // 查询关联列表
+  async queryRelations(query: QueryRelationsRequest = {}): Promise<ApiResponse<{
+    relations: Relation[]
+    total: number
+    page: number
+    limit: number
+  }>> {
+    const params = new URLSearchParams()
+    if (query.tenantId) params.append('tenantId', query.tenantId)
+    if (query.fromUrn) params.append('fromUrn', query.fromUrn)
+    if (query.toUrn) params.append('toUrn', query.toUrn)
+    if (query.type) params.append('type', query.type)
+    if (query.page) params.append('page', query.page.toString())
+    if (query.limit) params.append('limit', query.limit.toString())
+
+    return apiRequest<{
+      relations: Relation[]
+      total: number
+      page: number
+      limit: number
+    }>(`/api/relations?${params.toString()}`)
+  },
+
+  // 更新关联
+  async updateRelation(id: string, data: UpdateRelationRequest): Promise<ApiResponse<Relation>> {
+    return apiRequest<Relation>(`/api/relations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  },
+
+  // 删除关联
+  async deleteRelation(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/relations/${id}`, {
+      method: 'DELETE',
+    })
+  },
+
+  // 根据URN获取关联
+  async getRelationsByUrn(urn: string): Promise<ApiResponse<Relation[]>> {
+    return apiRequest<Relation[]>(`/api/relations/urn/${encodeURIComponent(urn)}`)
+  }
+}
+
 // 导出默认 API 对象
 export const api = {
   auth: authApi,
@@ -726,4 +824,5 @@ export const api = {
   recordCategories: recordCategoriesApi,
   fields: fieldsApi,
   records: recordsApi,
+  relations: relationsApi,
 }
