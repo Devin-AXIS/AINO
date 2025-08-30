@@ -40,12 +40,8 @@ export function SkillsSelect({
   }, [customSkills])
 
   const allCategories = useMemo(() => {
-    // 如果有自定义分类，优先使用自定义分类
-    if (customCategories && customCategories.length > 0) {
-      return customCategories
-    }
-    // 否则使用预定义分类
-    return skillCategories
+    // 始终使用自定义分类，如果没有则返回空数组
+    return customCategories || []
   }, [customCategories])
 
   const selectedSkills = useMemo(() => {
@@ -65,15 +61,15 @@ export function SkillsSelect({
 
   const filteredSkills = useMemo(() => {
     if (activeCategory === "all") {
+      // 只显示用户配置的分类中的技能
       if (allowedCategories && allowedCategories.length > 0) {
         return allSkills.filter((skill) => allowedCategories.includes(skill.category))
       }
-      return allSkills
+      return []
     }
-    // 合并预定义技能和自定义技能
-    const predefinedSkills = getSkillsByCategory(activeCategory)
+    // 只显示当前分类的自定义技能
     const categoryCustomSkills = customSkills.filter(s => s.category === activeCategory)
-    return [...predefinedSkills, ...categoryCustomSkills]
+    return categoryCustomSkills
   }, [activeCategory, allowedCategories, allSkills, customSkills])
 
   const handleSelect = (skillId: string) => {
@@ -145,16 +141,14 @@ export function SkillsSelect({
                 <CommandList className="max-h-[300px]">
                   <CommandEmpty>未找到技能。</CommandEmpty>
                   {availableCategories.map((category) => {
-                    // 合并预定义技能和自定义技能
-                    const predefinedSkills = getSkillsByCategory(category.name)
+                    // 只显示当前分类的自定义技能
                     const categoryCustomSkills = customSkills.filter(s => s.category === category.name)
-                    const categorySkills = [...predefinedSkills, ...categoryCustomSkills]
                     
-                    if (categorySkills.length === 0) return null
+                    if (categoryCustomSkills.length === 0) return null
 
                     return (
                       <CommandGroup key={category.id} heading={category.name}>
-                        {categorySkills.map((skill) => (
+                        {categoryCustomSkills.map((skill) => (
                           <CommandItem
                             key={skill.id}
                             value={skill.name}
@@ -193,12 +187,7 @@ export function SkillsSelect({
                   <CommandList className="max-h-[300px]">
                     <CommandEmpty>未找到技能。</CommandEmpty>
                     <CommandGroup>
-                      {(() => {
-                        // 合并预定义技能和自定义技能
-                        const predefinedSkills = getSkillsByCategory(category.name)
-                        const categoryCustomSkills = customSkills.filter(s => s.category === category.name)
-                        return [...predefinedSkills, ...categoryCustomSkills]
-                      })().map((skill) => (
+                      {customSkills.filter(s => s.category === category.name).map((skill) => (
                         <CommandItem
                           key={skill.id}
                           value={skill.name}
