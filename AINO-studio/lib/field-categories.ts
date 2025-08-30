@@ -49,7 +49,7 @@ export const BASIC_FIELDS_CATEGORY: FieldCategoryModel = {
       id: "avatar",
       label: "头像",
       key: "avatar",
-      type: "image",
+      type: "avatar",
       description: "用户头像图片",
       visibility: "visible",
       sensitive: false,
