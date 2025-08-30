@@ -111,6 +111,9 @@ function applyDraftToFieldModel(
     if (draft.preset === "skills" && draft.skillsConfig) {
       ;(f as any).skillsConfig = draft.skillsConfig
     }
+    if (draft.preset === "other_verification" && draft.otherVerificationConfig) {
+      ;(f as any).otherVerificationConfig = draft.otherVerificationConfig
+    }
   }
 
   // 类型变更时尝试转换（简化版本，与旧 FieldManager 一致）
