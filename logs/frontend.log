@@ -1,23 +1,16 @@
 
-> my-v0-project@0.1.0 dev /Users/devin/Documents/AINO/AINO-studio
+> my-v0-project@0.1.0 dev /Users/wemo/new-flow/AINO/AINO-studio
 > next dev
 
    ▲ Next.js 15.2.4
    - Local:        http://localhost:3000
-   - Network:      http://192.168.28.72:3000
+   - Network:      http://192.168.28.178:3000
 
  ✓ Starting...
- ✓ Ready in 2.6s
+ ✓ Ready in 2.3s
  ○ Compiling / ...
- ✓ Compiled / in 1170ms (1081 modules)
- GET / 200 in 1597ms
- GET / 200 in 20ms
- ○ Compiling /app/[appId] ...
- ✓ Compiled /app/[appId] in 1530ms (2343 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 2323ms
- ✓ Compiled in 1141ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 80ms
- ✓ Compiled in 450ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 87ms
- ✓ Compiled in 333ms (2296 modules)
- GET /app/18760996-c5d6-4c5e-a823-de3e68a62d02 200 in 47ms
+ ✓ Compiled / in 1465ms (1081 modules)
+ GET / 200 in 1750ms
+ GET / 200 in 22ms
+ GET / 200 in 28ms
+[?25h
