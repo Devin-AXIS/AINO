@@ -176,3 +176,268 @@
   applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
   directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
 }
+权限检查: {
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+获取目录列表: {
+  query: {
+    applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+    moduleId: 'ea196b88-d28d-4ef5-8b97-dbce99ee4c7b',
+    page: 1,
+    limit: 20
+  },
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+查询目录列表成功，共 2 个目录
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+🔍 查找目录定义，参数: {
+  directoryId: 'f3ead123-fb55-4a66-8f02-a49e0b4b7c05',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+✅ 找到现有目录定义: {
+  id: '9f24c156-6df6-4bc9-b19f-6eda88f7a95f',
+  slug: '用户注册',
+  title: '用户注册',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.257322+08',
+  updatedAt: '2025-08-29 21:53:58.257322+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: 'f3ead123-fb55-4a66-8f02-a49e0b4b7c05'
+}
+🔍 获取记录列表: {
+  dirId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  query: { page: 1, pageSize: 20 }
+}
+查询字段分类列表成功，共 3 个分类
+查询字段分类列表成功，共 3 个分类
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+权限检查: {
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+获取目录列表: {
+  query: {
+    applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+    moduleId: 'ea196b88-d28d-4ef5-8b97-dbce99ee4c7b',
+    page: 1,
+    limit: 20
+  },
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+查询目录列表成功，共 2 个目录
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+🔍 查找目录定义，参数: {
+  directoryId: 'f3ead123-fb55-4a66-8f02-a49e0b4b7c05',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+✅ 找到现有目录定义: {
+  id: '9f24c156-6df6-4bc9-b19f-6eda88f7a95f',
+  slug: '用户注册',
+  title: '用户注册',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.257322+08',
+  updatedAt: '2025-08-29 21:53:58.257322+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: 'f3ead123-fb55-4a66-8f02-a49e0b4b7c05'
+}
+🔍 获取记录列表: {
+  dirId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  query: { page: 1, pageSize: 20 }
+}
+查询字段分类列表成功，共 3 个分类
+查询字段分类列表成功，共 3 个分类
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}

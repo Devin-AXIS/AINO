@@ -759,6 +759,8 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
             <div
               key={`field-${f.id}-${idx}`}
               className={"rounded-xl " + (dragIndex === idx ? "ring-2 ring-blue-200" : "")}
+              onDragOver={(e) => e.preventDefault()}
+              onDragEnter={() => handleDragEnter(idx)}
             >
               <FieldRow
                 field={f}
@@ -783,8 +785,6 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
                 }}
                 onRemove={() => removeField(f.id)}
                 onDragStart={() => handleDragStart(idx)}
-                onDragEnter={() => handleDragEnter(idx)}
-                onDragOver={(e) => e.preventDefault()}
                 onDragEnd={handleDragEnd}
               />
             </div>

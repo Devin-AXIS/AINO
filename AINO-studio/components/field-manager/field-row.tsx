@@ -22,8 +22,6 @@ type FieldRowProps = {
   onEdit: () => void
   onRemove: () => void
   onDragStart?: () => void
-  onDragEnter?: () => void
-  onDragOver?: (e: React.DragEvent) => void
   onDragEnd?: () => void
 }
 
@@ -39,8 +37,6 @@ export function FieldRow({
   onEdit,
   onRemove,
   onDragStart,
-  onDragEnter,
-  onDragOver,
   onDragEnd,
 }: FieldRowProps) {
   const { t, locale } = useLocale()
@@ -99,8 +95,6 @@ export function FieldRow({
               aria-label={t("dragToSort")}
               draggable
               onDragStart={onDragStart}
-              onDragEnter={onDragEnter}
-              onDragOver={onDragOver}
               onDragEnd={onDragEnd}
             >
               <GripVertical className="h-4 w-4" />
