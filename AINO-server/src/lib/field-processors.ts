@@ -292,11 +292,38 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
         return { valid: false, error: '此字段为必填项' }
       }
       if (value && Array.isArray(value)) {
-        // 验证选项是否在允许范围内
-        if (fieldDef.schema?.options) {
-          const invalidValues = value.filter(v => !fieldDef.schema.options.includes(v))
+        // 技能字段特殊处理
+        if (fieldDef.schema?.preset === 'skills') {
+          // 获取所有允许的技能ID
+          const allowedSkillIds = []
+          
+          // 添加预定义技能ID（从skillsData中获取）
+          const predefinedSkills = [
+            'vue', 'react', 'angular', 'nodejs', 'python', 'java', 'php', 'go', 'rust',
+            'mysql', 'postgresql', 'mongodb', 'redis', 'docker', 'kubernetes', 'aws', 'azure',
+            'photoshop', 'illustrator', 'figma', 'sketch', 'after-effects', 'premiere',
+            'project-management', 'team-leadership', 'agile', 'scrum', 'kanban'
+          ]
+          allowedSkillIds.push(...predefinedSkills)
+          
+          // 添加自定义技能ID
+          if (fieldDef.schema?.skillsConfig?.customSkills) {
+            const customSkillIds = fieldDef.schema.skillsConfig.customSkills.map((skill: any) => skill.id)
+            allowedSkillIds.push(...customSkillIds)
+          }
+          
+          // 验证选择的技能ID是否在允许范围内
+          const invalidValues = value.filter(v => !allowedSkillIds.includes(v))
           if (invalidValues.length > 0) {
-            return { valid: false, error: '包含不允许的选项' }
+            return { valid: false, error: '包含不允许的技能选项' }
+          }
+        } else {
+          // 普通多选字段验证
+          if (fieldDef.schema?.options) {
+            const invalidValues = value.filter(v => !fieldDef.schema.options.includes(v))
+            if (invalidValues.length > 0) {
+              return { valid: false, error: '包含不允许的选项' }
+            }
           }
         }
         
