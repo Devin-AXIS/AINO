@@ -542,7 +542,12 @@ function renderCell(type: string, v: any, f?: any, locale?: string) {
             if (exp.type === "work") {
               return `${exp.organization || ""} ${exp.title || ""}`.trim()
             } else if (exp.type === "education") {
-              return `${exp.organization || ""} ${exp.major || ""}`.trim()
+              // For education: show school, major, and degree
+              const parts = []
+              if (exp.organization) parts.push(exp.organization) // 学校
+              if (exp.major) parts.push(exp.major) // 专业
+              if (exp.degree) parts.push(exp.degree) // 学历
+              return parts.join(" ")
             } else if (exp.type === "project") {
               return `${exp.title || ""} ${exp.organization || ""}`.trim()
             } else if (exp.type === "certificate") {
