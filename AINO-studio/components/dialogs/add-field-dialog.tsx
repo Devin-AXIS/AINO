@@ -455,17 +455,8 @@ export function AddFieldDialog({
 
   // Add other verification configuration state
   const [otherVerificationConfig, setOtherVerificationConfig] = useState({
-    textFields: [
-      { id: 'certificate_name', name: '证书名称', required: false },
-      { id: 'certificate_number', name: '证书编号', required: false },
-      { id: 'issuing_authority', name: '颁发机构', required: false },
-      { id: 'issue_date', name: '颁发日期', required: false },
-      { id: 'expiry_date', name: '有效期', required: false }
-    ] as { id: string; name: string; required: boolean }[],
-    imageFields: [
-      { id: 'certificate_image', name: '证书图片', required: false, multiple: false },
-      { id: 'additional_documents', name: '补充材料', required: false, multiple: true }
-    ] as { id: string; name: string; required: boolean; multiple: boolean }[],
+    textFields: [] as { id: string; name: string; required: boolean }[],
+    imageFields: [] as { id: string; name: string; required: boolean; multiple: boolean }[],
   })
 
   // Add certificate configuration state

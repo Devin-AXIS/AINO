@@ -24,6 +24,7 @@ function toDraft(app: AppModel, dir: DirectoryModel, f: FieldModel): FieldDraft 
     cascaderOptions: f.cascaderOptions ? (JSON.parse(JSON.stringify(f.cascaderOptions)) as any) : undefined,
     preset: (f as any).preset || undefined,
     skillsConfig: (f as any).skillsConfig || undefined,
+    otherVerificationConfig: (f as any).otherVerificationConfig || undefined,
   }
 
   if (f.type === "select") d.defaultRaw = typeof f.default === "string" ? (f.default as string) : ""
