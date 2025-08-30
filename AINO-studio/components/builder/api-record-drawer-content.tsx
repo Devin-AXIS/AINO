@@ -233,34 +233,48 @@ export function ApiRecordDrawerContent({ dir, rec, app, onClose, onSave }: Props
 
         <div className="flex-1 overflow-y-auto bg-white min-h-0">
           <TabsContent value="basic" className="p-6 mt-0 flex-none">
-            <form
-              id="record-form"
-              className="space-y-6"
-              onSubmit={(e) => {
-                e.preventDefault()
-                handleSave()
-              }}
-            >
-              {(() => {
-                // 将字段分为单排和双排布局
-                const singleRowFields = basicFields.filter(f => 
-                  f.type === "textarea" || 
-                  f.type === "rich_text" || 
-                  f.type === "markdown" ||
-                  f.type === "json" ||
-                  f.type === "experience" ||
-                  f.type === "identity_verification" ||
-                  f.type === "other_verification"
-                )
-                const doubleRowFields = basicFields.filter(f => 
-                  !singleRowFields.includes(f)
-                )
-                
-                return (
-                  <>
-                    {/* 双排布局字段 */}
-                    <div className="grid grid-cols-2 gap-6">
-                      {doubleRowFields.map((field) => (
+            {isEditing ? (
+              <form
+                id="record-form"
+                className="space-y-6"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleSave()
+                }}
+              >
+                {(() => {
+                  // 将字段分为单排和双排布局
+                  const singleRowFields = basicFields.filter(f => 
+                    f.type === "textarea" || 
+                    f.type === "rich_text" || 
+                    f.type === "markdown" ||
+                    f.type === "json" ||
+                    f.type === "experience" ||
+                    f.type === "identity_verification" ||
+                    f.type === "other_verification"
+                  )
+                  const doubleRowFields = basicFields.filter(f => 
+                    !singleRowFields.includes(f)
+                  )
+                  
+                  return (
+                    <>
+                      {/* 双排布局字段 */}
+                      <div className="grid grid-cols-2 gap-6">
+                        {doubleRowFields.map((field) => (
+                          <FormField
+                            key={field.id}
+                            field={field}
+                            record={{ ...rec, ...formData }}
+                            app={app}
+                            onChange={(value) => updateField(field.key, value)}
+                            showValidation={isEditing}
+                          />
+                        ))}
+                      </div>
+                      
+                      {/* 单排布局字段 */}
+                      {singleRowFields.map((field) => (
                         <FormField
                           key={field.id}
                           field={field}
@@ -270,23 +284,67 @@ export function ApiRecordDrawerContent({ dir, rec, app, onClose, onSave }: Props
                           showValidation={isEditing}
                         />
                       ))}
-                    </div>
-                    
-                    {/* 单排布局字段 */}
-                    {singleRowFields.map((field) => (
-                      <FormField
-                        key={field.id}
-                        field={field}
-                        record={{ ...rec, ...formData }}
-                        app={app}
-                        onChange={(value) => updateField(field.key, value)}
-                        showValidation={isEditing}
-                      />
-                    ))}
-                  </>
-                )
-              })()}
-            </form>
+                    </>
+                  )
+                })()}
+              </form>
+            ) : (
+              <div className="space-y-6">
+                {(() => {
+                  // 将字段分为单排和双排布局
+                  const singleRowFields = basicFields.filter(f => 
+                    f.type === "textarea" || 
+                    f.type === "rich_text" || 
+                    f.type === "markdown" ||
+                    f.type === "json" ||
+                    f.type === "experience" ||
+                    f.type === "identity_verification" ||
+                    f.type === "other_verification"
+                  )
+                  const doubleRowFields = basicFields.filter(f => 
+                    !singleRowFields.includes(f)
+                  )
+                  
+                  return (
+                    <>
+                      {/* 双排布局字段 */}
+                      <div className="grid grid-cols-2 gap-6">
+                        {doubleRowFields.map((field) => (
+                          <div key={field.id} className="space-y-2">
+                            <div className="text-sm font-medium text-gray-700">
+                              {field.label}
+                              {field.required && <span className="ml-1 text-red-500">*</span>}
+                            </div>
+                            <div className="text-sm text-gray-900 bg-gray-50 p-3 rounded-md">
+                              {renderDisplayValue(field, formData[field.key])}
+                            </div>
+                            {field.desc && (
+                              <div className="text-xs text-gray-500">{field.desc}</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* 单排布局字段 */}
+                      {singleRowFields.map((field) => (
+                        <div key={field.id} className="space-y-2">
+                          <div className="text-sm font-medium text-gray-700">
+                            {field.label}
+                            {field.required && <span className="ml-1 text-red-500">*</span>}
+                          </div>
+                          <div className="text-sm text-gray-900 bg-gray-50 p-3 rounded-md">
+                            {renderDisplayValue(field, formData[field.key])}
+                          </div>
+                          {field.desc && (
+                            <div className="text-xs text-gray-500">{field.desc}</div>
+                          )}
+                        </div>
+                      ))}
+                    </>
+                  )
+                })()}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="dynamics" className="p-6 mt-0 flex-none">
@@ -318,4 +376,72 @@ export function ApiRecordDrawerContent({ dir, rec, app, onClose, onSave }: Props
 
     </SheetContent>
   )
+}
+
+// Helper function to render display values for read-only mode
+function renderDisplayValue(field: any, value: any) {
+  if (value === null || value === undefined || value === "") {
+    return <span className="text-gray-400 italic">未填写</span>
+  }
+
+  switch (field.type) {
+    case "boolean":
+    case "checkbox":
+      return value ? "是" : "否"
+    case "tags":
+      if (Array.isArray(value)) {
+        return value.length > 0 ? value.join(", ") : "未填写"
+      }
+      return "未填写"
+    case "multiselect":
+      if (Array.isArray(value)) {
+        if (field.preset === "skills") {
+          // Handle skills display
+          return value.length > 0 ? value.join(", ") : "未填写"
+        }
+        return value.length > 0 ? value.join(", ") : "未填写"
+      }
+      return "未填写"
+    case "select":
+      return value || "未选择"
+    case "number":
+    case "percent":
+      return value !== null && value !== undefined ? String(value) : "未填写"
+    case "date":
+    case "datetime":
+      return value || "未填写"
+    case "image":
+      if (value) {
+        return (
+          <div className="flex items-center gap-2">
+            <img src={value} alt="Image" className="w-8 h-8 rounded object-cover" />
+            <span className="text-xs text-gray-500">图片</span>
+          </div>
+        )
+      }
+      return "未上传"
+    case "video":
+      if (value) {
+        return (
+          <div className="flex items-center gap-2">
+            <video src={value} className="w-8 h-8 rounded object-cover" />
+            <span className="text-xs text-gray-500">视频</span>
+          </div>
+        )
+      }
+      return "未上传"
+    case "experience":
+      if (Array.isArray(value) && value.length > 0) {
+        return `${value.length} 条记录`
+      }
+      return "未填写"
+    case "identity_verification":
+    case "other_verification":
+      if (value && typeof value === "object") {
+        return "已认证"
+      }
+      return "未认证"
+    default:
+      return String(value)
+  }
 }
