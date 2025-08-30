@@ -560,11 +560,8 @@ function renderCell(type: string, v: any, f?: any, locale?: string) {
 
           return (
             <div key={index} className="text-xs">
-              <div className="flex items-center gap-1">
-                <span className="text-blue-600 font-medium">{getTypeLabel()}</span>
-                <span className="text-gray-600 truncate" title={getKeyInfo()}>
-                  {getKeyInfo()}
-                </span>
+              <div className="text-gray-600 truncate" title={getKeyInfo()}>
+                {getKeyInfo()}
               </div>
             </div>
           )
