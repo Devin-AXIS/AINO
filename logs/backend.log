@@ -2,6 +2,7 @@
 📊 Health check: http://localhost:3001/health
 🌍 Environment: development
 📋 Content-Type: application/json
-📋 JSON 数据: { email: 'nanwu5522@gmail.com', password: 'app000111' }
-📋 最终原始请求体: { email: 'nanwu5522@gmail.com', password: 'app000111' }
-📋 归一化后: { email: 'nanwu5522@gmail.com', password: 'app000111' }
+📋 JSON 数据: { email: 'admin@aino.com', password: 'admin123' }
+📋 最终原始请求体: { email: 'admin@aino.com', password: 'admin123' }
+📋 归一化后: { email: 'admin@aino.com', password: 'admin123' }
+📋 密码校验失败: { email: 'admin@aino.com' }

@@ -9,7 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   register: (data: any) => Promise<void>
   logout: () => void
-  updateUser: (data: Partial<User>) => void
+  updateUser: (data: Partial<User>) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -156,11 +156,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     console.log("👋 用户已登出")
   }
 
-  const updateUser = (data: Partial<User>) => {
-    if (user) {
-      const updatedUser = { ...user, ...data }
-      setUser(updatedUser)
-      localStorage.setItem('user', JSON.stringify(updatedUser))
+  const updateUser = async (data: Partial<User>) => {
+    try {
+      // 优先调用后端更新，保持与登录账户一致
+      const res = await api.auth.updateCurrentUser({ name: data.name, avatar: data.avatar })
+      if (res.success && res.data) {
+        setUser(res.data)
+        localStorage.setItem('user', JSON.stringify(res.data))
+      } else if (user) {
+        // 后端不可用时，至少本地更新以不阻断 UI
+        const updatedUser = { ...user, ...data }
+        setUser(updatedUser)
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+      }
+    } catch {
+      if (user) {
+        const updatedUser = { ...user, ...data }
+        setUser(updatedUser)
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+      }
     }
   }
 

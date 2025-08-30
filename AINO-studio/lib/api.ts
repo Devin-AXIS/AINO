@@ -14,6 +14,8 @@ export interface User {
   id: string
   email: string
   name: string
+  avatar?: string
+  roles?: string[]
 }
 
 export interface LoginRequest {
@@ -182,6 +184,13 @@ export const authApi = {
   // 获取当前用户信息（从后端读取）
   async getCurrentUser(): Promise<ApiResponse<User>> {
     return apiRequest<User>('/api/users/me')
+  },
+  // 更新当前用户信息
+  async updateCurrentUser(data: Partial<Pick<User, 'name' | 'avatar'>>): Promise<ApiResponse<User>> {
+    return apiRequest<User>('/api/users/me', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
   }
 }
 
