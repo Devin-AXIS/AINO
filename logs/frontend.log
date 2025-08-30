@@ -1,0 +1,25 @@
+
+> my-v0-project@0.1.0 dev /Users/devin/Documents/AINO-main/AINO-studio
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://192.200.101.1:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.5s
+ ○ Compiling / ...
+ ✓ Compiled / in 1787ms (1095 modules)
+ GET / 200 in 1991ms
+ GET / 200 in 21ms
+ ○ Compiling /app/[appId] ...
+ ✓ Compiled /app/[appId] in 1670ms (2335 modules)
+ GET /app/0dc32167-d533-4465-ac20-415d80791633 200 in 2267ms
+ GET / 200 in 12ms
+ GET /app/d5686733-5b05-4b71-a375-f87dac4fbfca 200 in 7ms
+ ✓ Compiled in 405ms (2335 modules)
+ GET /app/d5686733-5b05-4b71-a375-f87dac4fbfca 200 in 43ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled in 459ms (2274 modules)
+ GET /app/d5686733-5b05-4b71-a375-f87dac4fbfca 200 in 325ms
+ GET /app/d5686733-5b05-4b71-a375-f87dac4fbfca 200 in 519ms
