@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // 字段类型定义
 export type FieldKind = 'primitive' | 'composite' | 'relation' | 'lookup' | 'computed'
-export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'daterange' | 'multidate' | 'time' | 'boolean' | 'textarea' | 'image' | 'avatar' | 'multiimage' | 'file' | 'json' | 'table' | 'tags' | 'progress' | 'percent' | 'experience' | 'identity_verification' | 'other_verification' | 'video' | 'multivideo' | 'richtext' | 'barcode' | 'checkbox' | 'cascader' | 'relation_one' | 'relation_many'
+export type FieldType = 'text' | 'number' | 'email' | 'phone' | 'select' | 'multiselect' | 'date' | 'datetime' | 'daterange' | 'multidate' | 'time' | 'boolean' | 'textarea' | 'image' | 'profile' | 'multiimage' | 'file' | 'json' | 'table' | 'tags' | 'progress' | 'percent' | 'experience' | 'identity_verification' | 'other_verification' | 'video' | 'multivideo' | 'richtext' | 'barcode' | 'checkbox' | 'cascader' | 'relation_one' | 'relation_many'
 
 // 字段定义接口
 export interface FieldDef {
@@ -460,8 +460,8 @@ export const baseFieldProcessors: Record<FieldType, FieldProcessor> = {
     format: (value) => value
   },
 
-  // 标识字段（圆形头像/logo）
-  avatar: {
+  // 头像字段（圆形头像/logo）
+  profile: {
     validate: (value, fieldDef) => {
       if (fieldDef.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
         return { valid: false, error: '此字段为必填项' }

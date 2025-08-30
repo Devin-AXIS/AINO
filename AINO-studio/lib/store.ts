@@ -16,7 +16,7 @@ export type FieldType =
   | "time"
   | "tags"
   | "image"
-  | "avatar"
+  | "profile"
   | "multiimage"
   | "video"
   | "multivideo"

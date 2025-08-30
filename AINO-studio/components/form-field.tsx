@@ -258,7 +258,7 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
           defaultImage={field.imageConfig?.defaultImage || ""}
         />
       )
-    case "avatar":
+    case "profile":
       return (
         <AvatarInput
           value={value}

@@ -35,6 +35,7 @@ import {
   ScanLine,
   Boxes,
   Users,
+  User,
   SettingsIcon,
   Briefcase,
   GraduationCap,
@@ -192,6 +193,7 @@ const TYPE_ICON: Record<FieldType, JSX.Element> = {
   time: <Clock className="size-4" />,
   tags: <Tag className="size-4" />,
   image: <ImageIcon className="size-4" />,
+  profile: <User className="size-4" />,
   video: <Video className="size-4" />,
   file: <Paperclip className="size-4" />,
   richtext: <FileTextIcon className="size-4" />,
@@ -215,6 +217,7 @@ const TYPE_TO_DTYPE: Record<FieldType, string> = {
   time: "Time",
   tags: "String[]",
   image: "Image",
+  profile: "Profile",
   video: "Video",
   file: "File",
   richtext: "RichText",
@@ -871,6 +874,7 @@ export function AddFieldDialog({
     "time",
     "tags",
     "image",
+    "profile",
     "video",
     "file",
     "richtext",
@@ -1238,6 +1242,74 @@ export function AddFieldDialog({
                     </div>
                     <div>
                       {locale === "zh" ? "默认图片：" : "Default Image: "}
+                      <span className={imageConfig.defaultImage ? "text-green-600" : "text-gray-400"}>
+                        {imageConfig.defaultImage 
+                          ? (locale === "zh" ? "已设置" : "Set") 
+                          : (locale === "zh" ? "未设置" : "Not set")
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 标识字段配置 */}
+            {type === "profile" && (
+              <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-4">
+                <div className="text-sm font-medium text-gray-800">{locale === "zh" ? "标识字段配置" : "Avatar Field Configuration"}</div>
+                
+                {/* 默认图片 */}
+                <div className="space-y-2">
+                  <div className="text-sm text-gray-700">{locale === "zh" ? "默认头像" : "Default Avatar"}</div>
+                  <div className="text-xs text-gray-500 mb-2">{locale === "zh" ? "可选：为字段设置一个默认头像" : "Optional: Set a default avatar for this field"}</div>
+                  
+                  {imageConfig.defaultImage ? (
+                    <div className="relative inline-block">
+                      <img
+                        src={imageConfig.defaultImage}
+                        alt={locale === "zh" ? "默认头像" : "Default avatar"}
+                        className="w-16 h-16 object-cover rounded-full border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-1 right-1 h-6 w-6 p-0 rounded-full"
+                        onClick={removeDefaultImage}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-16 w-16 border-2 border-dashed border-gray-300 rounded-full">
+                      <User className="h-6 w-6 text-gray-400 mb-1" />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDefaultImageUpload}
+                        className="gap-1 text-xs"
+                      >
+                        <Upload className="h-3 w-3" />
+                        {locale === "zh" ? "上传" : "Upload"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* 预览 */}
+                <div className="border-t border-gray-200 pt-3">
+                  <div className="text-xs text-gray-700 mb-2">{locale === "zh" ? "预览" : "Preview"}</div>
+                  <div className="text-xs text-gray-600 space-y-1">
+                    <div>
+                      {locale === "zh" ? "显示样式：" : "Display Style: "}
+                      <span className="text-blue-600">
+                        {locale === "zh" ? "圆形头像" : "Circular Avatar"}
+                      </span>
+                    </div>
+                    <div>
+                      {locale === "zh" ? "默认头像：" : "Default Avatar: "}
                       <span className={imageConfig.defaultImage ? "text-green-600" : "text-gray-400"}>
                         {imageConfig.defaultImage 
                           ? (locale === "zh" ? "已设置" : "Set") 
@@ -2344,6 +2416,7 @@ export function AddFieldDialog({
                 ...(preset === "identity_verification" ? { identityVerificationConfig } : {}),
                 ...(preset === "other_verification" ? { otherVerificationConfig } : {}),
                 ...(type === "image" ? { imageConfig } : {}),
+                ...(type === "profile" ? { imageConfig } : {}),
                 ...(type === "video" ? { videoConfig } : {}),
                 ...(type === "boolean" || type === "checkbox" ? { booleanConfig } : {}),
                 ...(type === "multiselect" ? { multiselectConfig } : {}),

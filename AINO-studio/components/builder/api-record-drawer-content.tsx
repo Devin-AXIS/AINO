@@ -485,11 +485,11 @@ function renderDisplayValue(field: any, value: any) {
         )
       }
       return "未上传"
-    case "avatar":
+    case "profile":
       if (value) {
         return (
           <div className="flex items-center gap-2">
-            <img src={value} alt="Avatar" className="w-12 h-12 rounded-full object-cover border border-gray-200" />
+            <img src={value} alt="Profile" className="w-12 h-12 rounded-full object-cover border border-gray-200" />
             <span className="text-xs text-gray-500">头像</span>
           </div>
         )

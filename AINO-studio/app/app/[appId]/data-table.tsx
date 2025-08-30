@@ -371,7 +371,7 @@ function renderCell(type: string, v: any, f?: any, locale?: string) {
     )
   }
 
-  if (type === "avatar" && v) {
+  if (type === "profile" && v) {
     // 处理头像字段 - 圆形显示
     return (
       <div className="flex items-center">
