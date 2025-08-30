@@ -1,0 +1,231 @@
+🚀 AINO Server running at http://localhost:3001
+📊 Health check: http://localhost:3001/health
+🌍 Environment: development
+权限检查: {
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+获取目录列表: {
+  query: {
+    applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+    moduleId: 'ea196b88-d28d-4ef5-8b97-dbce99ee4c7b',
+    page: 1,
+    limit: 20
+  },
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+查询目录列表成功，共 2 个目录
+🔍 查找目录定义，参数: {
+  directoryId: '47bea03b-4837-4733-a8d2-99f787ede79d',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '89231515-8f50-4b05-b369-ac7f107ab2d9',
+  slug: '用户分层',
+  title: '用户分层',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-30 14:58:05.156626+08',
+  updatedAt: '2025-08-30 14:58:05.156626+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '47bea03b-4837-4733-a8d2-99f787ede79d'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+🔍 获取记录列表: {
+  dirId: '47bea03b-4837-4733-a8d2-99f787ede79d',
+  query: { page: 1, pageSize: 20 }
+}
+🔍 获取记录列表: {
+  dirId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  query: { page: 1, pageSize: 20 }
+}
+查询字段分类列表成功，共 3 个分类
+查询字段分类列表成功，共 3 个分类
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+权限检查: {
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+获取目录列表: {
+  query: {
+    applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+    moduleId: '5e807ca2-21e0-40dc-82e1-6ff720c38f0e',
+    page: 1,
+    limit: 20
+  },
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+查询目录列表成功，共 0 个目录
+权限检查: {
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+获取目录列表: {
+  query: {
+    applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+    moduleId: 'ea196b88-d28d-4ef5-8b97-dbce99ee4c7b',
+    page: 1,
+    limit: 20
+  },
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+🔍 获取记录列表: {
+  dirId: '47bea03b-4837-4733-a8d2-99f787ede79d',
+  query: { page: 1, pageSize: 20 }
+}
+查询目录列表成功，共 2 个目录
+🔍 查找目录定义，参数: {
+  directoryId: '47bea03b-4837-4733-a8d2-99f787ede79d',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '89231515-8f50-4b05-b369-ac7f107ab2d9',
+  slug: '用户分层',
+  title: '用户分层',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-30 14:58:05.156626+08',
+  updatedAt: '2025-08-30 14:58:05.156626+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '47bea03b-4837-4733-a8d2-99f787ede79d'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+查询字段分类列表成功，共 1 个分类
+查询字段分类列表成功，共 1 个分类
+🔍 查找目录定义，参数: {
+  directoryId: '47bea03b-4837-4733-a8d2-99f787ede79d',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '89231515-8f50-4b05-b369-ac7f107ab2d9',
+  slug: '用户分层',
+  title: '用户分层',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-30 14:58:05.156626+08',
+  updatedAt: '2025-08-30 14:58:05.156626+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '47bea03b-4837-4733-a8d2-99f787ede79d'
+}
+🔍 获取记录列表: {
+  dirId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  query: { page: 1, pageSize: 20 }
+}
+🔍 获取记录列表: {
+  dirId: '47bea03b-4837-4733-a8d2-99f787ede79d',
+  query: { page: 1, pageSize: 20 }
+}
+🔍 获取记录列表: {
+  dirId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  query: { page: 1, pageSize: 20 }
+}
+权限检查: {
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+获取目录列表: {
+  query: {
+    applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+    moduleId: 'ea196b88-d28d-4ef5-8b97-dbce99ee4c7b',
+    page: 1,
+    limit: 20
+  },
+  userId: 'f09ebe12-f517-42a2-b41a-7092438b79c3'
+}
+查询目录列表成功，共 2 个目录
+🔍 查找目录定义，参数: {
+  directoryId: '47bea03b-4837-4733-a8d2-99f787ede79d',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+🔍 查找目录定义，参数: {
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02'
+}
+✅ 找到现有目录定义: {
+  id: '89231515-8f50-4b05-b369-ac7f107ab2d9',
+  slug: '用户分层',
+  title: '用户分层',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-30 14:58:05.156626+08',
+  updatedAt: '2025-08-30 14:58:05.156626+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '47bea03b-4837-4733-a8d2-99f787ede79d'
+}
+✅ 找到现有目录定义: {
+  id: '0bb4b6ca-1ed5-4f9b-bcc6-77fae727f85e',
+  slug: '用户列表',
+  title: '用户列表',
+  version: 1,
+  status: 'active',
+  createdAt: '2025-08-29 21:53:58.25763+08',
+  updatedAt: '2025-08-29 21:53:58.25763+08',
+  applicationId: '18760996-c5d6-4c5e-a823-de3e68a62d02',
+  directoryId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8'
+}
+🔍 获取记录列表: {
+  dirId: '47bea03b-4837-4733-a8d2-99f787ede79d',
+  query: { page: 1, pageSize: 20 }
+}
+🔍 获取记录列表: {
+  dirId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  query: { page: 1, pageSize: 20 }
+}
+🔍 获取记录列表: {
+  dirId: '47bea03b-4837-4733-a8d2-99f787ede79d',
+  query: { page: 1, pageSize: 20 }
+}
+🔍 获取记录列表: {
+  dirId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  query: { page: 1, pageSize: 20 }
+}
+🔍 获取记录列表: {
+  dirId: '47bea03b-4837-4733-a8d2-99f787ede79d',
+  query: { page: 1, pageSize: 20 }
+}
+🔍 获取记录列表: {
+  dirId: '9cba325e-fe99-40d2-a699-a38a8fcbfba8',
+  query: { page: 1, pageSize: 20 }
+}
