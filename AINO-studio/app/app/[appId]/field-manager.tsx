@@ -14,12 +14,12 @@ import { AddFieldDialog } from "@/components/dialogs/add-field-dialog"
 import { FieldRow } from "@/components/field-manager/field-row"
 import { fieldCategoriesApi, fieldsApi, api } from "@/lib/api"
 import { getFieldTypeNames } from "@/lib/field-types"
-import { 
-  categorizeFields, 
-  filterFieldsByCategory, 
-  createField, 
-  removeFieldFromDirectory, 
-  updateFieldCategoriesInDirectory 
+import {
+  categorizeFields,
+  filterFieldsByCategory,
+  createField,
+  removeFieldFromDirectory,
+  updateFieldCategoriesInDirectory
 } from "@/lib/field-operations"
 import { cn } from "@/lib/utils"
 import type { FieldCategoryModel } from "@/lib/field-categories"
@@ -58,6 +58,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   const [loading, setLoading] = useState(false)
   const [fieldDefs, setFieldDefs] = useState<any[]>([])
   const [fieldDefsLoading, setFieldDefsLoading] = useState(false)
+  const [fieldCategoriesLoaded, setFieldCategoriesLoaded] = useState(false)
 
   // 从API获取字段分类数据
   const fetchFieldCategories = async () => {
@@ -69,17 +70,18 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     }
 
     try {
+      setFieldCategoriesLoaded(false)
       setLoading(true)
       console.log("🔍 获取字段分类参数:", { appId: app.id, dirId: dir.id })
-      
+
       const response = await fieldCategoriesApi.getFieldCategories({
         applicationId: app.id,
         directoryId: dir.id,
         enabled: true,
       })
-      
+
       console.log("📡 字段分类API响应:", response)
-      
+
       if (response.success && response.data?.categories) {
         setFieldCategories(response.data.categories)
       } else {
@@ -89,7 +91,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     } catch (error) {
       // ✅ 必须：为所有API调用添加try-catch错误处理
       console.error("获取字段分类出错:", error)
-      
+
       // ✅ 必须：错误信息要用户友好
       if (error instanceof Error) {
         if (error.message.includes('Failed to fetch')) {
@@ -98,11 +100,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           console.error("❌ API调用失败:", error.message)
         }
       }
-      
+
       // ✅ 必须：错误恢复机制 - 使用默认数据而不是空数组
       setFieldCategories([])
     } finally {
       setLoading(false)
+      setFieldCategoriesLoaded(true)
     }
   }
 
@@ -118,28 +121,28 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     try {
       setFieldDefsLoading(true)
       console.log("🔍 获取字段定义参数:", { appId: app.id, dirId: dir.id })
-      
+
       // 首先获取目录定义ID
       const dirDefResponse = await api.directoryDefs.getOrCreateDirectoryDefByDirectoryId(dir.id, app.id)
-      
+
       if (!dirDefResponse.success || !dirDefResponse.data?.id) {
         console.error("获取目录定义失败:", dirDefResponse.error)
         setFieldDefs([])
         return
       }
-      
+
       const directoryDefId = dirDefResponse.data.id
       console.log("📋 目录定义ID:", directoryDefId)
-      
+
       // 获取字段定义列表
       const response = await api.fields.getFields({
         directoryId: directoryDefId,
         page: 1,
         limit: 100
       })
-      
+
       console.log("📡 字段定义API响应:", response)
-      
+
       if (response.success && response.data) {
         // 将API数据转换为前端期望的格式，并关联分类信息
         const apiFields = response.data.map((field: any) => {
@@ -157,7 +160,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
               }
             }
           }
-          
+
           return {
             id: field.id,
             key: field.key,
@@ -191,7 +194,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
             preset: field.schema?.preset || undefined,
           }
         })
-        
+
         setFieldDefs(apiFields)
         console.log("✅ 使用API字段定义:", apiFields)
       } else {
@@ -201,7 +204,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     } catch (error) {
       // ✅ 必须：为所有API调用添加try-catch错误处理
       console.error("获取字段定义出错:", error)
-      
+
       // ✅ 必须：错误信息要用户友好
       if (error instanceof Error) {
         if (error.message.includes('Failed to fetch')) {
@@ -210,7 +213,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           console.error("❌ API调用失败:", error.message)
         }
       }
-      
+
       // ✅ 必须：错误恢复机制 - 使用默认数据而不是空数组
       setFieldDefs([])
     } finally {
@@ -229,13 +232,13 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     }
   }, [app?.id, dir?.id]) // 使用可选链确保依赖项稳定
 
-  // 当字段分类获取完成后，获取字段定义
+  // 当字段分类加载完成后（即使没有分类），获取字段定义
   useEffect(() => {
-    if (app?.id && dir?.id && fieldCategories.length > 0) {
-      console.log("🔄 字段分类已获取，开始获取字段定义")
+    if (app?.id && dir?.id && fieldCategoriesLoaded) {
+      console.log("🔄 字段分类加载完成，开始获取字段定义")
       fetchFieldDefs()
     }
-  }, [app?.id, dir?.id, fieldCategories.length])
+  }, [app?.id, dir?.id, fieldCategoriesLoaded])
 
   const categorizedFields = useMemo(() => {
     // 将API数据转换为前端期望的格式
@@ -251,53 +254,53 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     return categorizeFields(fieldDefs, frontendCategories)
   }, [fieldDefs, fieldCategories])
 
-  const filteredFields = useMemo(() => 
-    filterFieldsByCategory(fieldDefs, selectedCategoryId, categorizedFields), 
+  const filteredFields = useMemo(() =>
+    filterFieldsByCategory(fieldDefs, selectedCategoryId, categorizedFields),
     [fieldDefs, selectedCategoryId, categorizedFields]
   )
 
   function handleDragStart(i: number) {
     setDragIndex(i)
   }
-  
+
   function handleDragEnter(i: number) {
     setDragIndex((from) => {
       if (from === null || from === i) return from
-      
+
       // Update fieldDefs order by moving the field
       setFieldDefs((prevFieldDefs) => {
         const newFieldDefs = [...prevFieldDefs]
         const [moved] = newFieldDefs.splice(from, 1)
         newFieldDefs.splice(i, 0, moved)
-        
+
         // Update order property for each field
         return newFieldDefs.map((field, index) => ({
           ...field,
           order: index
         }))
       })
-      
+
       return i
     })
   }
-  
+
   function handleDragEnd() {
     setDragIndex(null)
     // Save field order to backend
     saveFieldOrder()
   }
-  
+
   // Save field order to backend
   const saveFieldOrder = async () => {
     try {
       if (!app?.id || !dir?.id) return
-      
+
       // Get directory definition ID
       const dirDefResponse = await api.directoryDefs.getOrCreateDirectoryDefByDirectoryId(dir.id, app.id)
       if (!dirDefResponse.success || !dirDefResponse.data?.id) return
-      
+
       const directoryDefId = dirDefResponse.data.id
-      
+
       // Update each field's order
       for (let i = 0; i < fieldDefs.length; i++) {
         const field = fieldDefs[i]
@@ -308,7 +311,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           })
         }
       }
-      
+
       console.log("✅ Field order saved successfully")
     } catch (error) {
       console.error("❌ Failed to save field order:", error)
@@ -341,13 +344,13 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
 
   async function removeField(id: string) {
     if (!confirm(t("confirmDeleteField"))) return
-    
+
     try {
       console.log("🔍 删除字段定义:", id)
-      
+
       // 调用API删除字段定义
       const response = await api.fields.deleteField(id)
-      
+
       if (response.success) {
         // 从本地状态中删除
         setFieldDefs(prev => prev.filter(field => field.id !== id))
@@ -364,17 +367,17 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   async function addField(fieldData: any) {
     try {
       console.log("🔍 创建字段定义参数:", fieldData)
-      
+
       // 首先获取目录定义ID
       const dirDefResponse = await api.directoryDefs.getOrCreateDirectoryDefByDirectoryId(dir.id, app.id)
-      
+
       if (!dirDefResponse.success || !dirDefResponse.data?.id) {
         console.error("获取目录定义失败:", dirDefResponse.error)
         return
       }
-      
+
       const directoryDefId = dirDefResponse.data.id
-      
+
       // 调用API创建字段定义
       const response = await api.fields.createField({
         directoryId: directoryDefId,
@@ -406,7 +409,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
         validators: fieldData.validators || {},
         required: fieldData.required || false,
       })
-      
+
       if (response.success && response.data) {
         // 将API返回的数据转换为前端格式并添加到本地状态
         const newField = {
@@ -441,9 +444,9 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           multiselectConfig: response.data.schema?.multiselectConfig || undefined,
           preset: response.data.schema?.preset || undefined,
         }
-        
+
         setFieldDefs(prev => [...prev, newField])
-        
+
         // 如果选择了分类，将字段添加到分类的fields中
         if (fieldData.categoryId) {
           try {
@@ -465,12 +468,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
                   options: response.data.schema?.options || [],
                 }
               ]
-              
+
               // 调用API更新字段分类
               const categoryUpdateResponse = await api.fieldCategories.updateFieldCategory(fieldData.categoryId, {
                 predefinedFields: updatedFields
               })
-              
+
               if (categoryUpdateResponse.success) {
                 console.log("✅ 字段已成功归类到分类:", selectedCategoryId)
                 // 刷新字段分类数据
@@ -483,10 +486,10 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
             console.error("❌ 字段归类出错:", error)
           }
         }
-        
+
         // 通知父组件字段已添加
         onAddField?.()
-        
+
         console.log("✅ 字段定义创建成功:", newField)
       } else {
         console.error("❌ 字段定义创建失败:", response.error)
@@ -500,7 +503,7 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   async function updateField(id: string, fieldData: any) {
     try {
       console.log("🔍 更新字段定义参数:", { id, fieldData })
-      
+
       // 调用API更新字段定义
       const response = await api.fields.updateField(id, {
         key: fieldData.key,
@@ -530,43 +533,43 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
         validators: fieldData.validators || {},
         required: fieldData.required || false,
       })
-      
+
       if (response.success && response.data) {
         // 更新本地状态
-        setFieldDefs(prev => prev.map(field => 
-          field.id === id 
+        setFieldDefs(prev => prev.map(field =>
+          field.id === id
             ? {
-                ...field,
-                key: response.data.key,
-                label: response.data.schema?.label || response.data.key,
-                type: response.data.type,
-                required: response.data.required || false,
-                unique: false,
-                showInList: response.data.schema?.showInList || true,
-                showInForm: response.data.schema?.showInForm || true,
-                showInDetail: response.data.schema?.showInDetail || true,
-                placeholder: response.data.schema?.placeholder || '',
-                desc: response.data.schema?.description || '',
-                options: response.data.schema?.options || [],
-                config: response.data.schema || {},
-                validators: response.data.validators || {},
-                // 更新字段配置信息
-                cascaderOptions: response.data.schema?.cascaderOptions || undefined,
-                customExperienceConfig: response.data.schema?.customExperienceConfig || undefined,
-                certificateConfig: response.data.schema?.certificateConfig || undefined,
-                skillsConfig: response.data.schema?.skillsConfig || undefined,
-                progressConfig: response.data.schema?.progressConfig || undefined,
-                identityVerificationConfig: response.data.schema?.identityVerificationConfig || undefined,
-                otherVerificationConfig: response.data.schema?.otherVerificationConfig || undefined,
-                imageConfig: response.data.schema?.imageConfig || undefined,
-                videoConfig: response.data.schema?.videoConfig || undefined,
-                booleanConfig: response.data.schema?.booleanConfig || undefined,
-                multiselectConfig: response.data.schema?.multiselectConfig || undefined,
-                preset: response.data.schema?.preset || undefined,
-              }
+              ...field,
+              key: response.data.key,
+              label: response.data.schema?.label || response.data.key,
+              type: response.data.type,
+              required: response.data.required || false,
+              unique: false,
+              showInList: response.data.schema?.showInList || true,
+              showInForm: response.data.schema?.showInForm || true,
+              showInDetail: response.data.schema?.showInDetail || true,
+              placeholder: response.data.schema?.placeholder || '',
+              desc: response.data.schema?.description || '',
+              options: response.data.schema?.options || [],
+              config: response.data.schema || {},
+              validators: response.data.validators || {},
+              // 更新字段配置信息
+              cascaderOptions: response.data.schema?.cascaderOptions || undefined,
+              customExperienceConfig: response.data.schema?.customExperienceConfig || undefined,
+              certificateConfig: response.data.schema?.certificateConfig || undefined,
+              skillsConfig: response.data.schema?.skillsConfig || undefined,
+              progressConfig: response.data.schema?.progressConfig || undefined,
+              identityVerificationConfig: response.data.schema?.identityVerificationConfig || undefined,
+              otherVerificationConfig: response.data.schema?.otherVerificationConfig || undefined,
+              imageConfig: response.data.schema?.imageConfig || undefined,
+              videoConfig: response.data.schema?.videoConfig || undefined,
+              booleanConfig: response.data.schema?.booleanConfig || undefined,
+              multiselectConfig: response.data.schema?.multiselectConfig || undefined,
+              preset: response.data.schema?.preset || undefined,
+            }
             : field
         ))
-        
+
         console.log("✅ 字段定义更新成功")
       } else {
         console.error("❌ 字段定义更新失败:", response.error)
@@ -581,12 +584,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   async function toggleFieldEnabled(id: string, enabled: boolean) {
     try {
       console.log("🔍 切换字段启用状态:", { id, enabled })
-      
+
       // 临时解决方案：直接更新本地状态，跳过API调用
-      setFieldDefs(prev => prev.map(field => 
+      setFieldDefs(prev => prev.map(field =>
         field.id === id ? { ...field, enabled } : field
       ))
-      
+
       console.log("✅ 字段启用状态切换成功（本地）")
     } catch (error) {
       console.error("❌ 字段启用状态切换出错:", error)
@@ -596,12 +599,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   async function toggleFieldRequired(id: string, required: boolean) {
     try {
       console.log("🔍 切换字段必填状态:", { id, required })
-      
+
       // 临时解决方案：直接更新本地状态，跳过API调用
-      setFieldDefs(prev => prev.map(field => 
+      setFieldDefs(prev => prev.map(field =>
         field.id === id ? { ...field, required } : field
       ))
-      
+
       console.log("✅ 字段必填状态切换成功（本地）")
     } catch (error) {
       console.error("❌ 字段必填状态切换出错:", error)
@@ -611,12 +614,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
   async function toggleFieldShowInList(id: string, showInList: boolean) {
     try {
       console.log("🔍 切换字段列表显示状态:", { id, showInList })
-      
+
       // 临时解决方案：直接更新本地状态，跳过API调用
-      setFieldDefs(prev => prev.map(field => 
+      setFieldDefs(prev => prev.map(field =>
         field.id === id ? { ...field, showInList } : field
       ))
-      
+
       console.log("✅ 字段列表显示状态切换成功（本地）")
     } catch (error) {
       console.error("❌ 字段列表显示状态切换出错:", error)
@@ -627,71 +630,71 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
     () =>
       locale === "zh"
         ? {
-            title: "添加字段",
-            displayName: "显示名",
-            displayNamePh: "如：商品名",
-            key: "内部名（唯一）",
-            keyPh: "如：product_name",
-            keyInvalid: "需以字母或下划线开头，仅含字母数字下划线，≤40字符",
-            keyDuplicate: "内部名已存在",
-            dataType: "数据类型",
-            required: "必填",
-            requiredHint: "表单校验时要求必填",
-            unique: "唯一",
-            uniqueHint: "该字段值不可重复",
-            showInList: "显示在列表",
-            showInListHint: "控制列表是否展示",
-            default: "默认值",
-            none: "无",
-            true: "是",
-            false: "否",
-            optionLabel: "选项",
-            optionPlaceholder: "选项",
-            addOption: "添加选项",
-            optionsHint: "提示：默认值会根据当前选项生成；修改选项后请重新确认默认值。",
-            relationTarget: "关联目标表",
-            cancel: "取消",
-            submit: "添加字段",
-            dateModeLabel: "日期模式",
-            dateModeSingle: "单个日期",
-            dateModeMultiple: "多个日期",
-            dateModeRange: "日期区间",
-            basicFieldsLabel: t("basicFields"),
-            businessFieldsLabel: t("businessFields"),
-          }
+          title: "添加字段",
+          displayName: "显示名",
+          displayNamePh: "如：商品名",
+          key: "内部名（唯一）",
+          keyPh: "如：product_name",
+          keyInvalid: "需以字母或下划线开头，仅含字母数字下划线，≤40字符",
+          keyDuplicate: "内部名已存在",
+          dataType: "数据类型",
+          required: "必填",
+          requiredHint: "表单校验时要求必填",
+          unique: "唯一",
+          uniqueHint: "该字段值不可重复",
+          showInList: "显示在列表",
+          showInListHint: "控制列表是否展示",
+          default: "默认值",
+          none: "无",
+          true: "是",
+          false: "否",
+          optionLabel: "选项",
+          optionPlaceholder: "选项",
+          addOption: "添加选项",
+          optionsHint: "提示：默认值会根据当前选项生成；修改选项后请重新确认默认值。",
+          relationTarget: "关联目标表",
+          cancel: "取消",
+          submit: "添加字段",
+          dateModeLabel: "日期模式",
+          dateModeSingle: "单个日期",
+          dateModeMultiple: "多个日期",
+          dateModeRange: "日期区间",
+          basicFieldsLabel: t("basicFields"),
+          businessFieldsLabel: t("businessFields"),
+        }
         : {
-            title: "Add Field",
-            displayName: "Label",
-            displayNamePh: "e.g. Product Name",
-            key: "Key (unique)",
-            keyPh: "e.g. product_name",
-            keyInvalid: "Must start with a letter/underscore, only letters/digits/underscore, ≤ 40 chars",
-            keyDuplicate: "Key already exists",
-            dataType: "Data Type",
-            required: "Required",
-            requiredHint: "Enforce required in forms",
-            unique: "Unique",
-            uniqueHint: "Value cannot be duplicated",
-            showInList: "Show in List",
-            showInListHint: "Control visibility in list",
-            default: "Default",
-            none: "None",
-            true: "True",
-            false: "False",
-            optionLabel: "Options",
-            optionPlaceholder: "Option",
-            addOption: "Add option",
-            optionsHint: "Tip: default value depends on options; re-verify after changes.",
-            relationTarget: "Relation Target Table",
-            cancel: "Cancel",
-            submit: "Add Field",
-            dateModeLabel: "Date Mode",
-            dateModeSingle: "Single",
-            dateModeMultiple: "Multiple",
-            dateModeRange: "Range",
-            basicFieldsLabel: t("basicFields"),
-            businessFieldsLabel: t("businessFields"),
-          },
+          title: "Add Field",
+          displayName: "Label",
+          displayNamePh: "e.g. Product Name",
+          key: "Key (unique)",
+          keyPh: "e.g. product_name",
+          keyInvalid: "Must start with a letter/underscore, only letters/digits/underscore, ≤ 40 chars",
+          keyDuplicate: "Key already exists",
+          dataType: "Data Type",
+          required: "Required",
+          requiredHint: "Enforce required in forms",
+          unique: "Unique",
+          uniqueHint: "Value cannot be duplicated",
+          showInList: "Show in List",
+          showInListHint: "Control visibility in list",
+          default: "Default",
+          none: "None",
+          true: "True",
+          false: "False",
+          optionLabel: "Options",
+          optionPlaceholder: "Option",
+          addOption: "Add option",
+          optionsHint: "Tip: default value depends on options; re-verify after changes.",
+          relationTarget: "Relation Target Table",
+          cancel: "Cancel",
+          submit: "Add Field",
+          dateModeLabel: "Date Mode",
+          dateModeSingle: "Single",
+          dateModeMultiple: "Multiple",
+          dateModeRange: "Range",
+          basicFieldsLabel: t("basicFields"),
+          businessFieldsLabel: t("businessFields"),
+        },
     [locale, t],
   )
 
