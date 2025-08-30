@@ -2482,12 +2482,6 @@ export function AddFieldDialog({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {skillCategories.filter(Boolean).map(cat => {
-                            const catName = cat?.name || '';
-                            return (
-                              <SelectItem key={cat?.id || `cat-${catName}`} value={catName}>{catName}</SelectItem>
-                            );
-                          })}
                           {skillsConfig.customCategories.map(cat => (
                             <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
                           ))}
