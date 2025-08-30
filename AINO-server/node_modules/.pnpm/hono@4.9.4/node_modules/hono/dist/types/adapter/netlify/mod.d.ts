@@ -1,1 +1,0 @@
-export { handle } from './handler';
