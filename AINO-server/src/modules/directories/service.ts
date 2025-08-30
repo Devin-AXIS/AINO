@@ -29,7 +29,13 @@ export class DirectoryService {
   // 获取目录的分类数据并转换为前端期望的格式
   private async getDirectoryCategories(directoryId: string, applicationId: string): Promise<any[]> {
     try {
-      // 直接从数据库查询分类数据
+      // 从目录配置中获取分类数据
+      const directory = await this.repo.findById(directoryId)
+      if (directory && directory.config && directory.config.categories) {
+        return directory.config.categories
+      }
+      
+      // 如果没有配置分类，尝试从recordCategories表获取
       const categories = await this.recordCategoriesRepo.findMany({
         applicationId,
         directoryId,
@@ -41,14 +47,8 @@ export class DirectoryService {
       return this.convertCategoriesToFrontendFormat(categories.categories)
     } catch (error) {
       console.error("获取目录分类数据失败:", error)
-      // 如果数据库查询失败，返回mock数据
-      return [
-        {
-          id: "mock-category-1",
-          name: "测试分类",
-          children: []
-        }
-      ]
+      // 如果数据库查询失败，返回空数组
+      return []
     }
   }
 

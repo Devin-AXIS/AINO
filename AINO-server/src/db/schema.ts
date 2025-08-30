@@ -204,20 +204,7 @@ export const dirUsers = pgTable('dir_users', {
   tenantIdx: index("dir_users_tenant_idx").on(table.tenantId),
 }))
 
-export const dirJobs = pgTable('dir_jobs', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  tenantId: uuid('tenant_id').notNull(),
-  version: integer('version').notNull().default(1),
-  props: jsonb('props').notNull().$type<Record<string, any>>().default({}),
-  createdBy: uuid('created_by'),
-  updatedBy: uuid('updated_by'),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-  deletedAt: timestamp('deleted_at', { withTimezone: true }),
-}, (table) => ({
-  createdAtIdx: index("dir_jobs_created_at_idx").on(table.createdAt),
-  tenantIdx: index("dir_jobs_tenant_idx").on(table.tenantId),
-}))
+
 
 export const fieldIndexes = pgTable('field_indexes', {
   id: uuid('id').primaryKey().defaultRandom(),

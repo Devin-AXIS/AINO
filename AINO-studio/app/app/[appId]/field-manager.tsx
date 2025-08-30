@@ -399,25 +399,27 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           showInList: fieldData.showInList || true,
           showInForm: fieldData.showInForm || true,
           showInDetail: fieldData.showInDetail || true,
-          preset: fieldData.preset || undefined,
-          cascaderOptions: fieldData.cascaderOptions || undefined,
-          customExperienceConfig: fieldData.customExperienceConfig || undefined,
-          certificateConfig: fieldData.certificateConfig || undefined,
-          skillsConfig: fieldData.skillsConfig || undefined,
-          progressConfig: fieldData.progressConfig || undefined,
-          identityVerificationConfig: fieldData.identityVerificationConfig || undefined,
-          otherVerificationConfig: fieldData.otherVerificationConfig || undefined,
-          imageConfig: fieldData.imageConfig || undefined,
-          videoConfig: fieldData.videoConfig || undefined,
-          booleanConfig: fieldData.booleanConfig || undefined,
-          multiselectConfig: fieldData.multiselectConfig || undefined,
+          ...(fieldData.preset && { preset: fieldData.preset }),
+          ...(fieldData.cascaderOptions && { cascaderOptions: fieldData.cascaderOptions }),
+          ...(fieldData.customExperienceConfig && { customExperienceConfig: fieldData.customExperienceConfig }),
+          ...(fieldData.certificateConfig && { certificateConfig: fieldData.certificateConfig }),
+          ...(fieldData.skillsConfig && { skillsConfig: fieldData.skillsConfig }),
+          ...(fieldData.progressConfig && { progressConfig: fieldData.progressConfig }),
+          ...(fieldData.identityVerificationConfig && { identityVerificationConfig: fieldData.identityVerificationConfig }),
+          ...(fieldData.otherVerificationConfig && { otherVerificationConfig: fieldData.otherVerificationConfig }),
+          ...(fieldData.imageConfig && { imageConfig: fieldData.imageConfig }),
+          ...(fieldData.videoConfig && { videoConfig: fieldData.videoConfig }),
+          ...(fieldData.booleanConfig && { booleanConfig: fieldData.booleanConfig }),
+          ...(fieldData.multiselectConfig && { multiselectConfig: fieldData.multiselectConfig }),
         },
         // 添加关联字段配置
-        relation: (fieldData.type === 'relation_one' || fieldData.type === 'relation_many') ? {
-          targetDirId: fieldData.relationTargetId || null,
-          mode: fieldData.type === 'relation_one' ? 'one' : 'many',
-          displayFieldKey: fieldData.relationDisplayFieldKey || null,
-        } : undefined,
+        ...(fieldData.type === 'relation_one' || fieldData.type === 'relation_many' ? {
+          relation: {
+            targetDirId: fieldData.relationTargetId || null,
+            mode: fieldData.type === 'relation_one' ? 'one' : 'many',
+            displayFieldKey: fieldData.relationDisplayFieldKey || null,
+          }
+        } : {}),
         validators: fieldData.validators || {},
         required: fieldData.required || false,
       })
@@ -544,11 +546,13 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
           multiselectConfig: fieldData.multiselectConfig || undefined,
         },
         // 添加关联字段配置
-        relation: (fieldData.type === 'relation_one' || fieldData.type === 'relation_many') ? {
-          targetDirId: fieldData.relationTargetId || null,
-          mode: fieldData.type === 'relation_one' ? 'one' : 'many',
-          displayFieldKey: fieldData.relationDisplayFieldKey || null,
-        } : undefined,
+        ...(fieldData.type === 'relation_one' || fieldData.type === 'relation_many' ? {
+          relation: {
+            targetDirId: fieldData.relationTargetId || null,
+            mode: fieldData.type === 'relation_one' ? 'one' : 'many',
+            displayFieldKey: fieldData.relationDisplayFieldKey || null,
+          }
+        } : {}),
         validators: fieldData.validators || {},
         required: fieldData.required || false,
       })

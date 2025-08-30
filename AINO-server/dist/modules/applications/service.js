@@ -66,22 +66,6 @@ export class ApplicationService {
                 },
                 order: 0,
             },
-            {
-                name: '用户注册',
-                type: 'form',
-                supportsCategory: false,
-                config: {
-                    description: '系统用户注册表单',
-                    fields: [
-                        { key: 'name', label: '姓名', type: 'text', required: true, showInList: false, showInForm: true },
-                        { key: 'email', label: '邮箱', type: 'email', required: true, showInList: false, showInForm: true },
-                        { key: 'password', label: '密码', type: 'password', required: true, showInList: false, showInForm: true },
-                        { key: 'confirmPassword', label: '确认密码', type: 'password', required: true, showInList: false, showInForm: true },
-                        { key: 'roles', label: '角色', type: 'multiselect', required: true, showInList: false, showInForm: true, options: ['user', 'editor', 'viewer'] },
-                    ]
-                },
-                order: 1,
-            },
         ];
         const userModule = modules.find(m => m.name === '用户管理');
         if (userModule) {

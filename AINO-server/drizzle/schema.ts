@@ -82,17 +82,7 @@ export const fieldDefs = pgTable("field_defs", {
 		}).onDelete("cascade"),
 ]);
 
-export const relations = pgTable("relations", {
-	id: uuid().defaultRandom().notNull(),
-	tenantId: uuid("tenant_id").notNull(),
-	fromUrn: varchar("from_urn", { length: 500 }).notNull(),
-	toUrn: varchar("to_urn", { length: 500 }).notNull(),
-	type: relationType().notNull(),
-	metadata: jsonb().default({}),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow(),
-	createdBy: uuid("created_by"),
-	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
-});
+// relations table removed - no longer used
 
 export const applicationUsers = pgTable("application_users", {
 	id: uuid().defaultRandom().notNull(),

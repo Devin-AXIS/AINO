@@ -17,6 +17,7 @@ import { BackgroundLights } from "@/components/background-lights"
 import { useApiBuilderController } from "@/hooks/use-api-builder-controller"
 import { DataTable } from "./data-table"
 import { FieldManager } from "./field-manager"
+
 import { ApiRecordDrawer } from "./api-record-drawer"
 import { RenameDialog } from "@/components/dialogs/rename-dialog"
 import { CategoryDialog } from "@/components/dialogs/category-dialog"
@@ -435,6 +436,7 @@ export default function BuilderPage() {
                     ]}
                     addText={t("addRecord")}
                     onAdd={c.addRecord}
+                    onCategoryManage={() => c.setOpenCategory(true)}
                     searchPlaceholder={t("searchPlaceholder")}
                     catLabel={t("filterByCategory")}
                     statusLabel={t("filterByStatus")}
@@ -491,6 +493,7 @@ export default function BuilderPage() {
                   />
                 ) : null
               }
+
             />
           </>
         )}
@@ -548,6 +551,8 @@ export default function BuilderPage() {
                 save: "保存",
                 cancel: "取消",
                 preview: "预览：",
+                delete: "删除",
+                confirmDelete: "确认删除分类",
               }
             : {
                 title: "Configure 3-level Categories",
@@ -562,6 +567,8 @@ export default function BuilderPage() {
                 save: "Save",
                 cancel: "Cancel",
                 preview: "Preview:",
+                delete: "Delete",
+                confirmDelete: "Confirm delete category",
               }
         }
       />
