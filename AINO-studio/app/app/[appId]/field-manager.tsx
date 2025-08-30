@@ -189,6 +189,12 @@ export function FieldManager({ app, dir, onChange, onAddField }: Props) {
             booleanConfig: field.schema?.booleanConfig || undefined,
             multiselectConfig: field.schema?.multiselectConfig || undefined,
             preset: field.schema?.preset || undefined,
+            // 添加关联字段配置
+            relation: field.relation ? {
+              targetDirId: field.relation.targetDirId || null,
+              mode: field.relation.mode || (field.type === 'relation_one' ? 'one' : 'many'),
+              displayFieldKey: field.relation.displayFieldKey || null,
+            } : undefined,
           }
         })
         
