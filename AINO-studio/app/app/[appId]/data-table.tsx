@@ -501,25 +501,19 @@ function renderCell(type: string, v: any, f?: any, locale?: string) {
     const hasData = Object.keys(v).length > 0
     if (!hasData) return <span className="text-gray-400">-</span>
     
+    // Get the first text field value as the verification name
     const textFields = Object.entries(v).filter(([key, value]) => 
       typeof value === "string" && value.trim() !== ""
     )
-    const imageFields = Object.entries(v).filter(([key, value]) => 
-      Array.isArray(value) && value.length > 0
-    )
+    
+    const verificationName = textFields.length > 0 ? textFields[0][1] : null
     
     return (
       <div className="text-sm">
-        {textFields.length > 0 && (
-          <div className="text-gray-600 text-xs">
-            {locale === "zh" ? "文字信息：" : "Text: "}{textFields.length} {locale === "zh" ? "项" : "items"}
-          </div>
-        )}
-        {imageFields.length > 0 && (
-          <div className="text-blue-600 text-xs mt-1">
-            {locale === "zh" ? "图片信息：" : "Images: "}{imageFields.length} {locale === "zh" ? "项" : "items"}
-          </div>
-        )}
+        {verificationName && <div className="font-medium">{verificationName}</div>}
+        <div className="text-green-600 text-xs">
+          {locale === "zh" ? "✓ 已认证" : "✓ Verified"}
+        </div>
       </div>
     )
   }
