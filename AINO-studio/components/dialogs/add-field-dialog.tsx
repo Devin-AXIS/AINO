@@ -52,7 +52,7 @@ import {
 import type { JSX } from "react/jsx-runtime"
 import { CategoryDialog } from "@/components/dialogs/category-dialog"
 import { RelationConfig, type RelationConfigValue } from "@/components/dialogs/relation-config"
-import { skillCategories } from "@/lib/data/skills-data"
+import { skillCategories, skillsData } from "@/lib/data/skills-data"
 import { DEFAULT_FIELD_CATEGORIES, getCategoryName } from "@/lib/field-categories"
 import { useLocale } from "@/hooks/use-locale"
 import { fieldCategoriesApi } from "@/lib/api"
@@ -2451,6 +2451,19 @@ export function AddFieldDialog({
                     <Plus className="size-4 mr-1" />
                     {locale === "zh" ? "添加分类" : "Add Category"}
                   </Button>
+                </div>
+              </div>
+
+              {/* 预定义技能显示 */}
+              <div className="space-y-3">
+                <div className="text-sm font-medium text-gray-900">{locale === "zh" ? "预定义技能" : "Predefined Skills"}</div>
+                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                  {skillsData.map((skill) => (
+                    <div key={skill.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
+                      <span className="font-medium">{skill.name}</span>
+                      <span className="text-gray-500 text-xs">({skill.category})</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
