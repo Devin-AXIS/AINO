@@ -178,7 +178,7 @@ export class RecordsService {
       .from(table)
       .where(and(
         eq(table.id, id),
-        eq(table.tenantId, 'f09ebe12-f517-42a2-b41a-7092438b79c3') // 临时租户ID
+        eq(table.tenantId, dir) // 使用目录ID作为tenant_id
       ))
       .limit(1)
     
@@ -198,7 +198,7 @@ export class RecordsService {
       console.log('🔍 验证后的数据:', validatedProps)
       
       const [record] = await db.insert(table).values({
-        tenantId: 'f09ebe12-f517-42a2-b41a-7092438b79c3', // 临时租户ID
+        tenantId: dir, // 使用目录ID作为tenant_id
         props: validatedProps,
         createdBy: userId,
         updatedBy: userId,
@@ -222,7 +222,7 @@ export class RecordsService {
     // 构建更新条件
     const conditions = [
       eq(table.id, id),
-      eq(table.tenantId, 'f09ebe12-f517-42a2-b41a-7092438b79c3') // 临时租户ID
+      eq(table.tenantId, dir) // 使用目录ID作为tenant_id
     ]
     
     // 乐观锁检查
@@ -255,7 +255,7 @@ export class RecordsService {
       })
       .where(and(
         eq(table.id, id),
-        eq(table.tenantId, 'f09ebe12-f517-42a2-b41a-7092438b79c3') // 临时租户ID
+        eq(table.tenantId, dir) // 使用目录ID作为tenant_id
       ))
       .returning()
     
@@ -277,7 +277,7 @@ export class RecordsService {
           })
           .where(and(
             eq(table.id, recordId),
-            eq(table.tenantId, 'f09ebe12-f517-42a2-b41a-7092438b79c3') // 临时租户ID
+            eq(table.tenantId, dir) // 使用目录ID作为tenant_id
           ))
           .returning()
         
