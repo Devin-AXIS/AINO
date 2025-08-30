@@ -40,7 +40,12 @@ export function SkillsSelect({
   }, [customSkills])
 
   const allCategories = useMemo(() => {
-    return [...skillCategories, ...customCategories]
+    // 如果有自定义分类，优先使用自定义分类
+    if (customCategories && customCategories.length > 0) {
+      return customCategories
+    }
+    // 否则使用预定义分类
+    return skillCategories
   }, [customCategories])
 
   const selectedSkills = useMemo(() => {

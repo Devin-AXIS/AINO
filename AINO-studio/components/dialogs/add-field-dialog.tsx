@@ -428,7 +428,11 @@ export function AddFieldDialog({
     allowedCategories: ["技术", "运营", "管理"] as string[],
     maxSkills: undefined as number | undefined,
     showLevel: false,
-    customCategories: [] as { id: string; name: string }[],
+    customCategories: [
+      { id: "default_tech", name: "技术" },
+      { id: "default_operation", name: "运营" },
+      { id: "default_management", name: "管理" }
+    ] as { id: string; name: string }[],
     customSkills: [] as { id: string; name: string; category: string }[],
   })
 
@@ -577,7 +581,11 @@ export function AddFieldDialog({
         allowedCategories: ["技术", "运营", "管理"],
         maxSkills: undefined,
         showLevel: false,
-        customCategories: [],
+        customCategories: [
+          { id: "default_tech", name: "技术" },
+          { id: "default_operation", name: "运营" },
+          { id: "default_management", name: "管理" }
+        ],
         customSkills: [],
       }
       setSkillsConfig(
@@ -716,7 +724,11 @@ export function AddFieldDialog({
       allowedCategories: ["技术", "运营", "管理"],
       maxSkills: undefined,
       showLevel: false,
-      customCategories: [],
+      customCategories: [
+        { id: "default_tech", name: "技术" },
+        { id: "default_operation", name: "运营" },
+        { id: "default_management", name: "管理" }
+      ],
       customSkills: [],
     })
     setCertificateConfig({
@@ -1382,32 +1394,29 @@ export function AddFieldDialog({
                     <div>
                       <label className="text-xs text-blue-700 mb-1 block">{locale === "zh" ? "允许的技能分类" : "Allowed Skill Categories"}</label>
                       <div className="flex flex-wrap gap-2">
-                        {skillCategories.filter(Boolean).map((category) => {
-                          const categoryName = category?.name || 'Unknown';
-                          return (
-                            <label key={category?.id || `category-${categoryName}`} className="flex items-center gap-1 text-xs">
-                              <input
-                                type="checkbox"
-                                checked={skillsConfig.allowedCategories.includes(categoryName)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSkillsConfig((prev) => ({
-                                      ...prev,
-                                      allowedCategories: [...prev.allowedCategories, categoryName],
-                                    }))
-                                  } else {
-                                    setSkillsConfig((prev) => ({
-                                      ...prev,
-                                      allowedCategories: prev.allowedCategories.filter((c) => c !== categoryName),
-                                    }))
-                                  }
-                                }}
-                                className="rounded"
-                              />
-                              {categoryName}
-                            </label>
-                          );
-                        })}
+                        {skillsConfig.customCategories.map((category) => (
+                          <label key={category.id} className="flex items-center gap-1 text-xs">
+                            <input
+                              type="checkbox"
+                              checked={skillsConfig.allowedCategories.includes(category.name)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSkillsConfig((prev) => ({
+                                    ...prev,
+                                    allowedCategories: [...prev.allowedCategories, category.name],
+                                  }))
+                                } else {
+                                  setSkillsConfig((prev) => ({
+                                    ...prev,
+                                    allowedCategories: prev.allowedCategories.filter((c) => c !== category.name),
+                                  }))
+                                }
+                              }}
+                              className="rounded"
+                            />
+                            {category.name}
+                          </label>
+                        ))}
                       </div>
                       {skillsConfig.allowedCategories.length === 0 && (
                         <div className="text-xs text-blue-600 mt-1">{locale === "zh" ? "未选择时允许所有分类" : "Allow all categories when none selected"}</div>
@@ -2387,9 +2396,21 @@ export function AddFieldDialog({
                       <Input
                         value={category.name}
                         onChange={(e) => {
+                          const oldCategoryName = skillsConfig.customCategories[index].name
+                          const newCategoryName = e.target.value
                           const newCategories = [...skillsConfig.customCategories]
-                          newCategories[index] = { ...newCategories[index], name: e.target.value }
-                          setSkillsConfig(prev => ({ ...prev, customCategories: newCategories }))
+                          newCategories[index] = { ...newCategories[index], name: newCategoryName }
+                          
+                          // 同步更新 allowedCategories
+                          const newAllowedCategories = skillsConfig.allowedCategories.map(c => 
+                            c === oldCategoryName ? newCategoryName : c
+                          )
+                          
+                          setSkillsConfig(prev => ({ 
+                            ...prev, 
+                            customCategories: newCategories,
+                            allowedCategories: newAllowedCategories
+                          }))
                         }}
                         className="flex-1 bg-white/80"
                         placeholder={locale === "zh" ? "分类名称" : "Category name"}
@@ -2398,8 +2419,15 @@ export function AddFieldDialog({
                         variant="ghost"
                         size="sm"
                         onClick={() => {
+                          const categoryToRemove = skillsConfig.customCategories[index]
                           const newCategories = skillsConfig.customCategories.filter((_, i) => i !== index)
-                          setSkillsConfig(prev => ({ ...prev, customCategories: newCategories }))
+                          // 同时从 allowedCategories 中移除
+                          const newAllowedCategories = skillsConfig.allowedCategories.filter(c => c !== categoryToRemove.name)
+                          setSkillsConfig(prev => ({ 
+                            ...prev, 
+                            customCategories: newCategories,
+                            allowedCategories: newAllowedCategories
+                          }))
                         }}
                       >
                         <Trash2 className="size-4" />
@@ -2409,12 +2437,14 @@ export function AddFieldDialog({
                   <Button
                     variant="outline"
                     onClick={() => {
+                      const newCategoryName = locale === "zh" ? "新分类" : "New Category"
                       setSkillsConfig(prev => ({
                         ...prev,
                         customCategories: [...prev.customCategories, {
                           id: `cat_${Date.now()}`,
-                          name: locale === "zh" ? "新分类" : "New Category"
-                        }]
+                          name: newCategoryName
+                        }],
+                        allowedCategories: [...prev.allowedCategories, newCategoryName]
                       }))
                     }}
                   >
