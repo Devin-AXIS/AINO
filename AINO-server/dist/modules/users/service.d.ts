@@ -7,4 +7,23 @@ export declare function loginSvc(body: TLoginReq): Promise<{
         name: string;
     };
 }>;
+export declare function getCurrentUserSvc(token: string): Promise<{
+    id: string;
+    email: string;
+    name: string;
+    role: "admin";
+    permissions: string[];
+} | {
+    id: string;
+    email: string;
+    name: string;
+    role: "operator";
+    permissions: string[];
+} | {
+    id: string;
+    email: string;
+    name: string;
+    role: "viewer";
+    permissions: string[];
+}>;
 //# sourceMappingURL=service.d.ts.map

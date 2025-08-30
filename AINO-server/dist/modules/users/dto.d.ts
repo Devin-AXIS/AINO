@@ -15,4 +15,19 @@ export declare const LoginResp: z.ZodObject<{
     }, z.core.$strip>;
 }, z.core.$strip>;
 export type TLoginReq = z.infer<typeof LoginReq>;
+export declare const GetCurrentUserResp: z.ZodObject<{
+    success: z.ZodLiteral<true>;
+    data: z.ZodObject<{
+        id: z.ZodString;
+        email: z.ZodString;
+        name: z.ZodString;
+        role: z.ZodEnum<{
+            admin: "admin";
+            operator: "operator";
+            viewer: "viewer";
+        }>;
+        permissions: z.ZodArray<z.ZodString>;
+    }, z.core.$strip>;
+}, z.core.$strip>;
+export type TGetCurrentUserResp = z.infer<typeof GetCurrentUserResp>;
 //# sourceMappingURL=dto.d.ts.map

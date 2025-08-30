@@ -1,16 +1,17 @@
 import { z } from 'zod';
 export const Identity = z.object({
     id: z.string(),
-    name: z.string(),
-    email: z.string().email(),
-    roles: z.array(z.string()).default(['user']),
-    avatar: z.string().optional(),
+    displayName: z.string().optional(),
+    roles: z.array(z.string()).default([]),
 });
-export const JWTPayload = z.object({
-    userId: z.string(),
-    email: z.string().email(),
-    roles: z.array(z.string()).default(['user']),
-    iat: z.number(),
-    exp: z.number(),
-});
+export function createIdentity(id, displayName, roles = []) {
+    return {
+        id,
+        displayName,
+        roles,
+    };
+}
+export function validateIdentity(data) {
+    return Identity.parse(data);
+}
 //# sourceMappingURL=identity.js.map

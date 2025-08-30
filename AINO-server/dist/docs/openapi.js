@@ -18,6 +18,11 @@ export const openApiConfig = {
         { name: '应用用户', description: '应用内用户管理相关接口' },
         { name: '应用模块', description: '应用模块管理相关接口' },
         { name: '目录管理', description: '目录管理相关接口' },
+        { name: '字段分类', description: '字段分类管理相关接口' },
+        { name: '记录分类', description: '记录分类管理相关接口' },
+        { name: '字段定义', description: '字段定义管理相关接口' },
+        { name: '目录定义', description: '目录定义管理相关接口' },
+        { name: '记录管理', description: '记录管理相关接口' },
         { name: '健康检查', description: '系统健康检查' },
     ],
 };
@@ -201,19 +206,122 @@ export const DirectoriesListResponse = z.object({
         totalPages: z.number(),
     }),
 });
+export const CreateFieldCategoryRequest = z.object({
+    name: z.string().min(1, "分类名称不能为空").max(128, "分类名称不能超过128个字符"),
+    description: z.string().optional(),
+    order: z.number().int().min(0).default(0),
+    enabled: z.boolean().default(true),
+    system: z.boolean().default(false),
+    predefinedFields: z.array(z.any()).default([]),
+});
+export const UpdateFieldCategoryRequest = CreateFieldCategoryRequest.partial();
+export const GetFieldCategoriesQuery = z.object({
+    applicationId: z.string().optional(),
+    directoryId: z.string().optional(),
+    enabled: z.boolean().optional(),
+    system: z.boolean().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+export const FieldCategoryResponse = z.object({
+    id: z.string(),
+    applicationId: z.string(),
+    directoryId: z.string(),
+    name: z.string(),
+    description: z.string().nullable(),
+    order: z.number(),
+    enabled: z.boolean(),
+    system: z.boolean(),
+    predefinedFields: z.array(z.any()),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+});
+export const FieldCategoriesListResponse = z.object({
+    categories: z.array(FieldCategoryResponse),
+    pagination: z.object({
+        page: z.number(),
+        limit: z.number(),
+        total: z.number(),
+        totalPages: z.number(),
+    }),
+});
+export const CreateRecordCategoryRequest = z.object({
+    name: z.string().min(1, "分类名称不能为空").max(128, "分类名称不能超过128个字符"),
+    path: z.string().default("/"),
+    level: z.number().int().min(1).default(1),
+    parentId: z.string().optional(),
+    order: z.number().int().min(0).default(0),
+    enabled: z.boolean().default(true),
+});
+export const UpdateRecordCategoryRequest = CreateRecordCategoryRequest.partial();
+export const GetRecordCategoriesQuery = z.object({
+    applicationId: z.string().min(1, '应用ID不能为空'),
+    directoryId: z.string().min(1, '目录ID不能为空'),
+    enabled: z.boolean().optional(),
+    level: z.number().int().min(1).optional(),
+    parentId: z.string().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+export const RecordCategoryResponse = z.object({
+    id: z.string(),
+    applicationId: z.string(),
+    directoryId: z.string(),
+    name: z.string(),
+    path: z.string(),
+    level: z.number(),
+    parentId: z.string().nullable(),
+    order: z.number(),
+    enabled: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+});
+export const RecordCategoriesListResponse = z.object({
+    categories: z.array(RecordCategoryResponse),
+    pagination: z.object({
+        page: z.number(),
+        limit: z.number(),
+        total: z.number(),
+        totalPages: z.number(),
+    }),
+});
+export const GetRecordsQuery = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+    sort: z.string().optional(),
+    fields: z.string().optional(),
+    filter: z.string().optional(),
+});
+export const RecordResponse = z.object({
+    id: z.string(),
+    data: z.any(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+});
+export const RecordsListResponse = z.object({
+    records: z.array(RecordResponse),
+    pagination: z.object({
+        page: z.number(),
+        pageSize: z.number(),
+        total: z.number(),
+        totalPages: z.number(),
+    }),
+});
 export const apiRoutes = {
     health: {
         method: 'get',
         path: '/health',
         tags: ['健康检查'],
         summary: '健康检查',
-        description: '检查服务是否正常运行',
+        description: '检查系统健康状态',
         responses: {
             200: {
-                description: '服务正常',
+                description: '系统健康',
                 content: {
-                    'text/plain': {
-                        schema: z.string(),
+                    'application/json': {
+                        schema: z.object({
+                            status: z.string(),
+                        }),
                     },
                 },
             },
@@ -1165,6 +1273,1685 @@ export const apiRoutes = {
             },
             404: {
                 description: '目录不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getFieldCategories: {
+        method: 'get',
+        path: '/field-categories',
+        tags: ['字段分类'],
+        summary: '获取字段分类列表',
+        description: '获取字段分类列表，支持分页、过滤等功能',
+        request: {
+            query: GetFieldCategoriesQuery.openapi({
+                param: {
+                    name: 'query',
+                    in: 'query',
+                },
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: FieldCategoriesListResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限访问该应用',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    createFieldCategory: {
+        method: 'post',
+        path: '/field-categories',
+        tags: ['字段分类'],
+        summary: '创建字段分类',
+        description: '创建新的字段分类',
+        request: {
+            query: z.object({
+                applicationId: z.string().openapi({
+                    param: {
+                        name: 'applicationId',
+                        in: 'query',
+                        description: '应用ID',
+                        required: true,
+                    },
+                }),
+                directoryId: z.string().openapi({
+                    param: {
+                        name: 'directoryId',
+                        in: 'query',
+                        description: '目录ID',
+                        required: true,
+                    },
+                }),
+            }),
+            body: {
+                content: {
+                    'application/json': {
+                        schema: CreateFieldCategoryRequest,
+                    },
+                },
+            },
+        },
+        responses: {
+            201: {
+                description: '创建成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: FieldCategoryResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限访问该应用',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getFieldCategory: {
+        method: 'get',
+        path: '/field-categories/{id}',
+        tags: ['字段分类'],
+        summary: '获取字段分类详情',
+        description: '根据ID获取字段分类详细信息',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '字段分类ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: FieldCategoryResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '字段分类不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    updateFieldCategory: {
+        method: 'put',
+        path: '/field-categories/{id}',
+        tags: ['字段分类'],
+        summary: '更新字段分类',
+        description: '更新字段分类信息',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '字段分类ID',
+                    },
+                }),
+            }),
+            body: {
+                content: {
+                    'application/json': {
+                        schema: UpdateFieldCategoryRequest,
+                    },
+                },
+            },
+        },
+        responses: {
+            200: {
+                description: '更新成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: FieldCategoryResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限修改该字段分类',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '字段分类不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    deleteFieldCategory: {
+        method: 'delete',
+        path: '/field-categories/{id}',
+        tags: ['字段分类'],
+        summary: '删除字段分类',
+        description: '删除字段分类并返回删除结果',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '字段分类ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '删除成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            message: z.string(),
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '删除失败',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限删除该字段分类',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '字段分类不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getFieldDefs: {
+        method: 'get',
+        path: '/field-defs',
+        tags: ['字段定义'],
+        summary: '获取字段定义列表',
+        description: '获取字段定义列表，支持分页和筛选',
+        request: {
+            query: z.object({
+                directoryId: z.string().optional().openapi({
+                    param: {
+                        name: 'directoryId',
+                        in: 'query',
+                        description: '目录定义ID',
+                    },
+                }),
+                page: z.coerce.number().min(1).default(1).openapi({
+                    param: {
+                        name: 'page',
+                        in: 'query',
+                        description: '页码',
+                    },
+                }),
+                limit: z.coerce.number().min(1).max(100).default(20).openapi({
+                    param: {
+                        name: 'limit',
+                        in: 'query',
+                        description: '每页数量',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: z.array(z.object({
+                                id: z.string(),
+                                directoryId: z.string(),
+                                key: z.string(),
+                                kind: z.string(),
+                                type: z.string(),
+                                schema: z.any(),
+                                relation: z.any().optional(),
+                                lookup: z.any().optional(),
+                                computed: z.any().optional(),
+                                validators: z.any().optional(),
+                                readRoles: z.array(z.string()),
+                                writeRoles: z.array(z.string()),
+                                required: z.boolean(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            })),
+                            pagination: z.object({
+                                page: z.number(),
+                                limit: z.number(),
+                                total: z.number(),
+                                totalPages: z.number(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getFieldDef: {
+        method: 'get',
+        path: '/field-defs/{id}',
+        tags: ['字段定义'],
+        summary: '获取单个字段定义',
+        description: '根据ID获取单个字段定义详情',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '字段定义ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: z.object({
+                                id: z.string(),
+                                directoryId: z.string(),
+                                key: z.string(),
+                                kind: z.string(),
+                                type: z.string(),
+                                schema: z.any(),
+                                relation: z.any().optional(),
+                                lookup: z.any().optional(),
+                                computed: z.any().optional(),
+                                validators: z.any().optional(),
+                                readRoles: z.array(z.string()),
+                                writeRoles: z.array(z.string()),
+                                required: z.boolean(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            404: {
+                description: '字段定义不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    createFieldDef: {
+        method: 'post',
+        path: '/field-defs',
+        tags: ['字段定义'],
+        summary: '创建字段定义',
+        description: '创建新的字段定义',
+        request: {
+            json: z.object({
+                directoryId: z.string(),
+                key: z.string(),
+                kind: z.enum(['primitive', 'composite', 'relation', 'lookup', 'computed']),
+                type: z.string(),
+                schema: z.any().optional(),
+                relation: z.any().optional(),
+                lookup: z.any().optional(),
+                computed: z.any().optional(),
+                validators: z.any().optional(),
+                readRoles: z.array(z.string()).default(['admin', 'member']),
+                writeRoles: z.array(z.string()).default(['admin']),
+                required: z.boolean().default(false),
+            }),
+        },
+        responses: {
+            201: {
+                description: '创建成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: z.object({
+                                id: z.string(),
+                                directoryId: z.string(),
+                                key: z.string(),
+                                kind: z.string(),
+                                type: z.string(),
+                                schema: z.any(),
+                                relation: z.any().optional(),
+                                lookup: z.any().optional(),
+                                computed: z.any().optional(),
+                                validators: z.any().optional(),
+                                readRoles: z.array(z.string()),
+                                writeRoles: z.array(z.string()),
+                                required: z.boolean(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    updateFieldDef: {
+        method: 'patch',
+        path: '/field-defs/{id}',
+        tags: ['字段定义'],
+        summary: '更新字段定义',
+        description: '更新字段定义信息',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '字段定义ID',
+                    },
+                }),
+            }),
+            json: z.object({
+                key: z.string().optional(),
+                kind: z.enum(['primitive', 'composite', 'relation', 'lookup', 'computed']).optional(),
+                type: z.string().optional(),
+                schema: z.any().optional(),
+                relation: z.any().optional(),
+                lookup: z.any().optional(),
+                computed: z.any().optional(),
+                validators: z.any().optional(),
+                readRoles: z.array(z.string()).optional(),
+                writeRoles: z.array(z.string()).optional(),
+                required: z.boolean().optional(),
+            }),
+        },
+        responses: {
+            200: {
+                description: '更新成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: z.object({
+                                id: z.string(),
+                                directoryId: z.string(),
+                                key: z.string(),
+                                kind: z.string(),
+                                type: z.string(),
+                                schema: z.any(),
+                                relation: z.any().optional(),
+                                lookup: z.any().optional(),
+                                computed: z.any().optional(),
+                                validators: z.any().optional(),
+                                readRoles: z.array(z.string()),
+                                writeRoles: z.array(z.string()),
+                                required: z.boolean(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            404: {
+                description: '字段定义不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    deleteFieldDef: {
+        method: 'delete',
+        path: '/field-defs/{id}',
+        tags: ['字段定义'],
+        summary: '删除字段定义',
+        description: '删除字段定义',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '字段定义ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '删除成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                        }),
+                    },
+                },
+            },
+            404: {
+                description: '字段定义不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getDirectoryDefs: {
+        method: 'get',
+        path: '/directory-defs',
+        tags: ['目录定义'],
+        summary: '获取目录定义列表',
+        description: '获取目录定义列表，支持分页和筛选',
+        request: {
+            query: z.object({
+                applicationId: z.string().optional().openapi({
+                    param: {
+                        name: 'applicationId',
+                        in: 'query',
+                        description: '应用ID',
+                    },
+                }),
+                directoryId: z.string().optional().openapi({
+                    param: {
+                        name: 'directoryId',
+                        in: 'query',
+                        description: '目录ID',
+                    },
+                }),
+                status: z.string().optional().openapi({
+                    param: {
+                        name: 'status',
+                        in: 'query',
+                        description: '状态',
+                    },
+                }),
+                page: z.coerce.number().min(1).default(1).openapi({
+                    param: {
+                        name: 'page',
+                        in: 'query',
+                        description: '页码',
+                    },
+                }),
+                limit: z.coerce.number().min(1).max(100).default(20).openapi({
+                    param: {
+                        name: 'limit',
+                        in: 'query',
+                        description: '每页数量',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: z.array(z.object({
+                                id: z.string(),
+                                slug: z.string(),
+                                title: z.string(),
+                                version: z.number(),
+                                status: z.string(),
+                                applicationId: z.string(),
+                                directoryId: z.string(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            })),
+                            pagination: z.object({
+                                page: z.number(),
+                                limit: z.number(),
+                                total: z.number(),
+                                totalPages: z.number(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getDirectoryDef: {
+        method: 'get',
+        path: '/directory-defs/{id}',
+        tags: ['目录定义'],
+        summary: '获取单个目录定义',
+        description: '根据ID获取单个目录定义详情',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '目录定义ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: z.object({
+                                id: z.string(),
+                                slug: z.string(),
+                                title: z.string(),
+                                version: z.number(),
+                                status: z.string(),
+                                applicationId: z.string(),
+                                directoryId: z.string(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            404: {
+                description: '目录定义不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getDirectoryDefBySlug: {
+        method: 'get',
+        path: '/directory-defs/slug/{slug}',
+        tags: ['目录定义'],
+        summary: '根据slug获取目录定义',
+        description: '根据slug获取目录定义详情',
+        request: {
+            params: z.object({
+                slug: z.string().openapi({
+                    param: {
+                        name: 'slug',
+                        in: 'path',
+                        description: '目录定义slug',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: z.object({
+                                id: z.string(),
+                                slug: z.string(),
+                                title: z.string(),
+                                version: z.number(),
+                                status: z.string(),
+                                applicationId: z.string(),
+                                directoryId: z.string(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            404: {
+                description: '目录定义不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    createDirectoryDef: {
+        method: 'post',
+        path: '/directory-defs',
+        tags: ['目录定义'],
+        summary: '创建目录定义',
+        description: '创建新的目录定义',
+        request: {
+            json: z.object({
+                slug: z.string().min(1),
+                title: z.string().min(1),
+                version: z.number().min(1).optional(),
+                status: z.string().optional(),
+                applicationId: z.string(),
+                directoryId: z.string(),
+            }),
+        },
+        responses: {
+            201: {
+                description: '创建成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: z.object({
+                                id: z.string(),
+                                slug: z.string(),
+                                title: z.string(),
+                                version: z.number(),
+                                status: z.string(),
+                                applicationId: z.string(),
+                                directoryId: z.string(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    updateDirectoryDef: {
+        method: 'patch',
+        path: '/directory-defs/{id}',
+        tags: ['目录定义'],
+        summary: '更新目录定义',
+        description: '更新目录定义信息',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '目录定义ID',
+                    },
+                }),
+            }),
+            json: z.object({
+                slug: z.string().min(1).optional(),
+                title: z.string().min(1).optional(),
+                version: z.number().min(1).optional(),
+                status: z.string().optional(),
+            }),
+        },
+        responses: {
+            200: {
+                description: '更新成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: z.object({
+                                id: z.string(),
+                                slug: z.string(),
+                                title: z.string(),
+                                version: z.number(),
+                                status: z.string(),
+                                applicationId: z.string(),
+                                directoryId: z.string(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            404: {
+                description: '目录定义不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    deleteDirectoryDef: {
+        method: 'delete',
+        path: '/directory-defs/{id}',
+        tags: ['目录定义'],
+        summary: '删除目录定义',
+        description: '删除目录定义',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '目录定义ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '删除成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: z.object({
+                                id: z.string(),
+                                slug: z.string(),
+                                title: z.string(),
+                                version: z.number(),
+                                status: z.string(),
+                                applicationId: z.string(),
+                                directoryId: z.string(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            404: {
+                description: '目录定义不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getOrCreateDirectoryDefByDirectoryId: {
+        method: 'post',
+        path: '/directory-defs/by-directory/{directoryId}',
+        tags: ['目录定义'],
+        summary: '根据旧目录ID获取或创建目录定义',
+        description: '根据旧的目录ID获取或创建目录定义，用于兼容旧系统',
+        request: {
+            params: z.object({
+                directoryId: z.string().openapi({
+                    param: {
+                        name: 'directoryId',
+                        in: 'path',
+                        description: '旧目录ID',
+                    },
+                }),
+            }),
+            json: z.object({
+                applicationId: z.string(),
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取或创建成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: z.object({
+                                id: z.string(),
+                                slug: z.string(),
+                                title: z.string(),
+                                version: z.number(),
+                                status: z.string(),
+                                applicationId: z.string(),
+                                directoryId: z.string(),
+                                createdAt: z.string(),
+                                updatedAt: z.string(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            500: {
+                description: '服务器错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getRecordCategories: {
+        method: 'get',
+        path: '/record-categories',
+        tags: ['记录分类'],
+        summary: '获取记录分类列表',
+        description: '获取记录分类列表，支持分页、过滤等功能',
+        request: {
+            query: GetRecordCategoriesQuery.openapi({
+                param: {
+                    name: 'query',
+                    in: 'query',
+                },
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: RecordCategoriesListResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限访问该应用',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    createRecordCategory: {
+        method: 'post',
+        path: '/record-categories',
+        tags: ['记录分类'],
+        summary: '创建记录分类',
+        description: '创建新的记录分类',
+        request: {
+            query: z.object({
+                applicationId: z.string().openapi({
+                    param: {
+                        name: 'applicationId',
+                        in: 'query',
+                        description: '应用ID',
+                        required: true,
+                    },
+                }),
+                directoryId: z.string().openapi({
+                    param: {
+                        name: 'directoryId',
+                        in: 'query',
+                        description: '目录ID',
+                        required: true,
+                    },
+                }),
+            }),
+            body: {
+                content: {
+                    'application/json': {
+                        schema: CreateRecordCategoryRequest,
+                    },
+                },
+            },
+        },
+        responses: {
+            201: {
+                description: '创建成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: RecordCategoryResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限访问该应用',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getRecordCategory: {
+        method: 'get',
+        path: '/record-categories/{id}',
+        tags: ['记录分类'],
+        summary: '获取记录分类详情',
+        description: '根据ID获取记录分类详细信息',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '记录分类ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: RecordCategoryResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '记录分类不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    updateRecordCategory: {
+        method: 'put',
+        path: '/record-categories/{id}',
+        tags: ['记录分类'],
+        summary: '更新记录分类',
+        description: '更新记录分类信息',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '记录分类ID',
+                    },
+                }),
+            }),
+            body: {
+                content: {
+                    'application/json': {
+                        schema: UpdateRecordCategoryRequest,
+                    },
+                },
+            },
+        },
+        responses: {
+            200: {
+                description: '更新成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: RecordCategoryResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限修改该记录分类',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '记录分类不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    deleteRecordCategory: {
+        method: 'delete',
+        path: '/record-categories/{id}',
+        tags: ['记录分类'],
+        summary: '删除记录分类',
+        description: '删除记录分类并返回删除结果',
+        request: {
+            params: z.object({
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '记录分类ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '删除成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            message: z.string(),
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '删除失败',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限删除该记录分类',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '记录分类不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getRecords: {
+        method: 'get',
+        path: '/records/{dirId}',
+        tags: ['记录管理'],
+        summary: '获取记录列表',
+        description: '获取指定目录的记录列表，支持分页、排序、过滤等功能',
+        request: {
+            params: z.object({
+                dirId: z.string().openapi({
+                    param: {
+                        name: 'dirId',
+                        in: 'path',
+                        description: '目录ID',
+                    },
+                }),
+            }),
+            query: GetRecordsQuery.openapi({
+                param: {
+                    name: 'query',
+                    in: 'query',
+                },
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: RecordsListResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限访问该目录',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '目录不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    createRecord: {
+        method: 'post',
+        path: '/records/{dirId}',
+        tags: ['记录管理'],
+        summary: '创建记录',
+        description: '在指定目录中创建新记录',
+        request: {
+            params: z.object({
+                dirId: z.string().openapi({
+                    param: {
+                        name: 'dirId',
+                        in: 'path',
+                        description: '目录ID',
+                    },
+                }),
+            }),
+            body: {
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            data: z.any(),
+                        }),
+                    },
+                },
+            },
+        },
+        responses: {
+            201: {
+                description: '创建成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: RecordResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限在该目录创建记录',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '目录不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    getRecord: {
+        method: 'get',
+        path: '/records/{dirId}/{id}',
+        tags: ['记录管理'],
+        summary: '获取记录详情',
+        description: '根据ID获取记录详细信息',
+        request: {
+            params: z.object({
+                dirId: z.string().openapi({
+                    param: {
+                        name: 'dirId',
+                        in: 'path',
+                        description: '目录ID',
+                    },
+                }),
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '记录ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '获取成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: RecordResponse,
+                        }),
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限访问该记录',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '记录不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    updateRecord: {
+        method: 'put',
+        path: '/records/{dirId}/{id}',
+        tags: ['记录管理'],
+        summary: '更新记录',
+        description: '更新记录信息',
+        request: {
+            params: z.object({
+                dirId: z.string().openapi({
+                    param: {
+                        name: 'dirId',
+                        in: 'path',
+                        description: '目录ID',
+                    },
+                }),
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '记录ID',
+                    },
+                }),
+            }),
+            body: {
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            data: z.any(),
+                        }),
+                    },
+                },
+            },
+        },
+        responses: {
+            200: {
+                description: '更新成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            data: RecordResponse,
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '参数错误',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限修改该记录',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '记录不存在',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+        },
+    },
+    deleteRecord: {
+        method: 'delete',
+        path: '/records/{dirId}/{id}',
+        tags: ['记录管理'],
+        summary: '删除记录',
+        description: '删除记录并返回删除结果',
+        request: {
+            params: z.object({
+                dirId: z.string().openapi({
+                    param: {
+                        name: 'dirId',
+                        in: 'path',
+                        description: '目录ID',
+                    },
+                }),
+                id: z.string().openapi({
+                    param: {
+                        name: 'id',
+                        in: 'path',
+                        description: '记录ID',
+                    },
+                }),
+            }),
+        },
+        responses: {
+            200: {
+                description: '删除成功',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            success: z.boolean(),
+                            message: z.string(),
+                        }),
+                    },
+                },
+            },
+            400: {
+                description: '删除失败',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            401: {
+                description: '未授权',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            403: {
+                description: '没有权限删除该记录',
+                content: {
+                    'application/json': {
+                        schema: ErrorResponse,
+                    },
+                },
+            },
+            404: {
+                description: '记录不存在',
                 content: {
                     'application/json': {
                         schema: ErrorResponse,

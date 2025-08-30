@@ -1,20 +1,20 @@
 import type { TCreateApplicationUserRequest, TUpdateApplicationUserRequest, TGetApplicationUsersQuery } from './dto';
 export declare function createApplicationUser(applicationId: string, data: TCreateApplicationUserRequest): Promise<{
-    email: string;
     id: string;
+    email: string;
+    phone: string | null;
     name: string;
     status: string;
     createdAt: Date;
     updatedAt: Date;
-    avatar: string | null;
-    lastLoginAt: Date | null;
     applicationId: string;
+    metadata: unknown;
+    avatar: string | null;
     role: string;
-    phone: string | null;
     department: string | null;
     position: string | null;
     tags: string[] | null;
-    metadata: unknown;
+    lastLoginAt: Date | null;
 }>;
 export declare function getApplicationUsers(applicationId: string, query: TGetApplicationUsersQuery): Promise<{
     users: {
@@ -76,21 +76,21 @@ export declare function updateApplicationUser(applicationId: string, userId: str
     updatedAt: Date;
 }>;
 export declare function deleteApplicationUser(applicationId: string, userId: string): Promise<{
-    email: string;
     id: string;
+    email: string;
+    phone: string | null;
     name: string;
     status: string;
     createdAt: Date;
     updatedAt: Date;
-    avatar: string | null;
-    lastLoginAt: Date | null;
     applicationId: string;
+    metadata: unknown;
+    avatar: string | null;
     role: string;
-    phone: string | null;
     department: string | null;
     position: string | null;
     tags: string[] | null;
-    metadata: unknown;
+    lastLoginAt: Date | null;
 }>;
 export declare function checkEmailExists(applicationId: string, email: string, excludeUserId?: string): Promise<boolean>;
 export declare function updateLastLoginTime(applicationId: string, userId: string): Promise<{

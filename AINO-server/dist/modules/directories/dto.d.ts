@@ -2,8 +2,8 @@ import { z } from "zod";
 export declare const CreateDirectoryRequest: z.ZodObject<{
     name: z.ZodString;
     type: z.ZodEnum<{
-        form: "form";
         table: "table";
+        form: "form";
         category: "category";
     }>;
     supportsCategory: z.ZodDefault<z.ZodBoolean>;
@@ -13,8 +13,8 @@ export declare const CreateDirectoryRequest: z.ZodObject<{
 export declare const UpdateDirectoryRequest: z.ZodObject<{
     name: z.ZodOptional<z.ZodString>;
     type: z.ZodOptional<z.ZodEnum<{
-        form: "form";
         table: "table";
+        form: "form";
         category: "category";
     }>>;
     supportsCategory: z.ZodOptional<z.ZodBoolean>;
@@ -26,8 +26,8 @@ export declare const GetDirectoriesQuery: z.ZodObject<{
     applicationId: z.ZodOptional<z.ZodString>;
     moduleId: z.ZodOptional<z.ZodString>;
     type: z.ZodOptional<z.ZodEnum<{
-        form: "form";
         table: "table";
+        form: "form";
         category: "category";
     }>>;
     isEnabled: z.ZodOptional<z.ZodBoolean>;

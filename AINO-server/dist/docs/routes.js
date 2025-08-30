@@ -436,6 +436,575 @@ openApiApp.openapi(apiRoutes.deleteDirectory, (c) => {
         message: `目录 ${id} 删除成功`,
     });
 });
+openApiApp.openapi(apiRoutes.getFieldCategories, (c) => {
+    const query = c.req.valid('query');
+    return c.json({
+        success: true,
+        data: {
+            categories: [
+                {
+                    id: 'cat-1',
+                    applicationId: query.applicationId || 'app-1',
+                    directoryId: query.directoryId || 'dir-1',
+                    name: '基本信息',
+                    description: '用户基本信息字段',
+                    order: 0,
+                    enabled: true,
+                    system: false,
+                    predefinedFields: [],
+                    createdAt: '2024-01-01T00:00:00Z',
+                    updatedAt: '2024-01-01T00:00:00Z',
+                },
+                {
+                    id: 'cat-2',
+                    applicationId: query.applicationId || 'app-1',
+                    directoryId: query.directoryId || 'dir-1',
+                    name: '联系方式',
+                    description: '用户联系方式字段',
+                    order: 1,
+                    enabled: true,
+                    system: false,
+                    predefinedFields: [],
+                    createdAt: '2024-01-01T00:00:00Z',
+                    updatedAt: '2024-01-01T00:00:00Z',
+                },
+            ],
+            pagination: {
+                page: 1,
+                limit: 20,
+                total: 2,
+                totalPages: 1,
+            },
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.createFieldCategory, (c) => {
+    const data = c.req.valid('json');
+    const query = c.req.valid('query');
+    return c.json({
+        success: true,
+        data: {
+            id: 'cat-new',
+            applicationId: query.applicationId,
+            directoryId: query.directoryId,
+            name: data.name,
+            description: data.description,
+            order: data.order || 0,
+            enabled: data.enabled !== undefined ? data.enabled : true,
+            system: data.system || false,
+            predefinedFields: data.predefinedFields || [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        },
+    }, 201);
+});
+openApiApp.openapi(apiRoutes.getFieldCategory, (c) => {
+    const { id } = c.req.valid('param');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            applicationId: 'app-1',
+            directoryId: 'dir-1',
+            name: '基本信息',
+            description: '用户基本信息字段',
+            order: 0,
+            enabled: true,
+            system: false,
+            predefinedFields: [],
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.updateFieldCategory, (c) => {
+    const { id } = c.req.valid('param');
+    const data = c.req.valid('json');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            applicationId: 'app-1',
+            directoryId: 'dir-1',
+            name: data.name || '基本信息',
+            description: data.description || '用户基本信息字段',
+            order: data.order !== undefined ? data.order : 0,
+            enabled: data.enabled !== undefined ? data.enabled : true,
+            system: data.system || false,
+            predefinedFields: data.predefinedFields || [],
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: new Date().toISOString(),
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.deleteFieldCategory, (c) => {
+    const { id } = c.req.valid('param');
+    return c.json({
+        success: true,
+        message: `字段分类 ${id} 删除成功`,
+    });
+});
+openApiApp.openapi(apiRoutes.getFieldDefs, (c) => {
+    const query = c.req.valid('query');
+    return c.json({
+        success: true,
+        data: [
+            {
+                id: 'field-1',
+                directoryId: query.directoryId || 'dir-1',
+                key: 'name',
+                kind: 'primitive',
+                type: 'text',
+                schema: { label: '姓名', required: true },
+                relation: null,
+                lookup: null,
+                computed: null,
+                validators: {},
+                readRoles: ['admin', 'member'],
+                writeRoles: ['admin'],
+                required: true,
+                createdAt: '2024-01-01T00:00:00Z',
+                updatedAt: '2024-01-01T00:00:00Z',
+            },
+            {
+                id: 'field-2',
+                directoryId: query.directoryId || 'dir-1',
+                key: 'email',
+                kind: 'primitive',
+                type: 'email',
+                schema: { label: '邮箱', required: true },
+                relation: null,
+                lookup: null,
+                computed: null,
+                validators: {},
+                readRoles: ['admin', 'member'],
+                writeRoles: ['admin'],
+                required: true,
+                createdAt: '2024-01-01T00:00:00Z',
+                updatedAt: '2024-01-01T00:00:00Z',
+            },
+        ],
+        pagination: {
+            page: 1,
+            limit: 20,
+            total: 2,
+            totalPages: 1,
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.getFieldDef, (c) => {
+    const { id } = c.req.valid('param');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            directoryId: 'dir-1',
+            key: 'name',
+            kind: 'primitive',
+            type: 'text',
+            schema: { label: '姓名', required: true },
+            relation: null,
+            lookup: null,
+            computed: null,
+            validators: {},
+            readRoles: ['admin', 'member'],
+            writeRoles: ['admin'],
+            required: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.createFieldDef, (c) => {
+    const data = c.req.valid('json');
+    return c.json({
+        success: true,
+        data: {
+            id: 'field-new',
+            directoryId: data.directoryId,
+            key: data.key,
+            kind: data.kind,
+            type: data.type,
+            schema: data.schema || {},
+            relation: data.relation,
+            lookup: data.lookup,
+            computed: data.computed,
+            validators: data.validators || {},
+            readRoles: data.readRoles || ['admin', 'member'],
+            writeRoles: data.writeRoles || ['admin'],
+            required: data.required || false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        },
+    }, 201);
+});
+openApiApp.openapi(apiRoutes.updateFieldDef, (c) => {
+    const { id } = c.req.valid('param');
+    const data = c.req.valid('json');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            directoryId: 'dir-1',
+            key: data.key || 'name',
+            kind: data.kind || 'primitive',
+            type: data.type || 'text',
+            schema: data.schema || { label: '姓名', required: true },
+            relation: data.relation,
+            lookup: data.lookup,
+            computed: data.computed,
+            validators: data.validators || {},
+            readRoles: data.readRoles || ['admin', 'member'],
+            writeRoles: data.writeRoles || ['admin'],
+            required: data.required !== undefined ? data.required : true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: new Date().toISOString(),
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.deleteFieldDef, (c) => {
+    const { id } = c.req.valid('param');
+    return c.json({
+        success: true,
+    });
+});
+openApiApp.openapi(apiRoutes.getDirectoryDefs, (c) => {
+    const query = c.req.valid('query');
+    return c.json({
+        success: true,
+        data: [
+            {
+                id: 'dir-def-1',
+                slug: 'users',
+                title: '用户管理',
+                version: 1,
+                status: 'active',
+                applicationId: query.applicationId || 'app-1',
+                directoryId: query.directoryId || 'dir-1',
+                createdAt: '2024-01-01T00:00:00Z',
+                updatedAt: '2024-01-01T00:00:00Z',
+            },
+            {
+                id: 'dir-def-2',
+                slug: 'departments',
+                title: '部门管理',
+                version: 1,
+                status: 'active',
+                applicationId: query.applicationId || 'app-1',
+                directoryId: query.directoryId || 'dir-2',
+                createdAt: '2024-01-01T00:00:00Z',
+                updatedAt: '2024-01-01T00:00:00Z',
+            },
+        ],
+        pagination: {
+            page: 1,
+            limit: 20,
+            total: 2,
+            totalPages: 1,
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.getDirectoryDef, (c) => {
+    const { id } = c.req.valid('param');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            slug: 'users',
+            title: '用户管理',
+            version: 1,
+            status: 'active',
+            applicationId: 'app-1',
+            directoryId: 'dir-1',
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.getDirectoryDefBySlug, (c) => {
+    const { slug } = c.req.valid('param');
+    return c.json({
+        success: true,
+        data: {
+            id: 'dir-def-1',
+            slug,
+            title: '用户管理',
+            version: 1,
+            status: 'active',
+            applicationId: 'app-1',
+            directoryId: 'dir-1',
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.createDirectoryDef, (c) => {
+    const data = c.req.valid('json');
+    return c.json({
+        success: true,
+        data: {
+            id: 'dir-def-new',
+            slug: data.slug,
+            title: data.title,
+            version: data.version || 1,
+            status: data.status || 'active',
+            applicationId: data.applicationId,
+            directoryId: data.directoryId,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        },
+    }, 201);
+});
+openApiApp.openapi(apiRoutes.updateDirectoryDef, (c) => {
+    const { id } = c.req.valid('param');
+    const data = c.req.valid('json');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            slug: data.slug || 'users',
+            title: data.title || '用户管理',
+            version: data.version || 1,
+            status: data.status || 'active',
+            applicationId: 'app-1',
+            directoryId: 'dir-1',
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: new Date().toISOString(),
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.deleteDirectoryDef, (c) => {
+    const { id } = c.req.valid('param');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            slug: 'users',
+            title: '用户管理',
+            version: 1,
+            status: 'active',
+            applicationId: 'app-1',
+            directoryId: 'dir-1',
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.getOrCreateDirectoryDefByDirectoryId, (c) => {
+    const { directoryId } = c.req.valid('param');
+    const { applicationId } = c.req.valid('json');
+    return c.json({
+        success: true,
+        data: {
+            id: 'dir-def-1',
+            slug: 'users',
+            title: '用户管理',
+            version: 1,
+            status: 'active',
+            applicationId,
+            directoryId,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.getRecordCategories, (c) => {
+    const query = c.req.valid('query');
+    return c.json({
+        success: true,
+        data: {
+            categories: [
+                {
+                    id: 'rcat-1',
+                    applicationId: query.applicationId,
+                    directoryId: query.directoryId,
+                    name: '电子产品',
+                    path: '/',
+                    level: 1,
+                    parentId: null,
+                    order: 0,
+                    enabled: true,
+                    createdAt: '2024-01-01T00:00:00Z',
+                    updatedAt: '2024-01-01T00:00:00Z',
+                },
+                {
+                    id: 'rcat-2',
+                    applicationId: query.applicationId,
+                    directoryId: query.directoryId,
+                    name: '手机',
+                    path: '/电子产品/手机',
+                    level: 2,
+                    parentId: 'rcat-1',
+                    order: 0,
+                    enabled: true,
+                    createdAt: '2024-01-01T00:00:00Z',
+                    updatedAt: '2024-01-01T00:00:00Z',
+                },
+            ],
+            pagination: {
+                page: 1,
+                limit: 20,
+                total: 2,
+                totalPages: 1,
+            },
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.createRecordCategory, (c) => {
+    const data = c.req.valid('json');
+    const query = c.req.valid('query');
+    return c.json({
+        success: true,
+        data: {
+            id: 'rcat-new',
+            applicationId: query.applicationId,
+            directoryId: query.directoryId,
+            name: data.name,
+            path: data.path || '/',
+            level: data.level || 1,
+            parentId: data.parentId || null,
+            order: data.order || 0,
+            enabled: data.enabled !== undefined ? data.enabled : true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        },
+    }, 201);
+});
+openApiApp.openapi(apiRoutes.getRecordCategory, (c) => {
+    const { id } = c.req.valid('param');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            applicationId: 'app-1',
+            directoryId: 'dir-1',
+            name: '电子产品',
+            path: '/',
+            level: 1,
+            parentId: null,
+            order: 0,
+            enabled: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.updateRecordCategory, (c) => {
+    const { id } = c.req.valid('param');
+    const data = c.req.valid('json');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            applicationId: 'app-1',
+            directoryId: 'dir-1',
+            name: data.name || '电子产品',
+            path: data.path || '/',
+            level: data.level || 1,
+            parentId: data.parentId || null,
+            order: data.order !== undefined ? data.order : 0,
+            enabled: data.enabled !== undefined ? data.enabled : true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: new Date().toISOString(),
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.deleteRecordCategory, (c) => {
+    const { id } = c.req.valid('param');
+    return c.json({
+        success: true,
+        message: `记录分类 ${id} 删除成功`,
+    });
+});
+openApiApp.openapi(apiRoutes.getRecords, (c) => {
+    const { dirId } = c.req.valid('param');
+    const query = c.req.valid('query');
+    return c.json({
+        success: true,
+        data: {
+            records: [
+                {
+                    id: 'record-1',
+                    data: {
+                        name: '张三',
+                        email: 'zhangsan@example.com',
+                        phone: '13800138000',
+                        department: '技术部',
+                    },
+                    createdAt: '2024-01-01T00:00:00Z',
+                    updatedAt: '2024-01-01T00:00:00Z',
+                },
+                {
+                    id: 'record-2',
+                    data: {
+                        name: '李四',
+                        email: 'lisi@example.com',
+                        phone: '13800138001',
+                        department: '产品部',
+                    },
+                    createdAt: '2024-01-01T00:00:00Z',
+                    updatedAt: '2024-01-01T00:00:00Z',
+                },
+            ],
+            pagination: {
+                page: query.page || 1,
+                pageSize: query.pageSize || 20,
+                total: 2,
+                totalPages: 1,
+            },
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.createRecord, (c) => {
+    const { dirId } = c.req.valid('param');
+    const data = c.req.valid('json');
+    return c.json({
+        success: true,
+        data: {
+            id: 'record-new',
+            data: data.data,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        },
+    }, 201);
+});
+openApiApp.openapi(apiRoutes.getRecord, (c) => {
+    const { dirId, id } = c.req.valid('param');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            data: {
+                name: '张三',
+                email: 'zhangsan@example.com',
+                phone: '13800138000',
+                department: '技术部',
+            },
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.updateRecord, (c) => {
+    const { dirId, id } = c.req.valid('param');
+    const data = c.req.valid('json');
+    return c.json({
+        success: true,
+        data: {
+            id,
+            data: data.data,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: new Date().toISOString(),
+        },
+    });
+});
+openApiApp.openapi(apiRoutes.deleteRecord, (c) => {
+    const { dirId, id } = c.req.valid('param');
+    return c.json({
+        success: true,
+        message: `记录 ${id} 删除成功`,
+    });
+});
 const openApiDoc = openApiApp.getOpenAPIDocument(openApiConfig);
 export const docsRoute = new OpenAPIHono();
 docsRoute.get('/swagger', swaggerUI({ url: '/docs/openapi.json' }));
