@@ -107,6 +107,8 @@ function renderInput(field: FieldModel, record: RecordRow, onChange: (v: any) =>
             allowedCategories={field.skillsConfig?.allowedCategories}
             maxSkills={field.skillsConfig?.maxSkills}
             showLevel={field.skillsConfig?.showLevel}
+            customCategories={field.skillsConfig?.customCategories}
+            customSkills={field.skillsConfig?.customSkills}
           />
         )
       case "identity_verification":

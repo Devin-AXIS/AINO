@@ -425,7 +425,7 @@ export function AddFieldDialog({
 
   // Add skills configuration state
   const [skillsConfig, setSkillsConfig] = useState({
-    allowedCategories: [] as string[],
+    allowedCategories: ["技术", "运营", "管理"] as string[],
     maxSkills: undefined as number | undefined,
     showLevel: false,
     customCategories: [] as { id: string; name: string }[],
@@ -574,7 +574,7 @@ export function AddFieldDialog({
       setOpenCategory(false)
       setDragIndex(null)
       const defaultSkillsConfig = {
-        allowedCategories: [],
+        allowedCategories: ["技术", "运营", "管理"],
         maxSkills: undefined,
         showLevel: false,
         customCategories: [],
@@ -713,7 +713,7 @@ export function AddFieldDialog({
       hiddenFieldKeys: [],
     })
     setSkillsConfig({
-      allowedCategories: [],
+      allowedCategories: ["技术", "运营", "管理"],
       maxSkills: undefined,
       showLevel: false,
       customCategories: [],
